@@ -1,0 +1,18 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "figma-ui",
+  "version": "0.1.0",
+  "description": "Create, edit, inspect, and maintain Figma designs through figma-ui-mcp with strong auto-layout, component, and design-system conventions.",
+  "author": {
+    "name": "JALA"
+  },
+  "repository": "https://github.com/Atnic/jala-agent-plugins",
+  "keywords": [
+    "figma",
+    "design",
+    "ui",
+    "mcp",
+    "design-system",
+    "agent"
+  ]
+}
