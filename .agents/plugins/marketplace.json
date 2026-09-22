@@ -1,0 +1,20 @@
+{
+  "name": "jala-agent-plugins",
+  "interface": {
+    "displayName": "JALA Agent Plugins"
+  },
+  "plugins": [
+    {
+      "name": "figma-ui",
+      "source": {
+        "source": "local",
+        "path": "./figma-ui"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Design"
+    }
+  ]
+}

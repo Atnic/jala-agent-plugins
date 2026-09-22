@@ -42,11 +42,38 @@ The MCP configuration pins `figma-ui-mcp` to `2.5.26`, the current stable packag
 
 ## Installation
 
+### Install from GitHub
+
+The repository publishes this plugin through the `jala-agent-plugins` marketplace:
+
+```bash
+codex plugin marketplace add https://github.com/Atnic/jala-agent-plugins.git --ref main
+codex plugin add figma-ui@jala-agent-plugins
+```
+
+For a private repository, authenticate GitHub when prompted and ensure that the
+account has read access. After installation, restart the Codex desktop app or start
+a new task so the plugin's skills and MCP server are loaded.
+
+### Install from a local checkout
+
+```bash
+codex plugin marketplace add /absolute/path/to/jala-agent-plugins
+codex plugin add figma-ui@jala-agent-plugins
+```
+
+### Connect Figma Desktop
+
+After installing the Agent Plugin:
+
 1. Install and open Figma Desktop.
 2. Install/import the Figma UI MCP Bridge plugin from the upstream project.
 3. Open the target Figma file and run the bridge plugin so it reports a connection.
-4. Install this plugin using your Agent Plugins host, selecting the `figma-ui/` directory as the plugin root.
-5. Confirm that the host loads `figma-ui/mcp.json` and the three child skills.
+4. Confirm that the host loads `mcp.json` and the six child skills from `skills/`.
+
+The repository marketplace manifest is at
+`../.agents/plugins/marketplace.json` and maps the marketplace entry to this
+`figma-ui/` directory.
 
 No environment variables, Figma tokens, or API secrets are required.
 
