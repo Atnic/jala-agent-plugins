@@ -14,7 +14,7 @@ After writing a diagram, verify both the data model and the visual artifact.
 
 - No node or label is clipped.
 - Edges do not hide text or cross unrelated groups unnecessarily.
-- Arrow direction and line style communicate the intended relationship.
+- Direction markers and line styles communicate the intended relationship; inspect their separate vector/shape nodes when the API does not provide arrow/dash properties on lines.
 - Spacing and alignment are consistent.
 - The diagram fits the root frame and remains readable at a useful zoom.
 

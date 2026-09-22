@@ -23,6 +23,8 @@ Use the local tools, not the official hosted MCP tools:
 | Component mapping | `figma_read` with `"get_component_map"` and `"get_unmapped_components"` |
 | Static assets | `figma_read` with `"export_svg"` or `"export_image"` |
 
+These are the read operations documented by the pinned `figma-ui-mcp` API. `get_design_context` is an implementation-oriented summary, `get_css` is a CSS-like node inspection, `export_svg` returns SVG markup, and `export_image` returns base64 PNG/JPG data. They provide source context; they do not generate or save production application code for you. Confirm important layout and asset details against the screenshot and node reads before implementing.
+
 ## Workflow
 
 ### 1. Discover the target
@@ -54,7 +56,7 @@ Use `get_component_map` to find component sets, variants, and suggested mappings
 
 Implement the requested scope using the project's native layout primitives. Translate Figma Auto Layout into flex/grid/component layout rather than reproducing absolute `x`/`y` values. Preserve intended fixed dimensions only where the design clearly requires them. Make interactions real when the application context supports them; do not create a static screenshot masquerading as UI.
 
-Use exact static assets when available. Export the target SVG or image through `figma_read` and save it according to the repository's asset conventions. Do not leave temporary Figma URLs in source code. Keep dynamic, API-supplied images dynamic.
+Use exact static assets when available. Use `export_svg` for vector markup or `export_image` for raster PNG/JPG data; handle the returned format and base64 payload according to the target repository's asset conventions. Preserve intrinsic dimensions and aspect ratio. Do not assume the bridge exports WebP or writes files directly, and do not leave temporary Figma URLs in source code. Keep dynamic, API-supplied images dynamic.
 
 ### 5. Verify
 

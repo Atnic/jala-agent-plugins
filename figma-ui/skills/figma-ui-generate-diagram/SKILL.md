@@ -18,7 +18,7 @@ The skill can build or update:
 - state diagrams and state machines;
 - Gantt charts and timelines.
 
-The diagram is placed in the currently connected Figma file. The bridge currently supports line nodes, not FigJam-native connector routing, so edges are planned and positioned explicitly. Do not promise automatic edge attachment or Mermaid fidelity.
+The diagram is placed in the currently connected Figma file. This skill composes diagrams from generic Figma nodes; the bridge does not provide diagram-specific layout or FigJam-native connector routing. Plan and position edges explicitly. Do not promise automatic edge attachment or Mermaid fidelity.
 
 ## Workflow
 
@@ -48,7 +48,7 @@ Create the root diagram frame, title/legend, swimlanes or groups, and node shell
 
 ### 4. Create nodes, then edges
 
-Create all stable nodes first and record their IDs. Add labels and fields, then create lines after node geometry is known. Use consistent stroke, arrowhead, color, and label conventions from the discovered system. Use `LINE` nodes or documented vector/SVG helpers supported by the current `figma_docs` response.
+Create all stable nodes first and record their IDs. Add labels and fields, then create lines after node geometry is known. The documented `LINE` create shape exposes position, width/height, stroke, and stroke weight; it does not document connector routing, arrowhead, or dashed-line properties. Do not pass guessed arrow/dash fields. If direction or edge type matters, check the current `figma_docs` API; when no such property is documented, draw direction markers as separate supported `VECTOR`/shape nodes or communicate the distinction with labels and the legend. For custom paths, use only the documented vector path operations and syntax.
 
 ### 5. Read and refine
 
@@ -61,6 +61,8 @@ Read the resulting tree and screenshot the root. Check that every requested node
 - Keep the semantic layer separate from connector geometry.
 - Do not put crossing or overlapping connector lines inside an Auto Layout parent.
 - Draw connectors after nodes so their coordinates are based on final node geometry.
+- Treat all edges as manually positioned geometry; re-check endpoints after node movement or resizing.
+- Do not assume line nodes attach to nodes, route around obstacles, or render arrowheads/dashes automatically.
 - Use an explicit legend when colors or line styles carry meaning.
 - For an existing diagram, preserve node identity and update only the requested content.
 - Do not call `generate_diagram`, `create_new_file`, `get_figjam`, or `use_figma` as substitutes for the local runtime.
