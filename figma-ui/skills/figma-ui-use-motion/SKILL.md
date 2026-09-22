@@ -5,9 +5,11 @@ description: Add, inspect, and maintain the prototype interactions, transitions,
 
 # figma-ui-use-motion
 
-Use this skill alongside `figma-ui-use` when the user asks to make a Figma prototype interactive. The local bridge supports prototype reactions and scrolling; it does not expose Figma's official manual keyframe, animation-style, or timeline APIs.
+Use this skill alongside `figma-ui-use` when the user asks to make a Figma prototype interactive. This skill is capability-gated: the connected Desktop bridge may not expose prototype helpers even when the MCP package or documentation mentions them. The local runtime does not expose Figma's official manual keyframe, animation-style, or timeline APIs.
 
 ## Supported local surface
+
+When available, the local bridge supports a focused prototype surface:
 
 Use `figma_write` with the documented helpers:
 
@@ -17,6 +19,8 @@ Use `figma_write` with the documented helpers:
 - `setScrollBehavior` — configure `NONE`, `HORIZONTAL`, `VERTICAL`, or `BOTH` overflow and clipping;
 - component-property and component-variant helpers when the interaction changes a component state.
 
+At the start of every motion task, inspect `figma_docs` and the current runtime operation list. If a requested helper is absent, or returns an unknown-operation error, stop the interaction mutation, report the limitation clearly, and offer a static-state design or an explicit handoff for a bridge with the required capability. Do not claim an interaction was created when only the visual states were built.
+
 These are prototype interactions, not timeline animation. Do not call `manualKeyframeTracks`, `applyManualKeyframeTrack`, `animationStyles`, `timelines`, `export_video`, or other official motion APIs that are not provided by `figma-ui-mcp`.
 
 ## Workflow
@@ -25,9 +29,11 @@ These are prototype interactions, not timeline animation. Do not call `manualKey
 2. Call `figma_docs` and load the `api`/`layout` sections as needed.
 3. Call `figma_rules` and `figma_read` to inspect the selected node, target frames, existing components, and existing reactions.
 4. Plan the interaction graph: trigger, action, destination/state, transition, and scroll container.
-5. Use `figma_write` to modify only the intended nodes.
+5. Re-check that the requested helper is listed by the connected bridge, then use `figma_write` to modify only the intended nodes.
 6. Read reactions back with `getReactions` and inspect the resting design with `figma_read` screenshots.
 7. Verify each target frame and state; refine existing nodes rather than rebuilding screens.
+
+If a write fails after changing part of the document, read the current state first and repair only the missing interaction. Never blindly replay the full interaction batch.
 
 ## Interaction planning
 

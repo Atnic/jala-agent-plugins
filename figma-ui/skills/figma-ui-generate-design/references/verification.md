@@ -32,12 +32,26 @@ After every substantial generation or structural conversion:
 - Are spacing, radii, and typography consistent with the discovered system?
 - Are icons the right size and aligned to neighboring text?
 - Is contrast sufficient for text and controls?
+- Does the screen use the most relevant existing asset instead of an unexplained generic placeholder?
+- Do the visible controls and copy match the current product state and the user's next action?
+- Are interactive-looking controls and icons readable against their actual background, with mobile touch targets around 44px or larger where applicable?
+- Do the rendered font family and weight match the intended design, or is any fallback documented?
+- Do parent bounds contain their children, with no clipping, overlap, or content extending beyond the frame?
 
 ### Reuse and tokens
 
 - Were existing components instantiated instead of redrawn?
 - Are repeated colors, spacing, radii, and type roles tokenized?
 - Are component variants and properties preserved?
+
+## Flow-specific realism checks
+
+For capture, upload, scanning, checkout, and other stateful flows, review the screen as a user would encounter it:
+
+- use a representative image or realistic content when the task depends on visual recognition;
+- show only state that is actually supported by the available data or interaction;
+- make the primary next action obvious and keep secondary actions legible;
+- compare against the closest existing branded screen for asset treatment, typography, spacing, and tone.
 
 ## Do not overcorrect
 

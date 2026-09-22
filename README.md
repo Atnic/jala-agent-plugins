@@ -15,7 +15,7 @@ Local Figma authoring through [`figma-ui-mcp`](https://github.com/TranHoaiHung/f
 - iterative screenshot verification
 - design-to-code extraction from local Figma files
 - diagrams built from editable Figma nodes
-- prototype interactions and scroll behavior
+- prototype interactions and scroll behavior when exposed by the connected bridge, with static-state fallbacks when they are unavailable
 
 See [`figma-ui/README.md`](figma-ui/README.md) for requirements and installation.
 

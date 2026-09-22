@@ -23,7 +23,20 @@ Do not assume that another Figma integration is present. In particular, do not b
 
 `figma_write` is not a generic REST mutation endpoint. It executes the `figma-ui-mcp` sandbox API, commonly using operations such as `figma.create`, `figma.modify`, `figma.createComponent`, `figma.instantiate`, `figma.setupDesignTokens`, and variable/style helpers. Always load `figma_docs` for the current operation signatures instead of translating another MCP API mechanically.
 
-The current bridge also exposes prototype and interaction helpers such as `setReactions`, `getReactions`, `removeReactions`, `setScrollBehavior`, component-property operations, and component swapping. Load `figma-ui-use-motion` for those workflows. This is not the same as Figma's official motion skill: the local runtime does not expose manual keyframe tracks, animation styles, or timeline APIs.
+The bridge capability surface is version-dependent. Treat the operation list returned by `figma_docs` and any runtime error as the source of truth for the current session. Do not assume prototype reactions, scrolling behavior, component-property operations, or component swapping are available; load `figma-ui-use-motion` only after the connected bridge confirms the requested operations. This is not the same as Figma's official motion skill: the local runtime does not expose manual keyframe tracks, animation styles, or timeline APIs.
+
+## Runtime compatibility and failure recovery
+
+The Figma Desktop plugin, the local MCP package, and the connected file can be on different versions. A documented operation may therefore be unavailable at runtime, and a multi-step write may leave earlier mutations in the document before a later step fails.
+
+Before mutation:
+
+- Read the current API docs and operation surface. If an operation is absent or returns an unknown-operation error, stop retrying it and choose a supported fallback.
+- Split writes into bounded stages: page/session setup, tokens/styles, container structure, content, and polish. Read back after each stage so partial success is visible and recoverable.
+- After any write error, inspect the document before retrying. Preserve successful mutations and repair only the missing piece; never blindly rerun a bootstrap operation that may already have created variables, styles, or nodes.
+- When a target node belongs to another page, activate that page with `setPage` before reading, cloning, or modifying it. Restore the original page after the cross-page operation when practical; do not treat a node id as page-independent.
+
+Token setup deserves special care: `setupDesignTokens` can create variables and then fail while creating a text style. In that case, use `get_variables`/`get_styles` to determine what exists, then finish the missing pieces with supported low-level operations such as `createVariable`, `createPaintStyle`, or `createTextStyle`.
 
 ## Mandatory lifecycle
 
@@ -137,7 +150,7 @@ Do not delete and recreate an entire screen to change a label, color binding, pa
 - Constrain wrapping text with a fill/stretching parent; do not increase arbitrary fixed widths to hide overflow.
 - Use the icon helpers documented by `figma_docs`; do not use emoji as UI icons.
 - Never assume helper variables persist across `figma_write` calls.
-- Use `setReactions`/`getReactions`/`removeReactions` for supported prototype links; do not invent unsupported timeline or keyframe calls.
+- Use `setReactions`/`getReactions`/`removeReactions` only when the current bridge operation surface lists them; otherwise report prototype editing as unsupported and offer a static-state fallback. Never invent timeline or keyframe calls.
 
 ## References
 

@@ -52,6 +52,14 @@ Before creating anything, call:
 
 Read existing variables, styles, components, and nearby screens. Match the file's naming, type scale, spacing, radii, and component conventions. Never assume the default tokens in the references apply to an existing file.
 
+### Asset-first and state-first discovery
+
+Before drawing a generic placeholder, inspect the existing file for reusable imagery, screenshots, illustrations, and adjacent screens. Reuse or clone a real asset when the flow depends on it—for example, a receipt preview in a capture flow should use an existing receipt/photo asset when one is available. Use a placeholder only when no suitable asset exists, and make that limitation explicit in the design review.
+
+Also map the user-visible states before building the screen: default, permission or setup, loading, success, failure, and the next action such as retake, confirm, or continue. Copy, controls, and visual feedback must correspond to the current state; do not present fabricated success indicators for an unverified condition.
+
+For every reused component, inspect it in context after instantiation. Validate contrast, icon weight, and touch target size against the surface behind it; replace or override a low-contrast icon rather than preserving a component that becomes unreadable on the new background. Read back the actual font family and weight so a fallback is visible during review.
+
 ### 2. Structure
 
 Write a short internal layout plan before the first mutation. Include the root dimensions, major regions, axis, sizing intent, and repeated components. For example:
@@ -102,6 +110,11 @@ Call `figma_read` with `operation: "screenshot"` on the root frame. Inspect the 
 - inconsistent radius, typography, or color usage;
 - hardcoded values that should use variables;
 - component misuse or duplicated repeated elements.
+- unrealistic placeholders where a relevant existing asset should have been reused;
+- fabricated status indicators or missing states in a stateful flow;
+- low-contrast icons or controls and mobile touch targets that are too small;
+- actual font family/weight differing from the intended type system;
+- parent bounds that do not contain their children.
 
 Use the node tree to confirm geometry and hierarchy when a screenshot alone is ambiguous. Fix the smallest existing nodes, then screenshot again. Repeat until the result is clean.
 

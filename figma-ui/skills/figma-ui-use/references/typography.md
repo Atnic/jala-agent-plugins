@@ -22,6 +22,8 @@ Avoid hardcoding a different font family or weight for every text node. Prefer t
 - Give large display numerics an explicit line height close to their font size.
 - Check text overflow and baseline alignment in the screenshot, not only in the write response.
 
+Font availability is session-specific. After creating or applying a text style, read the style or a representative text node back and verify the actual family and weight. If Figma falls back because a requested font or weight cannot be loaded, use a verified available value, document the fallback, and re-check wrapping and hierarchy; never infer success from the requested property alone.
+
 ## Icon and text rows
 
 Use a horizontal Auto Layout row with `counterAxisAlignItems: "CENTER"` for an icon next to a label. Use the documented icon helper instead of emoji. If an icon intentionally aligns to the first line of a multi-line paragraph, use `MIN` and calculate a small top inset from the line height rather than guessing a global offset.

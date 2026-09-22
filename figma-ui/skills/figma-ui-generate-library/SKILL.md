@@ -69,6 +69,15 @@ Button/Primary background
 
 This lets a rebrand or mode change happen at the semantic layer instead of requiring every component to be redrawn.
 
+### Recoverable token bootstrap
+
+Token bootstrap is a staged write, not an all-or-nothing transaction. `setupDesignTokens` may create variables successfully and then fail while creating a text style, especially when a requested font family or weight is unavailable in the connected Figma session.
+
+- After any bootstrap error, read variables and styles before retrying.
+- Preserve successful variables and complete only the missing styles or modes with supported low-level operations.
+- Verify the actual font family and weight after creating or applying a text style. If the requested weight cannot load, use a verified available weight and report the fallback instead of silently claiming the requested style exists.
+- Keep each repair bounded and read it back before proceeding to component work.
+
 ### 3. Styles and bindings
 
 Reuse existing text, paint, and effect styles. For new reusable properties, bind the component to variables or styles using the actual helper operations documented by `figma_docs`. Do not leave a temporary literal in a reusable component simply because the first create call accepted it.
@@ -102,6 +111,7 @@ Read variables, styles, component metadata, and representative instances again. 
 - Make changes in bounded writes and re-query IDs between calls.
 - Do not use official hosted Figma MCP tools or assume their response shapes.
 - Do not declare success without a read-back and screenshot of a representative result.
+- Do not rerun a failed bootstrap blindly when the bridge may have partially mutated the document.
 
 ## References
 
