@@ -1,7 +1,8 @@
 {
   "name": "jala-agent-plugins",
   "interface": {
-    "displayName": "JALA Agent Plugins"
+    "displayName": "JALA Agent Plugins",
+    "logo": "./figma-ui/assets/jala-logo-square.svg"
   },
   "plugins": [
     {
