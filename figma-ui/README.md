@@ -64,12 +64,23 @@ codex plugin add figma-ui@jala-agent-plugins
 
 ### Connect Figma Desktop
 
-After installing the Agent Plugin:
+The Agent Plugin and the Figma Desktop bridge are separate installations. After
+installing the Agent Plugin:
 
-1. Install and open Figma Desktop.
-2. Install/import the Figma UI MCP Bridge plugin from the upstream project.
-3. Open the target Figma file and run the bridge plugin so it reports a connection.
-4. Confirm that the host loads `mcp.json` and the six child skills from `skills/`.
+1. Download [`plugin.zip`](https://github.com/TranHoaiHung/figma-ui-mcp/raw/main/plugin.zip)
+   from the upstream `figma-ui-mcp` project and unzip it anywhere on your machine.
+2. Install and open **Figma Desktop**. The Figma web app cannot access the local bridge.
+3. Open the target Figma file.
+4. Go to **Plugins → Development → Import plugin from manifest…**.
+5. Select `manifest.json` from the unzipped bridge folder.
+6. Run **Plugins → Development → Figma UI MCP Bridge**.
+7. Keep the bridge plugin open and confirm that its status indicator is green.
+8. Confirm that the Agent Plugin host loads `mcp.json` and the six child skills from `skills/`.
+9. Ask the agent to run `figma_status` and confirm that the target file is connected.
+
+The Figma Desktop bridge does not auto-update. When the upstream bridge changes,
+remove the old development plugin through **Plugins → Development → Manage plugins
+in development**, import the new `manifest.json`, and launch the bridge again.
 
 The repository marketplace manifest is at
 `../.agents/plugins/marketplace.json` and maps the marketplace entry to this
