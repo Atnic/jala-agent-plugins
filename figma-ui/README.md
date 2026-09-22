@@ -7,6 +7,9 @@ It supplies three complementary skills:
 - `figma-ui-use` — the runtime and safety foundation for real `figma-ui-mcp` calls.
 - `figma-ui-generate-design` — container-first generation and iterative visual QA for complete screens.
 - `figma-ui-generate-library` — variables, tokens, components, variants, and reusable design-system foundations.
+- `figma-ui-design-to-code` — high-fidelity local design context, assets, CSS, and component mapping for implementation.
+- `figma-ui-generate-diagram` — editable diagrams assembled from frames, text, vectors, and lines in an existing Figma file.
+- `figma-ui-use-motion` — supported prototype reactions, transitions, and scroll behavior.
 
 This plugin does not use Figma's hosted MCP, Figma REST API, Figma API credentials, or the official `use_figma` runtime.
 
@@ -46,6 +49,21 @@ The MCP configuration pins `figma-ui-mcp` to `2.5.26`, the current stable packag
 5. Confirm that the host loads `figma-ui/mcp.json` and the three child skills.
 
 No environment variables, Figma tokens, or API secrets are required.
+
+## Coverage of Figma's official skills
+
+This plugin adapts the parts of Figma's skill set that the local bridge actually exposes:
+
+| Local skill | Covered capability |
+| --- | --- |
+| `figma-ui-use` | Local read/write runtime, Auto Layout, tokens, components, and verification |
+| `figma-ui-generate-design` | Complete screens, views, and multi-section layouts |
+| `figma-ui-generate-library` | Variables, styles, components, variants, and bindings |
+| `figma-ui-design-to-code` | `get_design_context`, CSS, SVG/image export, and component mapping |
+| `figma-ui-generate-diagram` | Manual diagrams using editable Figma nodes and lines |
+| `figma-ui-use-motion` | Prototype reactions, Smart Animate transitions, and scroll behavior |
+
+The following official workflows are intentionally not included because `figma-ui-mcp@2.5.26` does not provide their required backend: new-file creation, FigJam-specific authoring, Slides authoring, Code Connect publishing, generative-plugin authoring, shader authoring, and motion keyframe/timeline APIs. Do not invoke their official tool names as substitutes.
 
 ## Example prompts
 

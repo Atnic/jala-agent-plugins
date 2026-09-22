@@ -13,6 +13,9 @@ Local Figma authoring through [`figma-ui-mcp`](https://github.com/TranHoaiHung/f
 - variables, tokens, and design systems
 - container-first screen generation
 - iterative screenshot verification
+- design-to-code extraction from local Figma files
+- diagrams built from editable Figma nodes
+- prototype interactions and scroll behavior
 
 See [`figma-ui/README.md`](figma-ui/README.md) for requirements and installation.
 

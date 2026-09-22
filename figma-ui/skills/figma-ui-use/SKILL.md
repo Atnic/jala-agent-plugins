@@ -23,6 +23,8 @@ Do not assume that another Figma integration is present. In particular, do not b
 
 `figma_write` is not a generic REST mutation endpoint. It executes the `figma-ui-mcp` sandbox API, commonly using operations such as `figma.create`, `figma.modify`, `figma.createComponent`, `figma.instantiate`, `figma.setupDesignTokens`, and variable/style helpers. Always load `figma_docs` for the current operation signatures instead of translating another MCP API mechanically.
 
+The current bridge also exposes prototype and interaction helpers such as `setReactions`, `getReactions`, `removeReactions`, `setScrollBehavior`, component-property operations, and component swapping. Load `figma-ui-use-motion` for those workflows. This is not the same as Figma's official motion skill: the local runtime does not expose manual keyframe tracks, animation styles, or timeline APIs.
+
 ## Mandatory lifecycle
 
 For substantial work, follow this order:
@@ -135,6 +137,7 @@ Do not delete and recreate an entire screen to change a label, color binding, pa
 - Constrain wrapping text with a fill/stretching parent; do not increase arbitrary fixed widths to hide overflow.
 - Use the icon helpers documented by `figma_docs`; do not use emoji as UI icons.
 - Never assume helper variables persist across `figma_write` calls.
+- Use `setReactions`/`getReactions`/`removeReactions` for supported prototype links; do not invent unsupported timeline or keyframe calls.
 
 ## References
 
