@@ -2,6 +2,10 @@
 
 `figma-ui` is a portable Agent Plugin for creating, inspecting, editing, and maintaining Figma documents through the local/open-source [`figma-ui-mcp`](https://github.com/TranHoaiHung/figma-ui-mcp) bridge.
 
+The plugin is displayed as **Figma UI** in Codex. Its icon is sourced from the
+installed Figma Desktop application and is used to identify compatibility with
+Figma. This plugin is developed by JALA and is not an official Figma product.
+
 It supplies three complementary skills:
 
 - `figma-ui-use` — the runtime and safety foundation for real `figma-ui-mcp` calls.

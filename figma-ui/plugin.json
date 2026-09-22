@@ -14,5 +14,23 @@
     "mcp",
     "design-system",
     "agent"
-  ]
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Figma UI",
+        "shortDescription": "Create and edit Figma designs with figma-ui-mcp.",
+        "longDescription": "Create, inspect, edit, and maintain Figma designs through the local figma-ui-mcp bridge.",
+        "developerName": "JALA",
+        "category": "Design",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "brandColor": "#F24E1E",
+        "composerIcon": "./assets/figma-icon.png",
+        "logo": "./assets/figma-icon.png"
+      }
+    }
+  }
 }
