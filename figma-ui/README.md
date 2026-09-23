@@ -6,6 +6,8 @@ The plugin is displayed as **Figma UI** in Codex. Its icon is sourced from the
 installed Figma Desktop application and is used to identify compatibility with
 Figma. This plugin is developed by JALA and is not an official Figma product.
 
+GitHub: [Figma UI plugin](https://github.com/Atnic/jala-agent-plugins/tree/main/figma-ui).
+
 It supplies three complementary skills:
 
 - `figma-ui-use` — the runtime and safety foundation for real `figma-ui-mcp` calls.

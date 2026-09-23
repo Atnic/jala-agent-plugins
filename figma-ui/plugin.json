@@ -22,6 +22,7 @@
         "shortDescription": "Create and edit Figma designs with figma-ui-mcp.",
         "longDescription": "Create, inspect, edit, and maintain Figma designs through the local figma-ui-mcp bridge.",
         "developerName": "JALA",
+        "websiteURL": "https://github.com/Atnic/jala-agent-plugins/tree/main/figma-ui",
         "category": "Design",
         "capabilities": [
           "Read",

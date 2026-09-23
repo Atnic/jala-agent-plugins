@@ -2,6 +2,8 @@
 
 A collection of portable Agent Plugins for JALA workflows.
 
+Figma UI plugin: [GitHub](https://github.com/Atnic/jala-agent-plugins/tree/main/figma-ui).
+
 ## Plugins
 
 ### `figma-ui`
