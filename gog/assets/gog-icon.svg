@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="gog">
+<rect width="64" height="64" rx="12" fill="#0f1115"/>
+<rect x="14" y="14" width="14" height="14" rx="3" fill="#4285f4"/>
+<rect x="36" y="14" width="14" height="14" rx="3" fill="#ea4335"/>
+<rect x="14" y="36" width="14" height="14" rx="3" fill="#fbbc04"/>
+<rect x="36" y="36" width="14" height="14" rx="3" fill="#34a853"/>
+</svg>

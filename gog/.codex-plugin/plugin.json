@@ -1,0 +1,21 @@
+{
+  "name": "gog",
+  "version": "0.1.0",
+  "description": "Use the local gog CLI to work with Google Workspace accounts through agent skills.",
+  "author": {
+    "name": "JALA"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Gog",
+    "shortDescription": "Work with Google Workspace through the local gog CLI.",
+    "longDescription": "Agent skills for Google Workspace services and workflows using the locally installed gog CLI and its locally connected accounts.",
+    "developerName": "JALA",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "brandColor": "#0F1115",
+    "composerIcon": "./assets/gog-icon.png",
+    "logo": "./assets/gog-icon.png",
+    "defaultPrompt": "Use Gog to find my recent Google Drive files."
+  }
+}
