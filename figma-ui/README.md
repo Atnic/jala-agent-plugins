@@ -22,11 +22,17 @@ This plugin does not use Figma's hosted MCP, Figma REST API, Figma API credentia
 ## Requirements
 
 - An Agent Plugins-compatible host.
-- Figma Desktop.
+- [Figma Desktop](https://help.figma.com/hc/en-us/articles/5601429983767-Guide-to-the-Figma-desktop-app)
+  on macOS or Windows.
 - The Figma UI MCP Bridge plugin installed in Figma Desktop, imported from the upstream [`figma-ui-mcp`](https://github.com/TranHoaiHung/figma-ui-mcp) project.
 - Node.js 18 or newer, for `npx`.
 
 The bridge plugin must be open and connected to the Figma file that the agent should edit. The plugin does not create or install the Figma Desktop bridge for you.
+
+The Agent Plugin's `npx` MCP configuration has no OS-specific paths. The local
+bridge requires Figma Desktop, which Figma provides for macOS and Windows.
+Linux can run the Figma web app, but that app cannot connect to this localhost
+bridge, so this plugin's local Figma workflow is unavailable there.
 
 ## Architecture
 
@@ -64,9 +70,12 @@ a new task so the plugin's skills and MCP server are loaded.
 ### Install from a local checkout
 
 ```bash
-codex plugin marketplace add /absolute/path/to/jala-agent-plugins
+codex plugin marketplace add "PATH_TO_JALA_AGENT_PLUGINS"
 codex plugin add figma-ui@jala-agent-plugins
 ```
+
+Replace `PATH_TO_JALA_AGENT_PLUGINS` with the absolute path to this checkout on
+your operating system.
 
 ### Connect Figma Desktop
 
