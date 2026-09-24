@@ -77,6 +77,18 @@ codex plugin add figma-ui@jala-agent-plugins
 Replace `PATH_TO_JALA_AGENT_PLUGINS` with the absolute path to this checkout on
 your operating system.
 
+### Install in Claude Code
+
+```bash
+claude plugin marketplace add Atnic/jala-agent-plugins
+claude plugin install figma-ui@jala-agent-plugins
+```
+
+For a local checkout, add its absolute path as the marketplace source instead.
+Start a new Claude Code session or run `/reload-plugins` to load the skills and
+MCP server. Claude Code reads `figma-ui/.mcp.json`; Codex reads `figma-ui/mcp.json`.
+Both start the same local `figma-ui-mcp` package.
+
 ### Connect Figma Desktop
 
 The Agent Plugin and the Figma Desktop bridge are separate installations. After
@@ -90,7 +102,7 @@ installing the Agent Plugin:
 5. Select `manifest.json` from the unzipped bridge folder.
 6. Run **Plugins → Development → Figma UI MCP Bridge**.
 7. Keep the bridge plugin open and confirm that its status indicator is green.
-8. Confirm that the Agent Plugin host loads `mcp.json` and the six child skills from `skills/`.
+8. Confirm that the agent host loads its MCP configuration and the six child skills from `skills/`.
 9. Ask the agent to run `figma_status` and confirm that the target file is connected.
 
 The Figma Desktop bridge does not auto-update. When the upstream bridge changes,

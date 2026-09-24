@@ -103,8 +103,8 @@ domain-wide delegation flows; they do not solve consumer `@gmail.com` OAuth.
 If an account needs browser consent, run `gog auth add` and let the user complete
 Google's consent flow. Then verify the intended account and granted services with
 `gog auth list --check --json --no-input`. For auth problems, inspect the
-environment in which Codex launches `gog`; it may differ from an interactive
-shell.
+environment in which the agent host launches `gog`; it may differ from an
+interactive shell.
 
 ## Common Reads
 

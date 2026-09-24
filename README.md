@@ -31,7 +31,26 @@ MCP or Codex's Connected accounts UI.
 
 See [`gog/README.md`](gog/README.md) for setup and the skill inventory.
 
-## Install from the GitHub marketplace
+## Install in Claude Code
+
+This repository also has a Claude Code marketplace at
+`.claude-plugin/marketplace.json`. Add the repository, then install either plugin:
+
+```bash
+claude plugin marketplace add Atnic/jala-agent-plugins
+claude plugin install gog@jala-agent-plugins
+claude plugin install figma-ui@jala-agent-plugins
+```
+
+For a local checkout, use `claude plugin marketplace add /absolute/path/to/jala-agent-plugins`
+instead. Start a new Claude Code session or run `/reload-plugins` to load the
+installed components. Gog still needs the local `gog` CLI and its own account
+authorization. Figma UI still needs Figma Desktop and the local bridge described
+in its README.
+
+The Claude manifests omit fixed versions so Git commits provide plugin updates.
+
+## Install in Codex
 
 This repository includes a Codex marketplace catalog at
 `.agents/plugins/marketplace.json`. It is a repository marketplace, not a listing in
@@ -87,12 +106,13 @@ marketplaces sync daily, and administrators can also trigger a manual sync.
 ## Repository layout
 
 The root repository is a plugin collection, not itself a plugin. Each top-level
-plugin directory is independently installable and owns its own `plugin.json`
-and skills. Plugins that need MCP also include their own MCP configuration.
+plugin directory is independently installable, with shared skills and separate
+Codex and Claude Code manifests. Figma UI also has host-specific MCP configuration.
 
 ```text
 jala-agent-plugins/
 ├── .agents/plugins/marketplace.json
+├── .claude-plugin/marketplace.json
 ├── figma-ui/
 └── gog/
 ```

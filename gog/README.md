@@ -115,6 +115,21 @@ them according to its own authentication configuration.
 
 ## Install the plugin
 
+### Claude Code
+
+```bash
+claude plugin marketplace add Atnic/jala-agent-plugins
+claude plugin install gog@jala-agent-plugins
+```
+
+For a local checkout, add its absolute path as the marketplace source instead.
+Start a new Claude Code session or run `/reload-plugins` to load the skills.
+The Claude marketplace entry is in
+[`../.claude-plugin/marketplace.json`](../.claude-plugin/marketplace.json).
+The local `gog` installation and account setup above are required for either host.
+
+### Codex
+
 From this repository's GitHub marketplace:
 
 ```bash

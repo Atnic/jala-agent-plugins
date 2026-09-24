@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "figma-ui-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "figma-ui-mcp@2.5.26"
+      ]
+    }
+  }
+}

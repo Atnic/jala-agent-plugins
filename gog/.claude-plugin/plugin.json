@@ -1,0 +1,9 @@
+{
+  "name": "gog",
+  "displayName": "Gog",
+  "description": "Use the local gog CLI to work with Google Workspace accounts through agent skills.",
+  "author": {
+    "name": "JALA"
+  },
+  "repository": "https://github.com/Atnic/jala-agent-plugins"
+}

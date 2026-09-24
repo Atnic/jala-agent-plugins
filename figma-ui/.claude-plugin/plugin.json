@@ -1,0 +1,9 @@
+{
+  "name": "figma-ui",
+  "displayName": "Figma UI",
+  "description": "Create, edit, inspect, and maintain Figma designs through the local figma-ui-mcp bridge.",
+  "author": {
+    "name": "JALA"
+  },
+  "repository": "https://github.com/Atnic/jala-agent-plugins"
+}

@@ -1,0 +1,19 @@
+{
+  "name": "jala-agent-plugins",
+  "description": "JALA plugins for Figma design and Google Workspace workflows.",
+  "owner": {
+    "name": "JALA"
+  },
+  "plugins": [
+    {
+      "name": "figma-ui",
+      "source": "./figma-ui",
+      "description": "Create and edit Figma designs through the local figma-ui-mcp bridge."
+    },
+    {
+      "name": "gog",
+      "source": "./gog",
+      "description": "Work with Google Workspace through the local gog CLI."
+    }
+  ]
+}
