@@ -42,6 +42,11 @@ After the auth check above, if the requested account is missing or invalid, stop
 before calling Google APIs. Guide the user through the [setup guide](../../README.md);
 do not silently switch to another account.
 
+- Treat a missing requested account as incomplete first-use setup even if
+  another account is authorized or a `default` OAuth client is stored. Do not
+  immediately run `gog auth add` with that client. Guide the user through the
+  OAuth client setup in the README and use an existing client only if the user
+  explicitly chooses it.
 - If the Google Cloud project, APIs, or OAuth client are not ready, walk the
   user through the README's setup steps instead of only linking them. Explain
   how to select an existing Project ID or use Google's generated, globally
