@@ -47,14 +47,38 @@ do not silently switch to another account.
   immediately run `gog auth add` with that client. Guide the user through the
   OAuth client setup in the README and use an existing client only if the user
   explicitly chooses it.
-- If the Google Cloud project, APIs, or OAuth client are not ready, walk the
-  user through the README's setup steps instead of only linking them. Explain
-  how to select an existing Project ID or use Google's generated, globally
-  unique Project ID for a new project; what to enter in Branding and choose in
-  Audience; how to add Gog's `all-user` scopes; and where to create the Desktop
-  client and download its JSON. Be clear that project/API setup runs in Cloud
-  Shell, while `gog auth services`, `gog auth credentials set`, and
-  `gog auth add` run on the machine where Gog is installed.
+- When the user needs a new project or client, read `gog/README.md`'s matching
+  setup sections and give the entire preparation checklist in one response.
+  Do not merely link the guide, give a high-level summary, or ask for the JSON
+  path before explaining all prerequisites. Use these headings, in this order:
+  **1. Cloud project and APIs**, **2. OAuth consent setup**, **3. Desktop
+  client**, **4. Connect Gog**. Include all of the following:
+  - **Cloud project and APIs (Cloud Shell):** explain how to select an existing
+    project and find its Project ID (not display name), or create a new project
+    using a globally unique Project ID (6–30 chars, lowercase letter first,
+    lowercase letters/numbers/hyphens; permanent once created). Show the exact
+    existing-project or new-project `gcloud` command(s) from the README and the
+    complete `gcloud services enable` block from the README. Explicitly say
+    enabling APIs does not grant OAuth scopes.
+  - **OAuth consent setup (Google Auth Platform):** link the setup guide and
+    tell the user to configure Branding with App name, User support email, and
+    Developer contact information (logo optional). Explain when to choose
+    Internal (project is in their Workspace organization and only its users
+    need access) or External (otherwise); for External + Testing, add the
+    target account as a test user and mention testing authorizations expire
+    after 7 days. Under Data Access → Add or remove scopes, instruct them to
+    run `gog auth services --markdown` on the machine with Gog and add the
+    `all-user` scopes. Mention that broad scopes may need admin approval or
+    OAuth verification.
+  - **Desktop client:** say Google Auth Platform → Clients → Create client →
+    Desktop app; download the JSON immediately, or recover it from APIs &
+    Services → Credentials → OAuth 2.0 Client IDs → Download JSON. Tell them
+    to save it on the machine running Gog and never paste or commit it.
+  - **Connect Gog (local machine with Gog, not Cloud Shell):** show the exact
+    `gog auth credentials set ... --client ...`,
+    `gog auth add <email> --services all-user --client ...`, and
+    `gog auth list --check` commands. Only after the checklist, ask for the
+    downloaded JSON's local path and the desired client name if needed.
 - If the OAuth client is missing or the user wants a different one, ask them to
   create or choose a Google Cloud OAuth **Desktop app** client and provide its
   downloaded JSON file's local path. Never ask them to paste its client secret
@@ -66,6 +90,11 @@ do not silently switch to another account.
   covers Gog's standard user services, while AdSense and Photos Picker require
   explicit opt-in and Admin, Groups, and Keep require Workspace service-account
   setup.
+- OAuth scope is independent of the current API operation's safety mode. Do not
+  replace `all-user` with `gmail` just because the task is about Gmail, and do
+  not describe authorization as "read-only Gmail access" unless the user asked
+  for limited Gmail-only scope. `--readonly` controls API mutations after
+  authorization; it does not narrow OAuth scopes.
 - Run `gog auth add <email> --services all-user --client <name>` and let the
   user complete Google's browser consent. If they chose a narrower scope, use
   that service list instead. Verify the account and granted services with
