@@ -105,11 +105,12 @@ do not silently switch to another account.
   covers Gog's standard user services, while AdSense and Photos Picker require
   explicit opt-in and Admin, Groups, and Keep require Workspace service-account
   setup.
-- OAuth scope is independent of the current API operation's safety mode. Do not
-  replace `all-user` with `gmail` just because the task is about Gmail, and do
-  not describe authorization as "read-only Gmail access" unless the user asked
-  for limited Gmail-only scope. `--readonly` controls API mutations after
-  authorization; it does not narrow OAuth scopes.
+- Do not replace `all-user` with `gmail` just because the task is about Gmail,
+  and do not describe authorization as "read-only Gmail access" unless the user
+  asked for limited Gmail-only scope. On ordinary API commands, `--readonly`
+  blocks mutations but does not change the OAuth scopes already granted. On
+  `gog auth add`, however, `--readonly` requests read-only OAuth scopes; omit it
+  when setting up the normal `all-user` scope set.
 - Run `gog auth add <email> --services all-user --client <name>` and let the
   user complete Google's browser consent. Tell them Gog will open a browser;
   they must select/sign in to the exact requested account (especially the
