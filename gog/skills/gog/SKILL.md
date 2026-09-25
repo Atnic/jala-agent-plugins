@@ -81,9 +81,11 @@ do not silently switch to another account.
   command: choose/create a project and identify its Project ID; select/create
   it in Cloud Shell; enable the complete API list; configure Branding and
   Audience (including test-user setup when needed); add `all-user` scopes using
-  `gog auth services --markdown`; create a Desktop OAuth client and download or
-  recover its JSON; then register the file, authorize the requested account,
-  complete browser consent, and verify access on the local machine with Gog.
+  `gog auth services --plain` (copy the scope URLs for rows where `USER` is
+  `true` into Data Access → Manually add scopes); create a Desktop OAuth client
+  and download or recover its JSON; then register the file, authorize the
+  requested account, complete browser consent, and verify access on the local
+  machine with Gog.
   Include clickable links to Google Cloud Shell and Google Auth Platform.
   Tell the user to open those pages in a browser, sign in with an account that
   can access the project, select the correct project, and follow the exact UI
