@@ -47,38 +47,20 @@ do not silently switch to another account.
   immediately run `gog auth add` with that client. Guide the user through the
   OAuth client setup in the README and use an existing client only if the user
   explicitly chooses it.
-- When the user needs a new project or client, read `gog/README.md`'s matching
-  setup sections and give the entire preparation checklist in one response.
-  Do not merely link the guide, give a high-level summary, or ask for the JSON
-  path before explaining all prerequisites. Use these headings, in this order:
-  **1. Cloud project and APIs**, **2. OAuth consent setup**, **3. Desktop
-  client**, **4. Connect Gog**. Include all of the following:
-  - **Cloud project and APIs (Cloud Shell):** explain how to select an existing
-    project and find its Project ID (not display name), or create a new project
-    using a globally unique Project ID (6–30 chars, lowercase letter first,
-    lowercase letters/numbers/hyphens; permanent once created). Show the exact
-    existing-project or new-project `gcloud` command(s) from the README and the
-    complete `gcloud services enable` block from the README. Explicitly say
-    enabling APIs does not grant OAuth scopes.
-  - **OAuth consent setup (Google Auth Platform):** link the setup guide and
-    tell the user to configure Branding with App name, User support email, and
-    Developer contact information (logo optional). Explain when to choose
-    Internal (project is in their Workspace organization and only its users
-    need access) or External (otherwise); for External + Testing, add the
-    target account as a test user and mention testing authorizations expire
-    after 7 days. Under Data Access → Add or remove scopes, instruct them to
-    run `gog auth services --markdown` on the machine with Gog and add the
-    `all-user` scopes. Mention that broad scopes may need admin approval or
-    OAuth verification.
-  - **Desktop client:** say Google Auth Platform → Clients → Create client →
-    Desktop app; download the JSON immediately, or recover it from APIs &
-    Services → Credentials → OAuth 2.0 Client IDs → Download JSON. Tell them
-    to save it on the machine running Gog and never paste or commit it.
-  - **Connect Gog (local machine with Gog, not Cloud Shell):** show the exact
-    `gog auth credentials set ... --client ...`,
-    `gog auth add <email> --services all-user --client ...`, and
-    `gog auth list --check` commands. Only after the checklist, ask for the
-    downloaded JSON's local path and the desired client name if needed.
+- When the user needs a new project or client, read the complete first-use
+  setup in [the README](../../README.md) and present it directly as a concise,
+  numbered checklist. Keep the README as the source of truth; do not copy its
+  setup details into this skill. The answer must still contain every
+  preparation step and command, not merely link or summarize the guide: choose
+  or create a project and identify its Project ID; select/create it in Cloud
+  Shell; enable the complete API list; configure Branding and choose Audience
+  (including test-user setup when needed); add `all-user` scopes using
+  `gog auth services --markdown`; create a Desktop OAuth client and download or
+  recover its JSON; then register the file, authorize the requested account,
+  complete browser consent, and verify access on the local machine with Gog.
+  Clearly label which steps use Cloud Shell, Google Auth Platform, and the
+  local machine. Do not ask for the JSON path until the prerequisites and
+  download instructions have been explained.
 - If the OAuth client is missing or the user wants a different one, ask them to
   create or choose a Google Cloud OAuth **Desktop app** client and provide its
   downloaded JSON file's local path. Never ask them to paste its client secret
