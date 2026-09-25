@@ -74,6 +74,10 @@ with a Google account that can access or create the project.
 - Run the final `gog` commands in a terminal on the computer where Gog and the
   agent are installed, not in Cloud Shell.
 
+The user does not need to install `gcloud` on their computer. Run every
+`gcloud` command only in the browser-based Cloud Shell; the local terminal is
+for `gog` commands.
+
 1. **Choose a project.** Select an existing project in the Cloud Console
    project picker and use its **Project ID**, not its display name. Find it on
    the project's Dashboard. Or create a project: enter `Gog CLI` as the name

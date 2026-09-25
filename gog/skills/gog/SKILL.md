@@ -87,9 +87,12 @@ do not silently switch to another account.
   Tell the user to open those pages in a browser, sign in with an account that
   can access the project, select the correct project, and follow the exact UI
   path in the README (Cloud project picker/Dashboard; Branding; Audience; Data
-  Access; Clients → Create client → Desktop app). Label browser steps, Cloud
-  Shell commands, and local-terminal commands separately. Do not ask for the
-  JSON path until prerequisites and download steps have been explained.
+  Access; Clients → Create client → Desktop app). State explicitly that the
+  user does not need local `gcloud`: run all `gcloud` commands in browser-based
+  Cloud Shell, and run `gog` commands in the local terminal where Gog is
+  installed. Label browser steps, Cloud Shell commands, and local-terminal
+  commands separately. Do not ask for the JSON path until prerequisites and
+  download steps have been explained.
 - If the OAuth client is missing or the user wants a different one, ask them to
   create or choose a Google Cloud OAuth **Desktop app** client and provide its
   downloaded JSON file's local path. Never ask them to paste its client secret
