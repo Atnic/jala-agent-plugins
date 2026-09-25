@@ -101,7 +101,8 @@ for `gog` commands.
    ```
 
 3. **Enable Gog's standard APIs in Cloud Shell.** This enables the APIs for
-   `all-user`; it does not grant OAuth scopes. Run:
+   `all-user`; it does not grant OAuth scopes. Google limits each call to 20
+   services, so run both commands:
 
    ```bash
    gcloud services enable \
@@ -109,6 +110,10 @@ for `gog` commands.
      calendar-json.googleapis.com chat.googleapis.com classroom.googleapis.com \
      docs.googleapis.com drive.googleapis.com driveactivity.googleapis.com \
      drivelabels.googleapis.com forms.googleapis.com gmail.googleapis.com \
+   ```
+
+   ```bash
+   gcloud services enable \
      googleads.googleapis.com meet.googleapis.com people.googleapis.com \
      photoslibrary.googleapis.com script.googleapis.com \
      searchconsole.googleapis.com sheets.googleapis.com slides.googleapis.com \

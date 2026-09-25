@@ -76,7 +76,8 @@ do not silently switch to another account.
   into this skill.
   Explain when to reuse an existing client and project and skip project/client
   creation while still enabling the full API list and adding `all-user` under
-  Data Access. For a new project/client, include every preparation step and
+  Data Access. Split `gcloud services enable` into calls of no more than 20
+  services each. For a new project/client, include every preparation step and
   command: choose/create a project and identify its Project ID; select/create
   it in Cloud Shell; enable the complete API list; configure Branding and
   Audience (including test-user setup when needed); add `all-user` scopes using
