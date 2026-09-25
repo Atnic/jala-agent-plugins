@@ -43,9 +43,13 @@ before calling Google APIs. Guide the user through the [setup guide](../../READM
 do not silently switch to another account.
 
 - If the Google Cloud project, APIs, or OAuth client are not ready, walk the
-  user through the README's Cloud Shell and Google Auth Platform steps. Be clear
-  that project/API setup runs in Cloud Shell, while `gog auth credentials set`
-  and `gog auth add` run on the machine where Gog is installed.
+  user through the README's setup steps instead of only linking them. Explain
+  how to select an existing Project ID or use Google's generated, globally
+  unique Project ID for a new project; what to enter in Branding and choose in
+  Audience; how to add Gog's `all-user` scopes; and where to create the Desktop
+  client and download its JSON. Be clear that project/API setup runs in Cloud
+  Shell, while `gog auth services`, `gog auth credentials set`, and
+  `gog auth add` run on the machine where Gog is installed.
 - If the OAuth client is missing or the user wants a different one, ask them to
   create or choose a Google Cloud OAuth **Desktop app** client and provide its
   downloaded JSON file's local path. Never ask them to paste its client secret
