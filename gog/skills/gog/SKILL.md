@@ -36,29 +36,23 @@ lists, select item-relative fields: `--results-only --select id`. Dot paths do
 not broadcast through nested arrays (`--select items.id` selects nothing).
 Unmatched object fields are omitted.
 
-## First-use onboarding
+## When the requested account is not authorized
 
-Before starting a Google Workspace task, check whether the requested account is
-authorized with `gog auth list --check --json --no-input`. If it is missing or
-invalid, stop before calling Google APIs and guide the user through setup using
-the [setup guide](../../README.md). Do not silently use a different account.
+After the auth check above, if the requested account is missing or invalid, stop
+before calling Google APIs. Guide the user through the [setup guide](../../README.md);
+do not silently switch to another account.
 
-- If OAuth client credentials are missing or the user wants a different client,
-  ask them to create or select a Google Cloud OAuth **Desktop app** client and
-  provide the local path to its downloaded JSON file. Never ask them to paste
-  the client secret into chat.
-- If the user already has a client JSON file, register it with
-  `gog auth credentials set <path> --client <name>`, using a new, explicit name
-  when they want to keep existing client credentials available.
-- Ask which Google account and services they want to authorize. Request only
-  those services; do not choose `all-user` unless the user asks for broad
-  access.
-- Start `gog auth add <email> --services <services> --client <name>` and let the
-  user complete Google's browser consent. Then verify the account and granted
-  services with `gog auth list --check --json --no-input` before resuming the
-  original task.
-
-If the account is already valid, continue without repeating onboarding.
+- If the OAuth client is missing or the user wants a different one, ask them to
+  create or choose a Google Cloud OAuth **Desktop app** client and provide its
+  downloaded JSON file's local path. Never ask them to paste its client secret
+  into chat.
+- Register the JSON with `gog auth credentials set <path> --client <name>`.
+  Use a distinct name when they want to retain other client credentials.
+- Use the account and services the user requested. If the service scope is
+  unclear, ask before authorization; don't default to `all-user`.
+- Run `gog auth add <email> --services <services> --client <name>` and let the
+  user complete Google's browser consent. Verify the account and granted
+  services with `gog auth list --check --json --no-input`, then resume the task.
 
 Pick the account explicitly for API work:
 

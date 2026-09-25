@@ -103,12 +103,11 @@ this lets you use a different client without replacing the credentials selected
 as `default`. Use the same name for `auth credentials set` and `auth add`.
 
 Choose only the services you need in `--services`. `all-user` requests every
-standard Gog user
-OAuth service, including Gmail, Calendar, Drive, Docs, Sheets, and the other
-services in the API list above. It does not mean every Google OAuth scope:
-AdSense and Photos Picker require explicit opt-in, while Admin, Groups, and
-Keep require a Workspace service account and domain-wide delegation. Inspect
-`gog auth add --help` and `gog auth services` for the supported options.
+standard Gog user OAuth service, including Gmail, Calendar, Drive, Docs, Sheets,
+and the other services in the API list above. It does not mean every Google
+OAuth scope: AdSense and Photos Picker require explicit opt-in, while Admin,
+Groups, and Keep require a Workspace service account and domain-wide delegation.
+Inspect `gog auth add --help` and `gog auth services` for the supported options.
 
 For narrower access, replace `all-user` with a comma-separated service list,
 such as `gmail,calendar,drive`. For multiple accounts, authorize each one with
