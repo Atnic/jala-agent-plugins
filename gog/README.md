@@ -37,12 +37,32 @@ gog --version
 
 ### Prepare a Google Cloud project and OAuth client
 
-Follow these steps in order. Project creation and API enablement happen in
-[Google Cloud Shell](https://shell.cloud.google.com/), which comes with
-`gcloud` installed and signed in. Branding, audience, scopes, and OAuth client
-creation happen in [Google Auth Platform](https://console.cloud.google.com/auth/overview).
-The final `gog` commands run on the computer where Gog and the agent are
-installed, not in Cloud Shell.
+First choose a client for the account you are connecting. For an address ending
+in `@gmail.com`, use Gog's `default` OAuth client slot. If a default client is
+already configured, reuse it. If it is not configured on this machine, create
+or choose a Desktop OAuth client and register it under `default`. For a company
+domain such as `@jala.tech`, use a separate named client such as
+`jala-workspace`; do not store or authorize it as `default`. This keeps the
+company credentials separate from personal Gmail credentials. If an address
+uses a custom domain and you are unsure whether it is a company Workspace
+account, ask before choosing a client. Follow the user's explicit client choice
+if they give one.
+
+For project and OAuth setup, use a browser and the named pages below. Sign in
+with a Google account that can access or create the project.
+
+- Open [Google Cloud Shell](https://shell.cloud.google.com/) in a browser tab;
+  it comes with `gcloud` installed and signed in. For an existing project, open
+  the [Google Cloud Console](https://console.cloud.google.com/), click the
+  project picker in the top bar, select the project, and open **Dashboard** to
+  find its **Project ID**. For a new project, create it with the Cloud Shell
+  command in step 2 or use [Create a project](https://console.cloud.google.com/projectcreate).
+- In another browser tab, open [Google Auth Platform](https://console.cloud.google.com/auth/overview).
+  Use the project picker at the top to select the same project. In the left
+  navigation, open **Branding**, **Audience**, **Data Access**, and finally
+  **Clients** as directed below.
+- Run the final `gog` commands in a terminal on the computer where Gog and the
+  agent are installed, not in Cloud Shell.
 
 1. **Choose a project.** Select an existing project in the Cloud Console
    project picker and use its **Project ID**, not its display name. Find it on
@@ -101,10 +121,11 @@ installed, not in Cloud Shell.
    to display the scope list. Save the scope list in Google Auth Platform.
    Broad scopes may need Workspace admin approval or Google's OAuth
    verification, depending on the audience and publishing status.
-7. **Create and download a Desktop client JSON.** In Google Auth Platform,
-   open **Clients → Create client**, choose **Desktop app**, enter a name such
-   as `Gog CLI desktop`, and click **Create**. Download the JSON in the
-   creation dialog. If you closed it, open **APIs & Services → Credentials**,
+7. **Create and download a Desktop client JSON.** In the browser, confirm
+   Google Auth Platform still has the right project selected. Click **Clients**
+   in the left navigation, then **Create client**. Choose **Desktop app**, enter
+   a name such as `Gog CLI desktop`, and click **Create**. Download the JSON in
+   the creation dialog. If you closed it, open **APIs & Services → Credentials**,
    select the Desktop app under **OAuth 2.0 Client IDs**, and click **Download
    JSON**. Save it on the computer where Gog runs. A Desktop client needs no
    redirect URI configuration. See Google's [credential guide](https://developers.google.com/workspace/guides/create-credentials).
@@ -117,15 +138,29 @@ to store the downloaded JSON and complete browser consent. Run these commands
 on the machine where `gog` is installed for your agent:
 
 ```text
-gog auth credentials set "PATH_TO_CLIENT_SECRET_JSON" --client jala-workspace
-gog auth add you@example.com --services all-user --client jala-workspace
+gog auth credentials set "PATH_TO_CLIENT_SECRET_JSON" --client CLIENT_NAME
+gog auth add you@example.com --services all-user --client CLIENT_NAME
 gog auth list --check --json --no-input
 ```
 
 Replace `PATH_TO_CLIENT_SECRET_JSON` with the path to the downloaded OAuth
-client JSON file on your system. Give each OAuth client a name with `--client`;
-this lets you use a different client without replacing the credentials selected
-as `default`. Use the same name for `auth credentials set` and `auth add`.
+client JSON file on your system. Set `CLIENT_NAME` to `default` for a
+`@gmail.com` account, or to a distinct name such as `jala-workspace` for a
+company-domain account. Use the same name for `auth credentials set` and
+`auth add`; always pass it explicitly so one account's client is not selected
+for the other. For Gmail with an already configured default client, skip
+`auth credentials set` and run:
+
+```bash
+gog auth add you@gmail.com --services all-user --client default
+gog auth list --check --json --no-input
+```
+
+`gog auth add` opens Google's sign-in and consent page in a browser. Select the
+exact account you are connecting (switch accounts if the browser shows a
+different signed-in user), review the requested access, approve it, and return
+to the terminal. Confirm the intended email and services in the verification
+output before asking Gog to access that account.
 
 `all-user` requests every standard Gog user OAuth service, including Gmail,
 Calendar, Drive, Docs, Sheets, and the other services in the API list above.

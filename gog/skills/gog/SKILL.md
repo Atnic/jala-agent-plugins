@@ -42,11 +42,20 @@ After the auth check above, if the requested account is missing or invalid, stop
 before calling Google APIs. Guide the user through the [setup guide](../../README.md);
 do not silently switch to another account.
 
-- Treat a missing requested account as incomplete first-use setup even if
-  another account is authorized or a `default` OAuth client is stored. Do not
-  immediately run `gog auth add` with that client. Guide the user through the
-  OAuth client setup in the README and use an existing client only if the user
-  explicitly chooses it.
+- Determine the OAuth client from the requested email domain before guiding
+  setup. For an address ending in `@gmail.com`, select the `default` client
+  slot. For a company domain, use a distinct named client (for example,
+  `jala-workspace`) and never fall back to `default`, even if it is configured
+  or has other authorized accounts. Do not assume a custom domain is a company
+  Workspace domain if unclear; ask. Follow an explicit user choice.
+- Check available client names with
+  `gog auth credentials list --json --no-input` and accounts with
+  `gog auth list --check --json --no-input`.
+  For Gmail, if the `default` client credentials exist, authorize the requested
+  account with `--client default` and skip project/client creation. If they do
+  not exist, guide setup and register the new Desktop client under `default`.
+  For a company-domain account, create or choose a named client, register its
+  JSON with that name, and use the same `--client` value when authorizing it.
 - When the user needs a new project or client, read the complete first-use
   setup in [the README](../../README.md) and present it directly as a concise,
   numbered checklist. Keep the README as the source of truth; do not copy its
@@ -58,15 +67,20 @@ do not silently switch to another account.
   `gog auth services --markdown`; create a Desktop OAuth client and download or
   recover its JSON; then register the file, authorize the requested account,
   complete browser consent, and verify access on the local machine with Gog.
-  Clearly label which steps use Cloud Shell, Google Auth Platform, and the
-  local machine. Do not ask for the JSON path until the prerequisites and
-  download instructions have been explained.
+  Include clickable links to Google Cloud Shell and Google Auth Platform.
+  Tell the user to open those pages in a browser, sign in with an account that
+  can access the project, select the correct project, and follow the exact UI
+  path in the README (Cloud project picker/Dashboard; Branding; Audience; Data
+  Access; Clients → Create client → Desktop app). Label browser steps, Cloud
+  Shell commands, and local-terminal commands separately. Do not ask for the
+  JSON path until prerequisites and download steps have been explained.
 - If the OAuth client is missing or the user wants a different one, ask them to
   create or choose a Google Cloud OAuth **Desktop app** client and provide its
   downloaded JSON file's local path. Never ask them to paste its client secret
   into chat.
 - Register the JSON with `gog auth credentials set <path> --client <name>`.
-  Use a distinct name when they want to retain other client credentials.
+  Use `default` only for `@gmail.com`; use a distinct named client for company
+  domains so their credentials and tokens remain separate.
 - For complete plugin access, request `all-user` by default; use a narrower
   service list if the user asks for limited access. Explain that `all-user`
   covers Gog's standard user services, while AdSense and Photos Picker require
@@ -78,9 +92,12 @@ do not silently switch to another account.
   for limited Gmail-only scope. `--readonly` controls API mutations after
   authorization; it does not narrow OAuth scopes.
 - Run `gog auth add <email> --services all-user --client <name>` and let the
-  user complete Google's browser consent. If they chose a narrower scope, use
-  that service list instead. Verify the account and granted services with
-  `gog auth list --check --json --no-input`, then resume the task.
+  user complete Google's browser consent. Tell them Gog will open a browser;
+  they must select/sign in to the exact requested account (especially the
+  company account for a named client), review the consent screen, approve the
+  requested scopes, then return to the terminal and verify with
+  `gog auth list --check --json --no-input`. If they chose a narrower scope,
+  use that service list instead. Resume the task only after verification.
 
 Pick the account explicitly for API work:
 
@@ -133,17 +150,18 @@ OAuth setup is partly interactive. An agent can inspect and diagnose it, but a
 human normally completes browser consent:
 
 ```bash
-gog auth credentials set "PATH_TO_CLIENT_JSON" --client jala-workspace
-gog auth add user@example.com --services all-user --client jala-workspace
+gog auth credentials set "PATH_TO_CLIENT_JSON" --client CLIENT_NAME
+gog auth add user@example.com --services all-user --client CLIENT_NAME
 ```
 
-For full plugin access, use `all-user`; only use a narrower service list when
-the user asks for limited access. Do not reduce OAuth services to match only the
-current task. Before reauthorizing an existing account, inspect its current
-services with `gog auth list --check --json --no-input` and preserve existing
-access unless the user asks to change it. Constrain each command with the
-relevant account, `--readonly` or command allowlists, and other supported safety
-flags.
+Set `CLIENT_NAME` by the target email domain: `default` for `@gmail.com`, or a
+distinct name for a company domain. For full plugin access, use `all-user`; only
+use a narrower service list when the user asks for limited access. Do not
+reduce OAuth services to match only the current task. Before reauthorizing an
+existing account, inspect its current services with
+`gog auth list --check --json --no-input` and preserve existing access unless
+the user asks to change it. Constrain each command with the relevant account,
+`--readonly` or command allowlists, and other supported safety flags.
 
 Service accounts are Workspace-only and mainly fit Admin, Groups, Keep, and
 domain-wide delegation flows; they do not solve consumer `@gmail.com` OAuth.
