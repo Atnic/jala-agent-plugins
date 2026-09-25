@@ -42,17 +42,25 @@ After the auth check above, if the requested account is missing or invalid, stop
 before calling Google APIs. Guide the user through the [setup guide](../../README.md);
 do not silently switch to another account.
 
+- If the Google Cloud project, APIs, or OAuth client are not ready, walk the
+  user through the README's Cloud Shell and Google Auth Platform steps. Be clear
+  that project/API setup runs in Cloud Shell, while `gog auth credentials set`
+  and `gog auth add` run on the machine where Gog is installed.
 - If the OAuth client is missing or the user wants a different one, ask them to
   create or choose a Google Cloud OAuth **Desktop app** client and provide its
   downloaded JSON file's local path. Never ask them to paste its client secret
   into chat.
 - Register the JSON with `gog auth credentials set <path> --client <name>`.
   Use a distinct name when they want to retain other client credentials.
-- Use the account and services the user requested. If the service scope is
-  unclear, ask before authorization; don't default to `all-user`.
-- Run `gog auth add <email> --services <services> --client <name>` and let the
-  user complete Google's browser consent. Verify the account and granted
-  services with `gog auth list --check --json --no-input`, then resume the task.
+- For complete plugin access, request `all-user` by default; use a narrower
+  service list if the user asks for limited access. Explain that `all-user`
+  covers Gog's standard user services, while AdSense and Photos Picker require
+  explicit opt-in and Admin, Groups, and Keep require Workspace service-account
+  setup.
+- Run `gog auth add <email> --services all-user --client <name>` and let the
+  user complete Google's browser consent. If they chose a narrower scope, use
+  that service list instead. Verify the account and granted services with
+  `gog auth list --check --json --no-input`, then resume the task.
 
 Pick the account explicitly for API work:
 

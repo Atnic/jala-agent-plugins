@@ -93,7 +93,7 @@ Shell:
 
 ```text
 gog auth credentials set "PATH_TO_CLIENT_SECRET_JSON" --client jala-workspace
-gog auth add you@example.com --services gmail,calendar,drive --client jala-workspace
+gog auth add you@example.com --services all-user --client jala-workspace
 gog auth list --check
 ```
 
@@ -102,17 +102,17 @@ client JSON file on your system. Give each OAuth client a name with `--client`;
 this lets you use a different client without replacing the credentials selected
 as `default`. Use the same name for `auth credentials set` and `auth add`.
 
-Choose only the services you need in `--services`. `all-user` requests every
-standard Gog user OAuth service, including Gmail, Calendar, Drive, Docs, Sheets,
-and the other services in the API list above. It does not mean every Google
-OAuth scope: AdSense and Photos Picker require explicit opt-in, while Admin,
-Groups, and Keep require a Workspace service account and domain-wide delegation.
-Inspect `gog auth add --help` and `gog auth services` for the supported options.
+`all-user` requests every standard Gog user OAuth service, including Gmail,
+Calendar, Drive, Docs, Sheets, and the other services in the API list above.
+This is the full default scope for the plugin. It does not include every Gog
+service: AdSense and Photos Picker require explicit opt-in, while Admin, Groups,
+and Keep require a Workspace service account and domain-wide delegation. For
+narrower access, replace `all-user` with a comma-separated service list, such as
+`gmail,calendar,drive`. Inspect `gog auth add --help` and `gog auth services` for
+the supported options.
 
-For narrower access, replace `all-user` with a comma-separated service list,
-such as `gmail,calendar,drive`. For multiple accounts, authorize each one with
-`gog auth add` and select the intended account per command with
-`gog --account you@example.com ...`.
+For multiple accounts, authorize each one with `gog auth add` and select the
+intended account per command with `gog --account you@example.com ...`.
 
 The plugin never contains OAuth credentials or tokens. `gog` stores and uses
 them according to its own authentication configuration.
