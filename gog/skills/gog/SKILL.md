@@ -47,23 +47,39 @@ do not silently switch to another account.
   slot. For a company domain, use a distinct named client (for example,
   `jala-workspace`) and never fall back to `default`, even if it is configured
   or has other authorized accounts. Do not assume a custom domain is a company
-  Workspace domain if unclear; ask. Follow an explicit user choice.
+  Workspace domain if unclear; ask. Follow an explicit client choice when it
+  preserves this separation.
 - Check available client names with
   `gog auth credentials list --json --no-input` and accounts with
   `gog auth list --check --json --no-input`.
-  For Gmail, if the `default` client credentials exist, authorize the requested
-  account with `--client default` and skip project/client creation. If they do
-  not exist, guide setup and register the new Desktop client under `default`.
-  For a company-domain account, create or choose a named client, register its
-  JSON with that name, and use the same `--client` value when authorizing it.
-- When the user needs a new project or client, read the complete first-use
-  setup in [the README](../../README.md) and present it directly as a concise,
-  numbered checklist. Keep the README as the source of truth; do not copy its
-  setup details into this skill. The answer must still contain every
-  preparation step and command, not merely link or summarize the guide: choose
-  or create a project and identify its Project ID; select/create it in Cloud
-  Shell; enable the complete API list; configure Branding and choose Audience
-  (including test-user setup when needed); add `all-user` scopes using
+- For Gmail, if the `default` client credentials exist, reuse them and do not
+  create another project or client. Still confirm that the Google Cloud project
+  belonging to `default` has the complete API list enabled; Branding and
+  Audience are configured; Data Access includes `all-user`; and, for an
+  External app in Testing, the requested account is a test user. Stored
+  credentials do not prove these settings are ready. If any are missing or
+  cannot be verified, show the corresponding README steps and use the existing
+  client's project. If its project is unknown, ask the user to identify it
+  before changing project settings. If `default` credentials do not exist,
+  guide setup and register a Desktop client under `default`.
+- For a company-domain account, never reuse `default`. Reuse an existing named
+  client if available; otherwise guide setup for a separate named client.
+  Confirm that the named client's project has the complete API list enabled,
+  Branding and Audience configured, Data Access including `all-user`, and the
+  requested account on Test users when the app is External + Testing. Then use
+  the same `--client` value when registering credentials and authorizing the
+  account.
+- When project APIs, consent-screen settings, or scopes need setup, or a new
+  project/client is required, read the complete setup in the
+  [README](../../README.md). Present the needed steps as a concise numbered
+  checklist. Keep the README as the source of truth; do not copy setup details
+  into this skill.
+  Explain when to reuse an existing client and project and skip project/client
+  creation while still enabling the full API list and adding `all-user` under
+  Data Access. For a new project/client, include every preparation step and
+  command: choose/create a project and identify its Project ID; select/create
+  it in Cloud Shell; enable the complete API list; configure Branding and
+  Audience (including test-user setup when needed); add `all-user` scopes using
   `gog auth services --markdown`; create a Desktop OAuth client and download or
   recover its JSON; then register the file, authorize the requested account,
   complete browser consent, and verify access on the local machine with Gog.
