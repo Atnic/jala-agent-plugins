@@ -92,13 +92,18 @@ on the machine where `gog` is installed for your agent, rather than in Cloud
 Shell:
 
 ```text
-gog auth credentials set "PATH_TO_CLIENT_SECRET_JSON"
-gog auth add you@example.com --services all-user
+gog auth credentials set "PATH_TO_CLIENT_SECRET_JSON" --client jala-workspace
+gog auth add you@example.com --services gmail,calendar,drive --client jala-workspace
 gog auth list --check
 ```
 
 Replace `PATH_TO_CLIENT_SECRET_JSON` with the path to the downloaded OAuth
-client JSON file on your system. `all-user` requests every standard Gog user
+client JSON file on your system. Give each OAuth client a name with `--client`;
+this lets you use a different client without replacing the credentials selected
+as `default`. Use the same name for `auth credentials set` and `auth add`.
+
+Choose only the services you need in `--services`. `all-user` requests every
+standard Gog user
 OAuth service, including Gmail, Calendar, Drive, Docs, Sheets, and the other
 services in the API list above. It does not mean every Google OAuth scope:
 AdSense and Photos Picker require explicit opt-in, while Admin, Groups, and

@@ -36,6 +36,30 @@ lists, select item-relative fields: `--results-only --select id`. Dot paths do
 not broadcast through nested arrays (`--select items.id` selects nothing).
 Unmatched object fields are omitted.
 
+## First-use onboarding
+
+Before starting a Google Workspace task, check whether the requested account is
+authorized with `gog auth list --check --json --no-input`. If it is missing or
+invalid, stop before calling Google APIs and guide the user through setup using
+the [setup guide](../../README.md). Do not silently use a different account.
+
+- If OAuth client credentials are missing or the user wants a different client,
+  ask them to create or select a Google Cloud OAuth **Desktop app** client and
+  provide the local path to its downloaded JSON file. Never ask them to paste
+  the client secret into chat.
+- If the user already has a client JSON file, register it with
+  `gog auth credentials set <path> --client <name>`, using a new, explicit name
+  when they want to keep existing client credentials available.
+- Ask which Google account and services they want to authorize. Request only
+  those services; do not choose `all-user` unless the user asks for broad
+  access.
+- Start `gog auth add <email> --services <services> --client <name>` and let the
+  user complete Google's browser consent. Then verify the account and granted
+  services with `gog auth list --check --json --no-input` before resuming the
+  original task.
+
+If the account is already valid, continue without repeating onboarding.
+
 Pick the account explicitly for API work:
 
 ```bash
