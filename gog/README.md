@@ -35,101 +35,91 @@ the host running the agent can find `gog` on its command path, then check it:
 gog --version
 ```
 
-### Create a Google Cloud project and enable APIs
+### Prepare a Google Cloud project and OAuth client
 
-Open [Google Cloud Shell](https://shell.cloud.google.com/) in your browser. It
-comes with `gcloud` installed and signed in. You can use an existing project:
-select it in the Cloud Console project picker and use its **Project ID** (not
-the display name). If creating a project, choose a name such as `Gog CLI`; the
-console suggests a Project ID. Use that suggestion or choose a unique ID that
-is 6–30 characters, starts with a lowercase letter, and contains only lowercase
-letters, numbers, and hyphens. Project IDs are globally unique and permanent
-after creation. In the Cloud Console project picker, open the project's
-Dashboard to find its Project ID. If you use the commands below, replace
-`YOUR_UNIQUE_PROJECT_ID` with that ID. For example, `jala-gog-2026` is a valid
-shape if it is available. For a new project, run both commands:
+Follow these steps in order. Project creation and API enablement happen in
+[Google Cloud Shell](https://shell.cloud.google.com/), which comes with
+`gcloud` installed and signed in. Branding, audience, scopes, and OAuth client
+creation happen in [Google Auth Platform](https://console.cloud.google.com/auth/overview).
+The final `gog` commands run on the computer where Gog and the agent are
+installed, not in Cloud Shell.
 
-```bash
-gcloud projects create YOUR_UNIQUE_PROJECT_ID --name="Gog CLI"
-gcloud config set project YOUR_UNIQUE_PROJECT_ID
-```
+1. **Choose a project.** Select an existing project in the Cloud Console
+   project picker and use its **Project ID**, not its display name. Find it on
+   the project's Dashboard. Or create a project: enter `Gog CLI` as the name
+   and use Google's suggested Project ID, or choose one that is globally
+   unique. It must be 6–30 characters, start with a lowercase letter, and
+   contain only lowercase letters, numbers, and hyphens. A Project ID is
+   permanent after creation. Replace `YOUR_UNIQUE_PROJECT_ID` below with the
+   chosen ID. See Google's [project guide](https://docs.cloud.google.com/resource-manager/docs/creating-managing-projects).
+2. **Select or create the project in Cloud Shell.** For a new project, run:
 
-For an existing project, skip `gcloud projects create` and run only:
+   ```bash
+   gcloud projects create YOUR_UNIQUE_PROJECT_ID --name="Gog CLI"
+   gcloud config set project YOUR_UNIQUE_PROJECT_ID
+   ```
 
-```bash
-gcloud config set project EXISTING_PROJECT_ID
-```
+   For an existing project, skip the create command and run:
 
-Enabling APIs is separate from granting OAuth scopes. To enable every API in
-Gog's standard `all-user` service set for this project, run this in Cloud Shell:
+   ```bash
+   gcloud config set project EXISTING_PROJECT_ID
+   ```
 
-```bash
-gcloud services enable \
-  analyticsadmin.googleapis.com analyticsdata.googleapis.com \
-  calendar-json.googleapis.com chat.googleapis.com classroom.googleapis.com \
-  docs.googleapis.com drive.googleapis.com driveactivity.googleapis.com \
-  drivelabels.googleapis.com forms.googleapis.com gmail.googleapis.com \
-  googleads.googleapis.com meet.googleapis.com people.googleapis.com \
-  photoslibrary.googleapis.com script.googleapis.com \
-  searchconsole.googleapis.com sheets.googleapis.com slides.googleapis.com \
-  tasks.googleapis.com youtube.googleapis.com
-```
+3. **Enable Gog's standard APIs in Cloud Shell.** This enables the APIs for
+   `all-user`; it does not grant OAuth scopes. Run:
 
-You can check enabled APIs with `gcloud services list --enabled`. Gog derives
-this API list from its selected services; run `gog auth setup --help` if your
-installed CLI offers a different service set.
+   ```bash
+   gcloud services enable \
+     analyticsadmin.googleapis.com analyticsdata.googleapis.com \
+     calendar-json.googleapis.com chat.googleapis.com classroom.googleapis.com \
+     docs.googleapis.com drive.googleapis.com driveactivity.googleapis.com \
+     drivelabels.googleapis.com forms.googleapis.com gmail.googleapis.com \
+     googleads.googleapis.com meet.googleapis.com people.googleapis.com \
+     photoslibrary.googleapis.com script.googleapis.com \
+     searchconsole.googleapis.com sheets.googleapis.com slides.googleapis.com \
+     tasks.googleapis.com youtube.googleapis.com
+   ```
 
-### Configure OAuth branding, audience, and scopes
-
-In the same project, open [Google Auth Platform](https://console.cloud.google.com/auth/overview).
-Complete these settings before creating a client:
-
-1. Under **Branding**, fill **App name** (for example, `Gog CLI`), **User
-   support email**, and **Developer contact information**, then save. A logo is
-   optional. External apps published to production also need a verified
-   homepage and privacy policy. See Google's [branding guide](https://support.google.com/cloud/answer/15549049?hl=en).
-2. Under **Audience**, choose **Internal** if this project belongs to JALA's
-   Google Cloud organization and only JALA Workspace accounts will use it. If
-   Internal is unavailable, ask a Workspace/Cloud administrator to create or
-   move the project into the organization. Otherwise choose **External**. For
-   an External app left in **Testing**, add each account under **Test users**;
-   Google says authorizations for user-data scopes in Testing expire after
+   Check enabled APIs with `gcloud services list --enabled`. Gog derives this
+   list from its selected services; run `gog auth setup --help` if your
+   installed CLI offers a different service set.
+4. **Configure Branding in Google Auth Platform.** Under **Branding**, set
+   **App name** (for example, `Gog CLI`), **User support email**, and
+   **Developer contact information**, then save. A logo is optional. External
+   apps published to production also need a verified homepage and privacy
+   policy. See Google's [branding guide](https://support.google.com/cloud/answer/15549049?hl=en).
+5. **Choose the Audience.** Choose **Internal** if the project belongs to
+   JALA's Google Cloud organization and only JALA Workspace accounts will use
+   it. If Internal is unavailable, ask a Workspace/Cloud administrator to
+   create or move the project into the organization. Otherwise choose
+   **External**. If an External app is in **Testing**, add each account under
+   **Test users**; authorizations for user-data scopes in Testing expire after
    seven days. See Google's [audience guide](https://support.google.com/cloud/answer/15549945?hl=en).
-3. Under **Data Access**, click **Add or remove scopes**. On the machine where
-   Gog is installed, run `gog auth services --markdown` and add the scopes for
-   `all-user`, the full default set of Gog user services. Save the scope list.
+6. **Add the OAuth scopes.** Under **Data Access → Add or remove scopes**, add
+   Gog's `all-user` scopes, the full default set of standard Gog user services.
+   On the computer where Gog is installed, run `gog auth services --markdown`
+   to display the scope list. Save the scope list in Google Auth Platform.
    Broad scopes may need Workspace admin approval or Google's OAuth
    verification, depending on the audience and publishing status.
-
-### Create and download the OAuth client JSON
-
-1. In Google Auth Platform, open **Clients → Create client**, choose
-   **Desktop app**, enter a credential name such as `Gog CLI desktop`, and
-   click **Create**. A desktop client needs no redirect URI configuration.
-2. In the creation dialog, download the client configuration JSON. If you
-   already closed it, open **APIs & Services → Credentials**, select the
-   Desktop app client under **OAuth 2.0 Client IDs**, and click **Download
-   JSON**. Save it on the computer where Gog is installed, for example in
-   `Downloads`. Google's [credential guide](https://developers.google.com/workspace/guides/create-credentials)
-   documents the Desktop app client flow and JSON download.
-3. Keep this file private. It contains the OAuth client configuration (and may
-   contain a client secret); do not commit it or paste its contents into chat.
-
-Project creation and API enablement happen in Cloud Shell. Branding, audience,
-scopes, and OAuth client creation happen in Google Auth Platform. Download the
-client JSON to the local machine where the Gog CLI and agent run.
+7. **Create and download a Desktop client JSON.** In Google Auth Platform,
+   open **Clients → Create client**, choose **Desktop app**, enter a name such
+   as `Gog CLI desktop`, and click **Create**. Download the JSON in the
+   creation dialog. If you closed it, open **APIs & Services → Credentials**,
+   select the Desktop app under **OAuth 2.0 Client IDs**, and click **Download
+   JSON**. Save it on the computer where Gog runs. A Desktop client needs no
+   redirect URI configuration. See Google's [credential guide](https://developers.google.com/workspace/guides/create-credentials).
+   Keep the file private; do not commit it or paste its contents into chat.
 
 ### Connect an account on the machine running the agent
 
 Follow the upstream [quickstart](https://github.com/openclaw/gogcli/blob/main/docs/quickstart.md)
 to store the downloaded JSON and complete browser consent. Run these commands
-on the machine where `gog` is installed for your agent, rather than in Cloud
-Shell:
+on the machine where `gog` is installed for your agent:
 
 ```text
 gog auth credentials set "PATH_TO_CLIENT_SECRET_JSON" --client jala-workspace
 gog auth add you@example.com --services all-user --client jala-workspace
-gog auth list --check
+gog auth list --check --json --no-input
 ```
 
 Replace `PATH_TO_CLIENT_SECRET_JSON` with the path to the downloaded OAuth

@@ -47,14 +47,20 @@ do not silently switch to another account.
   immediately run `gog auth add` with that client. Guide the user through the
   OAuth client setup in the README and use an existing client only if the user
   explicitly chooses it.
-- If the Google Cloud project, APIs, or OAuth client are not ready, walk the
-  user through the README's setup steps instead of only linking them. Explain
-  how to select an existing Project ID or use Google's generated, globally
-  unique Project ID for a new project; what to enter in Branding and choose in
-  Audience; how to add Gog's `all-user` scopes; and where to create the Desktop
-  client and download its JSON. Be clear that project/API setup runs in Cloud
-  Shell, while `gog auth services`, `gog auth credentials set`, and
-  `gog auth add` run on the machine where Gog is installed.
+- When the user needs a new project or client, read the complete first-use
+  setup in [the README](../../README.md) and present it directly as a concise,
+  numbered checklist. Keep the README as the source of truth; do not copy its
+  setup details into this skill. The answer must still contain every
+  preparation step and command, not merely link or summarize the guide: choose
+  or create a project and identify its Project ID; select/create it in Cloud
+  Shell; enable the complete API list; configure Branding and choose Audience
+  (including test-user setup when needed); add `all-user` scopes using
+  `gog auth services --markdown`; create a Desktop OAuth client and download or
+  recover its JSON; then register the file, authorize the requested account,
+  complete browser consent, and verify access on the local machine with Gog.
+  Clearly label which steps use Cloud Shell, Google Auth Platform, and the
+  local machine. Do not ask for the JSON path until the prerequisites and
+  download instructions have been explained.
 - If the OAuth client is missing or the user wants a different one, ask them to
   create or choose a Google Cloud OAuth **Desktop app** client and provide its
   downloaded JSON file's local path. Never ask them to paste its client secret
@@ -66,6 +72,11 @@ do not silently switch to another account.
   covers Gog's standard user services, while AdSense and Photos Picker require
   explicit opt-in and Admin, Groups, and Keep require Workspace service-account
   setup.
+- OAuth scope is independent of the current API operation's safety mode. Do not
+  replace `all-user` with `gmail` just because the task is about Gmail, and do
+  not describe authorization as "read-only Gmail access" unless the user asked
+  for limited Gmail-only scope. `--readonly` controls API mutations after
+  authorization; it does not narrow OAuth scopes.
 - Run `gog auth add <email> --services all-user --client <name>` and let the
   user complete Google's browser consent. If they chose a narrower scope, use
   that service list instead. Verify the account and granted services with
