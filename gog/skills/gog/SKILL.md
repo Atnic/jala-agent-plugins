@@ -108,24 +108,26 @@ gog --enable-commands drive.ls,docs.cat --disable-commands drive.delete \
 
 ## Auth
 
-For first-time setup, Google Cloud project and API enablement, Desktop OAuth
-client creation, or broad `all-user` authorization, read the plugin's
-[setup guide](../../README.md). It separates Cloud Shell steps from the local
-`gog` account connection.
+For first-time setup, follow the [setup guide](../../README.md), which explains
+project creation, API enablement, OAuth branding/audience, scope configuration,
+Desktop client creation, and JSON download. It separates Cloud Shell steps from
+the local `gog` account connection.
 
 OAuth setup is partly interactive. An agent can inspect and diagnose it, but a
 human normally completes browser consent:
 
 ```bash
-gog auth credentials list
-gog auth add user@example.com --services drive
+gog auth credentials set "PATH_TO_CLIENT_JSON" --client jala-workspace
+gog auth add user@example.com --services all-user --client jala-workspace
 ```
 
-For a new account, authorize only the services needed for the user's task.
-Before reauthorizing an existing account, inspect its current services with
-`gog auth list --check --json --no-input` and preserve existing access unless
-the user asks to change it. Constrain each command with the relevant account,
-`--readonly` or command allowlists, and other supported safety flags.
+For full plugin access, use `all-user`; only use a narrower service list when
+the user asks for limited access. Do not reduce OAuth services to match only the
+current task. Before reauthorizing an existing account, inspect its current
+services with `gog auth list --check --json --no-input` and preserve existing
+access unless the user asks to change it. Constrain each command with the
+relevant account, `--readonly` or command allowlists, and other supported safety
+flags.
 
 Service accounts are Workspace-only and mainly fit Admin, Groups, Keep, and
 domain-wide delegation flows; they do not solve consumer `@gmail.com` OAuth.
