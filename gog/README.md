@@ -135,20 +135,19 @@ for `gog` commands.
    **External**. If an External app is in **Testing**, add each account under
    **Test users**; authorizations for user-data scopes in Testing expire after
    seven days. See Google's [audience guide](https://support.google.com/cloud/answer/15549945?hl=en).
-6. **Add the OAuth scopes.** On the computer where Gog is installed, open a
-   local terminal and run:
+6. **Add the OAuth scopes.** On the computer where Gog is installed, generate
+   a paste-ready list of the standard user-service scopes (`all-user`):
 
    ```bash
-   gog auth services --plain
+   gog auth services --json | jq -r '.services[] | select(.user == true) | .scopes[] | select(startswith("https://"))' | sort -u
    ```
 
-   The output has a `SCOPES` column. Copy the full scope URLs from every row
-   whose `USER` value is `true`; these are the standard user-service scopes
-   requested by `all-user`. In the Google Auth Platform browser tab, open
-   **Data Access → Add or remove scopes**, scroll to **Manually add scopes**,
-   and paste the URLs one per line. Click **Add to table**, then **Update**.
-   Broad scopes may need Workspace admin approval or Google's OAuth
-   verification, depending on the audience and publishing status.
+   This requires `jq`. The agent can run the command and show its output as a
+   one-scope-per-line block for the user to copy. In the Google Auth Platform
+   browser tab, open **Data Access → Add or remove scopes**, scroll to
+   **Manually add scopes**, paste the entire block, then click **Add to table**
+   and **Update**. Broad scopes may need Workspace admin approval or Google's
+   OAuth verification, depending on the audience and publishing status.
 7. **Create and download a Desktop client JSON only if needed.** For a
    company-domain account, create a separate named Desktop client if there is
    not already a named client to reuse. For `@gmail.com`, create one only if
