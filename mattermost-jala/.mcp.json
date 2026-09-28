@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "mattermost-jala": {
+      "type": "http",
+      "url": "https://mattermost.jala.tech/plugins/mattermost-ai/mcp-server/mcp"
+    }
+  }
+}

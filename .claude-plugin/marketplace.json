@@ -8,12 +8,17 @@
     {
       "name": "figma-ui",
       "source": "./figma-ui",
-      "description": "Create and edit Figma designs through the local figma-ui-mcp bridge."
+      "description": "Create and refine Figma screens, components, diagrams, and prototypes."
     },
     {
       "name": "gog",
       "source": "./gog",
-      "description": "Work with Google Workspace through the local gog CLI."
+      "description": "Search and manage Gmail, Calendar, Drive, Docs, Sheets, and more."
+    },
+    {
+      "name": "mattermost-jala",
+      "source": "./mattermost-jala",
+      "description": "Search Mattermost, read channel threads, create channels, and post in JALA."
     }
   ]
 }

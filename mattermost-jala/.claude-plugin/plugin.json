@@ -1,0 +1,9 @@
+{
+  "name": "mattermost-jala",
+  "displayName": "Mattermost JALA",
+  "description": "Search Mattermost, read channel threads, create channels, and post in JALA.",
+  "author": {
+    "name": "JALA"
+  },
+  "repository": "https://github.com/Atnic/jala-agent-plugins"
+}

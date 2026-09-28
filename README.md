@@ -4,6 +4,7 @@ A collection of portable Agent Plugins for JALA workflows.
 
 Figma UI plugin: [GitHub](https://github.com/Atnic/jala-agent-plugins/tree/main/figma-ui).
 Gog plugin: [GitHub](https://github.com/Atnic/jala-agent-plugins/tree/main/gog).
+Mattermost JALA plugin: [GitHub](https://github.com/Atnic/jala-agent-plugins/tree/main/mattermost-jala).
 
 ## Plugins
 
@@ -31,22 +32,35 @@ MCP or Codex's Connected accounts UI.
 
 See [`gog/README.md`](gog/README.md) for setup and the skill inventory.
 
+### `mattermost-jala`
+
+Searches messages, reads channel and thread history, looks up users and channel
+members, creates channels, adds members, and posts or replies in the JALA
+Mattermost workspace. The plugin bundles the endpoint and uses Mattermost OAuth
+for each user's sign-in; it does not include credentials or duplicate the
+server's tool definitions.
+
+See [`mattermost-jala/README.md`](mattermost-jala/README.md) for requirements,
+authentication, and installation.
+
 ## Install in Claude Code
 
 This repository also has a Claude Code marketplace at
-`.claude-plugin/marketplace.json`. Add the repository, then install either plugin:
+`.claude-plugin/marketplace.json`. Add the repository, then install the plugins you want:
 
 ```bash
 claude plugin marketplace add Atnic/jala-agent-plugins
 claude plugin install gog@jala-agent-plugins
 claude plugin install figma-ui@jala-agent-plugins
+claude plugin install mattermost-jala@jala-agent-plugins
 ```
 
 For a local checkout, use `claude plugin marketplace add /absolute/path/to/jala-agent-plugins`
 instead. Start a new Claude Code session or run `/reload-plugins` to load the
 installed components. Gog still needs the local `gog` CLI and its own account
 authorization. Figma UI still needs Figma Desktop and the local bridge described
-in its README.
+in its README. Mattermost JALA requires Mattermost OAuth sign-in; see its README
+for server administrator prerequisites.
 
 The Claude manifests omit fixed versions so Git commits provide plugin updates.
 
@@ -66,7 +80,8 @@ codex plugin list
 codex plugin add gog@jala-agent-plugins
 ```
 
-Use `codex plugin add figma-ui@jala-agent-plugins` for the Figma UI plugin.
+Use `codex plugin add figma-ui@jala-agent-plugins` for the Figma UI plugin, or
+`codex plugin add mattermost-jala@jala-agent-plugins` for Mattermost.
 
 The repository URL must point to the repository itself. Do not use a GitHub `/tree/`
 URL. The `--ref main` option pins the marketplace snapshot to the `main` branch.
@@ -82,7 +97,7 @@ codex plugin marketplace upgrade jala-agent-plugins
 codex plugin add gog@jala-agent-plugins
 ```
 
-Replace `gog` with `figma-ui` when updating that plugin.
+Replace `gog` with `figma-ui` or `mattermost-jala` when updating those plugins.
 
 ### From a local checkout
 
@@ -90,6 +105,9 @@ Replace `gog` with `figma-ui` when updating that plugin.
 codex plugin marketplace add /absolute/path/to/jala-agent-plugins
 codex plugin add gog@jala-agent-plugins
 ```
+
+Replace `gog` with `figma-ui` or `mattermost-jala` to install another plugin
+from the local checkout.
 
 ### Workspace import
 
@@ -106,13 +124,14 @@ marketplaces sync daily, and administrators can also trigger a manual sync.
 ## Repository layout
 
 The root repository is a plugin collection, not itself a plugin. Each top-level
-plugin directory is independently installable, with shared skills and separate
-Codex and Claude Code manifests. Figma UI also has host-specific MCP configuration.
+plugin directory is independently installable, with host manifests and optional
+skills or MCP configuration.
 
 ```text
 jala-agent-plugins/
 ├── .agents/plugins/marketplace.json
 ├── .claude-plugin/marketplace.json
 ├── figma-ui/
-└── gog/
+├── gog/
+└── mattermost-jala/
 ```

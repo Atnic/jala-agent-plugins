@@ -1,0 +1,9 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "mattermost-jala": {
+      "type": "streamable-http",
+      "url": "https://mattermost.jala.tech/plugins/mattermost-ai/mcp-server/mcp"
+    }
+  }
+}

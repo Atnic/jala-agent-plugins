@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "figma-ui",
-  "version": "0.1.1",
-  "description": "Create, edit, inspect, and maintain Figma designs through figma-ui-mcp with strong auto-layout, component, and design-system conventions.",
+  "version": "0.1.2",
+  "description": "Create and refine Figma screens, components, diagrams, and prototypes, then use selected designs as implementation context for code.",
   "author": {
     "name": "JALA"
   },
@@ -19,8 +19,8 @@
     "com.openai": {
       "interface": {
         "displayName": "Figma UI",
-        "shortDescription": "Create and edit Figma designs with figma-ui-mcp.",
-        "longDescription": "Create, inspect, edit, and maintain Figma designs through the local figma-ui-mcp bridge.",
+        "shortDescription": "Create and refine Figma screens, components, diagrams, and prototypes.",
+        "longDescription": "Build and refine screens, edit components and design systems, create editable diagrams, inspect designs, and implement selected designs in code. Available prototype interactions depend on the connected Figma bridge.",
         "developerName": "JALA",
         "websiteURL": "https://github.com/Atnic/jala-agent-plugins/tree/main/figma-ui",
         "category": "Design",
