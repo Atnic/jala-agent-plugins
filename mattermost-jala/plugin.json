@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "mattermost-jala",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Search Mattermost messages, read channel threads, create channels, add members, and post or reply in JALA.",
   "author": {
     "name": "JALA"
@@ -27,6 +27,8 @@
           "Write"
         ],
         "brandColor": "#0058CC",
+        "composerIcon": "./assets/mattermost-icon.png",
+        "logo": "./assets/mattermost-icon.png",
         "defaultPrompt": "Use Mattermost to find and work with content in my JALA workspace."
       }
     }
