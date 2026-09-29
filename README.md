@@ -5,6 +5,7 @@ A collection of portable Agent Plugins for JALA workflows.
 Figma UI plugin: [GitHub](https://github.com/Atnic/jala-agent-plugins/tree/main/figma-ui).
 Gog plugin: [GitHub](https://github.com/Atnic/jala-agent-plugins/tree/main/gog).
 Mattermost JALA plugin: [GitHub](https://github.com/Atnic/jala-agent-plugins/tree/main/mattermost-jala).
+Matt Pocock Skills: Productivity plugin: [GitHub](https://github.com/Atnic/jala-agent-plugins/tree/main/mattpocock-skills-productivity).
 
 ## Plugins
 
@@ -43,6 +44,15 @@ server's tool definitions.
 See [`mattermost-jala/README.md`](mattermost-jala/README.md) for requirements,
 authentication, and installation.
 
+### `mattpocock-skills-productivity`
+
+A Codex plugin packaging the general workflow skills from Matt Pocock's
+Productivity collection: planning interviews, handoffs, teaching,
+questionnaires, plain-language explanations, and agent-facing writing.
+
+See [`mattpocock-skills-productivity/README.md`](mattpocock-skills-productivity/README.md)
+for the included skills, upstream attribution, and installation.
+
 ## Install in Claude Code
 
 This repository also has a Claude Code marketplace at
@@ -80,8 +90,10 @@ codex plugin list
 codex plugin add gog@jala-agent-plugins
 ```
 
-Use `codex plugin add figma-ui@jala-agent-plugins` for the Figma UI plugin, or
-`codex plugin add mattermost-jala@jala-agent-plugins` for Mattermost.
+Use `codex plugin add figma-ui@jala-agent-plugins` for the Figma UI plugin,
+`codex plugin add mattermost-jala@jala-agent-plugins` for Mattermost, and
+`codex plugin add mattpocock-skills-productivity@jala-agent-plugins` for Matt
+Pocock's general workflow skills.
 
 The repository URL must point to the repository itself. Do not use a GitHub `/tree/`
 URL. The `--ref main` option pins the marketplace snapshot to the `main` branch.
@@ -98,6 +110,7 @@ codex plugin add gog@jala-agent-plugins
 ```
 
 Replace `gog` with `figma-ui` or `mattermost-jala` when updating those plugins.
+For Matt Pocock Skills, use `mattpocock-skills-productivity`.
 
 ### From a local checkout
 
@@ -106,8 +119,9 @@ codex plugin marketplace add /absolute/path/to/jala-agent-plugins
 codex plugin add gog@jala-agent-plugins
 ```
 
-Replace `gog` with `figma-ui` or `mattermost-jala` to install another plugin
-from the local checkout.
+Replace `gog` with `figma-ui`, `mattermost-jala`, or
+`mattpocock-skills-productivity` to install another plugin from the local
+checkout.
 
 ### Workspace import
 
@@ -133,5 +147,6 @@ jala-agent-plugins/
 ├── .claude-plugin/marketplace.json
 ├── figma-ui/
 ├── gog/
-└── mattermost-jala/
+├── mattermost-jala/
+└── mattpocock-skills-productivity/
 ```

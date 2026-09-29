@@ -1,0 +1,36 @@
+{
+  "name": "mattpocock-skills-productivity",
+  "version": "0.1.0",
+  "description": "General workflow skills from Matt Pocock's Productivity collection, packaged for Codex.",
+  "author": {
+    "name": "JALA"
+  },
+  "repository": "https://github.com/Atnic/jala-agent-plugins",
+  "homepage": "https://github.com/mattpocock/skills",
+  "keywords": [
+    "matt-pocock",
+    "productivity",
+    "writing",
+    "learning",
+    "planning",
+    "agent-skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Matt Pocock Skills: Productivity",
+    "shortDescription": "General workflow skills for planning, learning, and communication.",
+    "longDescription": "Seven curated skills from Matt Pocock's Productivity collection: interview through a plan, hand off work, learn a topic, prepare a questionnaire, clarify a message, and write documents for agents.",
+    "developerName": "JALA",
+    "category": "Productivity",
+    "capabilities": [],
+    "brandColor": "#4F46E5",
+    "composerIcon": "./assets/aihero-logo.svg",
+    "logo": "./assets/aihero-logo.svg",
+    "logoDark": "./assets/aihero-logo-dark.svg",
+    "defaultPrompt": [
+      "Help me think through this plan.",
+      "Teach me this topic step by step.",
+      "Make this explanation easier to understand."
+    ]
+  }
+}
