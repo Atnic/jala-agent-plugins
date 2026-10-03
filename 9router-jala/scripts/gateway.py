@@ -178,6 +178,53 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
+def safe_error_details(error, key):
+    """Expose only bounded diagnostic fields from JSON, never raw responses."""
+    try:
+        raw = error.read(16385)
+        if len(raw) > 16384:
+            return ""
+        payload = json.loads(raw)
+        if not isinstance(payload, dict):
+            return ""
+        details = payload.get("error", payload)
+        if not isinstance(details, dict):
+            return ""
+        secrets_to_hide = {key, urllib.parse.quote(key, safe="")}
+
+        def collect(value):
+            if isinstance(value, dict):
+                for name, item in value.items():
+                    if re.search(r"authorization|api.?key|token|secret|password|cookie|b64|base64", name, re.I):
+                        if isinstance(item, str) and item:
+                            secrets_to_hide.add(item)
+                    collect(item)
+            elif isinstance(value, list):
+                for item in value:
+                    collect(item)
+
+        collect(payload)
+
+        def sanitize(value):
+            for secret in sorted(secrets_to_hide, key=len, reverse=True):
+                if secret:
+                    value = value.replace(secret, "[redacted]")
+            value = re.sub(r"(?i)\bBearer\s+[^\s,;\"']+", "Bearer [redacted]", value)
+            value = re.sub(r"(?i)\bsk-[A-Za-z0-9_-]+", "[redacted]", value)
+            value = re.sub(r"(?i)(\b(?:authorization|api[_-]?key|access[_-]?token|refresh[_-]?token|secret|password|cookie)\b[\"']?\s*[:=]\s*)(?:\"[^\"]*\"|'[^']*'|[^\s,;]+)", r"\1[redacted]", value)
+            value = re.sub(r"[A-Za-z0-9_+/=-]{80,}", "[redacted data]", value)
+            return " ".join(value.split())[:400]
+
+        fields = []
+        for name in ("message", "code", "type", "param"):
+            value = details.get(name)
+            if isinstance(value, (str, int)) and not isinstance(value, bool):
+                fields.append(f"{name}: {sanitize(str(value))}")
+        return "; ".join(fields)
+    except (ValueError, OSError, RecursionError):
+        return ""
+
+
 def send(path, key, body=None, audio=None):
     parsed = urllib.parse.urlsplit(path)
     if (parsed.scheme or parsed.netloc or parsed.fragment
@@ -209,10 +256,15 @@ def send(path, key, body=None, audio=None):
         with opener.open(request, timeout=120) as response:
             return response.read(), response.headers.get_content_type()
     except urllib.error.HTTPError as error:
-        # Do not echo upstream error bodies, which may contain credentials.
         if error.code == 401:
             raise ValueError("Gateway rejected the API key (401). Run setup to replace it.") from None
-        raise ValueError(f"Gateway returned HTTP {error.code}; request was not retried.") from None
+        details = safe_error_details(error, key)
+        message = f"Gateway returned HTTP {error.code}; request was not retried."
+        if details:
+            message += " " + details
+        if error.code in (400, 422):
+            message += " Correct the rejected inputs before retrying."
+        raise ValueError(message) from None
     except (urllib.error.URLError, TimeoutError):
         raise ValueError("Gateway connection failed or timed out; request was not retried.") from None
 
@@ -236,6 +288,10 @@ def prepare_skill_request(skill, body, model=None, finance=False):
     prepared = {**body, "model": selected}
     if skill == "9router-chat":
         prepared.setdefault("stream", False)
+    elif skill == "9router-image":
+        # Verified JALA request shape. Optional size/format are forwarded only
+        # when provided; their role in a previous 400 was not established.
+        prepared.setdefault("n", 1)
     return item["catalog"], item["endpoint"], prepared
 
 

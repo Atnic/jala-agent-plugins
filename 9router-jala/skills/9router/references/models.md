@@ -48,6 +48,21 @@ Newer models documented elsewhere are not executable defaults until the JALA
 gateway exposes and supports them. Chat continues to use the administrator's
 `9router-jala` combo; upgrading its internal seats is a server-side choice.
 
+## Image request defaults
+
+For the default Sunburst model, start with `{"prompt":"Your image description"}`.
+The helper adds the configured model and `n: 1`; it does not add `size` or
+`response_format`. This minimal request succeeded and returned `data[0].b64_json`.
+Save the JSON response, decode the returned base64, and inspect the image.
+
+A previous request specifying both `size: "1536x1024"` and
+`response_format: "b64_json"` returned HTTP 400. The original error details and
+request logs are unavailable, so neither field is established as unsupported.
+Do not add them routinely based on generic upstream examples. When explicitly
+requested and verified for the selected model, optional fields can still be
+supplied; the helper preserves them and does not silently alter user choices.
+No automatic retry or optional-field stripping occurs on rejection.
+
 ## Direct execution examples
 
 Create a JSON request file with the task input only. The helper inserts the model:

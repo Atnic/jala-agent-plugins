@@ -89,16 +89,17 @@ For STT, put `model` and any supported scalar options in `transcription.json`:
 python3 "<plugin-root>/scripts/gateway.py" request /v1/audio/transcriptions --body transcription.json --audio-file recording.mp3
 ```
 
-The helper attaches the Bearer header internally, refuses redirects, suppresses
-upstream error bodies, never retries, and saves successful responses only to new
+The helper attaches the Bearer header internally, refuses redirects, exposes only bounded, sanitized JSON error message/code/type/parameter fields,
+suppresses raw bodies and credentials, never retries automatically, and saves successful responses only to new
 output paths. It buffers responses, so use `stream:false` for ordinary chat.
 Inspect media responses after saving; a successful JSON response can still
 contain base64 data or a download URL rather than raw media. For binary images,
 use the endpoint's documented `?response_format=binary` option.
 
 Missing configuration: launch the HTML form or show the setup-web command and
-wait for the user to complete it. On 401, open setup-web with a new session. On a failed or timed-out
-generation, report the failure without automatically resubmitting it.
+wait for the user to complete it. On 401, open setup-web with a new session. For generation failures, follow the shared [error and retry rules](../SKILL.md#errors):
+an explicit validation rejection permits one corrected retry within the authorized
+task; ambiguous outcomes require checking completion or explicit user authorization.
 
 Fallback files use `~/.config/9router-jala/api-key`, mode `600` in a `700`
 directory on macOS/Linux, and a current-user-only file ACL applied with `icacls`

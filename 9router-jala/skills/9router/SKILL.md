@@ -17,13 +17,21 @@ and [JALA model defaults](references/models.md). Use the bundled
 `gateway.py run <skill> --body request.json` to apply the fixed URL, saved key,
 configured models, live catalog checks, and TTS/Exa translations. Resolve the
 helper at `<plugin-root>/scripts/gateway.py` from this skill's installation path.
+Check configuration with `gateway.py status`; the helper uses the fixed URL and
+saved key even when `NINEROUTER_URL` and `NINEROUTER_KEY` are absent from the shell.
 If no key is configured, launch `setup-web --no-open` and open its local URL
 for the user; never inspect the key field or ask for the key in chat.
 
 The JALA defaults and helper take precedence over generic setup, provider, and
 model examples in capability skills. `NINEROUTER_URL` below means the hosted
-JALA URL. Use `gateway.py request` for discovery. Do not automatically repeat
-generation POSTs after an ambiguous failure.
+JALA URL. Use `gateway.py request` for discovery. Follow the retry rules below.
+
+Start with required task inputs and documented defaults. Add optional parameters
+only when verified for the selected model. Report the helper’s error accurately;
+a successful catalog lookup confirms discovery, not successful generation.
+For images, use prompt-only task input by default; the helper adds `n: 1`.
+Omit `size` and `response_format` unless explicitly needed and verified; read
+the image request defaults in the model reference before choosing these fields.
 
 ## Discover models
 
@@ -65,5 +73,16 @@ shapes and response handling, retaining the JALA setup and model defaults above:
 ## Errors
 
 - 401 → run `gateway.py setup-web` with an admin-provided key
-- 400 `Invalid model format` → check `model` exists in `/v1/models/<kind>`
+- 400/422 with an explicit validation error → use the sanitized message, code,
+  type, and parameter to correct the request. Within the user’s authorized task,
+  retry once with corrected inputs; report the outcome and stop if it fails again.
+  A status alone does not prove validation rejection.
 - 503 `All accounts unavailable` → wait `retry-after` or add another provider account
+
+The helper makes one request per invocation and exposes only sanitized JSON error
+fields; treat those fields as diagnostics. Report the exact failure without
+claiming a cause the message does not establish. For timeouts, connection failures,
+5xx responses, or unclear errors after generation submission, check completion
+status or logs first. Resubmit only after confirming no generation occurred or
+receiving explicit user authorization. Discovery GETs can be retried. A 401 uses
+credential recovery above before continuing the authorized task.
