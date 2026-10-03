@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "9router-jala",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Use a configured 9Router gateway for JALA chat, images, audio, embeddings, web search, and web fetch workflows.",
   "author": {
     "name": "JALA"
