@@ -79,11 +79,11 @@ This repository also has a Claude Code marketplace at
 
 ```bash
 claude plugin marketplace add Atnic/jala-agent-plugins
-claude plugin install odoo-jala-web@jala-agent-plugins
-claude plugin install gog@jala-agent-plugins
-claude plugin install figma-ui@jala-agent-plugins
-claude plugin install mattermost-jala@jala-agent-plugins
 claude plugin install 9router-jala@jala-agent-plugins
+claude plugin install figma-ui@jala-agent-plugins
+claude plugin install gog@jala-agent-plugins
+claude plugin install mattermost-jala@jala-agent-plugins
+claude plugin install odoo-jala-web@jala-agent-plugins
 ```
 
 For a local checkout, use `claude plugin marketplace add /absolute/path/to/jala-agent-plugins`
@@ -124,12 +124,12 @@ codex plugin list --marketplace jala-agent-plugins --available --json
 Install the plugins you want; each command below installs one plugin:
 
 ```bash
+codex plugin add 9router-jala@jala-agent-plugins
 codex plugin add figma-ui@jala-agent-plugins
 codex plugin add gog@jala-agent-plugins
 codex plugin add mattermost-jala@jala-agent-plugins
 codex plugin add mattpocock-skills-productivity@jala-agent-plugins
 codex plugin add odoo-jala-web@jala-agent-plugins
-codex plugin add 9router-jala@jala-agent-plugins
 ```
 
 The repository URL must point to the repository itself. Do not use a GitHub
@@ -226,7 +226,7 @@ jala-agent-plugins/
 ├── 9router-jala/
 ├── figma-ui/
 ├── gog/
-├── odoo-jala-web/
 ├── mattermost-jala/
-└── mattpocock-skills-productivity/
+├── mattpocock-skills-productivity/
+└── odoo-jala-web/
 ```

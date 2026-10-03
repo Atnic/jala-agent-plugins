@@ -6,6 +6,11 @@
   },
   "plugins": [
     {
+      "name": "9router-jala",
+      "source": "./9router-jala",
+      "description": "Use a configured 9Router gateway for JALA chat, images, audio, embeddings, web search, and web fetch workflows."
+    },
+    {
       "name": "figma-ui",
       "source": "./figma-ui",
       "description": "Create and refine Figma screens, components, diagrams, and prototypes."
@@ -24,11 +29,6 @@
       "name": "odoo-jala-web",
       "source": "./odoo-jala-web",
       "description": "Automate personal Odoo JALA browser tasks and turn taught workflows into reusable personal skills."
-    },
-    {
-      "name": "9router-jala",
-      "source": "./9router-jala",
-      "description": "Use a configured 9Router gateway for JALA chat, images, audio, embeddings, web search, and web fetch workflows."
     }
   ]
 }
