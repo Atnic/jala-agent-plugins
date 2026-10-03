@@ -288,6 +288,10 @@ def prepare_skill_request(skill, body, model=None, finance=False):
     prepared = {**body, "model": selected}
     if skill == "9router-chat":
         prepared.setdefault("stream", False)
+    elif skill == "9router-image":
+        # Verified JALA request shape. Optional size/format are forwarded only
+        # when provided; their role in a previous 400 was not established.
+        prepared.setdefault("n", 1)
     return item["catalog"], item["endpoint"], prepared
 
 

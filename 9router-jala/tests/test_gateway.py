@@ -26,6 +26,24 @@ class GatewayTests(unittest.TestCase):
         self.assertFalse(body["stream"])
         self.assertEqual(gateway.prepare_skill_request("9router-chat", {}, finance=True)[2]["model"], "9router-jala-finance")
 
+    def test_image_defaults_match_verified_minimal_request(self):
+        body = {"prompt": "an orange car"}
+        catalog, endpoint, prepared = gateway.prepare_skill_request("9router-image", body)
+        self.assertEqual(catalog, "/v1/models/image")
+        self.assertEqual(endpoint, "/v1/images/generations")
+        self.assertEqual(prepared, {"prompt": "an orange car", "model": "openai/gpt-image-2.5-sunburst", "n": 1})
+        self.assertEqual(body, {"prompt": "an orange car"})
+        catalog_response = b'{"data":[{"id":"openai/gpt-image-2.5-sunburst"}]}'
+        with patch.object(gateway, "send", side_effect=[(catalog_response, "application/json"), (b'{"data":[]}', "application/json")]) as send:
+            gateway.run_skill("9router-image", body, "test-secret")
+            self.assertEqual(send.call_args.args[2], prepared)
+            self.assertEqual(send.call_count, 2)
+
+    def test_image_explicit_options_are_preserved(self):
+        body = {"prompt": "car", "n": 2, "size": "1536x1024", "response_format": "b64_json"}
+        prepared = gateway.prepare_skill_request("9router-image", body)[2]
+        self.assertEqual(prepared, {**body, "model": "openai/gpt-image-2.5-sunburst"})
+
     def test_skill_rejects_wrong_provider_or_finance_for_media(self):
         with self.assertRaises(ValueError):
             gateway.prepare_skill_request("9router-image", {}, model="xai/grok-2-image-1212")

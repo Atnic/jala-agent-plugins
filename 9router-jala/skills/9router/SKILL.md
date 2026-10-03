@@ -29,6 +29,9 @@ JALA URL. Use `gateway.py request` for discovery. Follow the retry rules below.
 Start with required task inputs and documented defaults. Add optional parameters
 only when verified for the selected model. Report the helper’s error accurately;
 a successful catalog lookup confirms discovery, not successful generation.
+For images, use prompt-only task input by default; the helper adds `n: 1`.
+Omit `size` and `response_format` unless explicitly needed and verified; read
+the image request defaults in the model reference before choosing these fields.
 
 ## Discover models
 
