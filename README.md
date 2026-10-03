@@ -2,13 +2,25 @@
 
 A collection of portable Agent Plugins for JALA workflows.
 
-Figma UI plugin: [GitHub](https://github.com/Atnic/jala-agent-plugins/tree/main/figma-ui).
-Odoo JALA Web plugin: [GitHub](https://github.com/Atnic/jala-agent-plugins/tree/main/odoo-jala-web).
-Gog plugin: [GitHub](https://github.com/Atnic/jala-agent-plugins/tree/main/gog).
-Mattermost JALA plugin: [GitHub](https://github.com/Atnic/jala-agent-plugins/tree/main/mattermost-jala).
-Matt Pocock Skills: Productivity plugin: [GitHub](https://github.com/Atnic/jala-agent-plugins/tree/main/mattpocock-skills-productivity).
+- [9Router JALA](9router-jala/README.md)
+- [Figma UI](figma-ui/README.md)
+- [Gog](gog/README.md)
+- [Mattermost JALA](mattermost-jala/README.md)
+- [Matt Pocock Skills: Productivity](mattpocock-skills-productivity/README.md)
+- [Odoo JALA Web](odoo-jala-web/README.md)
 
 ## Plugins
+
+### `9router-jala`
+
+Use the hosted JALA 9Router gateway for chat, image generation, speech,
+embeddings, web search, and URL extraction. This skills-only package bundles the
+upstream entry point with minimal JALA setup changes and its seven unchanged
+capability skills for Codex and Claude Code. It requires Python 3.9+, `keyring`, and a per-user API key entered through a local
+HTML setup form, saved in macOS Keychain, Windows Credential Manager, or Linux Secret Service.
+
+See [`9router-jala/README.md`](9router-jala/README.md) for setup, attribution,
+and installation of the local unpublished package.
 
 ### `figma-ui`
 
@@ -67,10 +79,11 @@ This repository also has a Claude Code marketplace at
 
 ```bash
 claude plugin marketplace add Atnic/jala-agent-plugins
-claude plugin install odoo-jala-web@jala-agent-plugins
-claude plugin install gog@jala-agent-plugins
+claude plugin install 9router-jala@jala-agent-plugins
 claude plugin install figma-ui@jala-agent-plugins
+claude plugin install gog@jala-agent-plugins
 claude plugin install mattermost-jala@jala-agent-plugins
+claude plugin install odoo-jala-web@jala-agent-plugins
 ```
 
 For a local checkout, use `claude plugin marketplace add /absolute/path/to/jala-agent-plugins`
@@ -79,8 +92,10 @@ installed components. Gog still needs the local `gog` CLI and its own account
 authorization. Figma UI still needs Figma Desktop and the local bridge described
 in its README. Mattermost JALA requires Mattermost OAuth sign-in; see its README
 for server administrator prerequisites.
+9Router JALA needs Python 3.9+, `keyring`, and a per-user API key; see its README for setup.
 
-The Claude manifests omit fixed versions so Git commits provide plugin updates.
+Some older Claude manifests omit fixed versions so Git commits provide plugin
+updates; newer packages declare a version matching their portable manifest.
 
 ## Install in Codex
 
@@ -109,6 +124,7 @@ codex plugin list --marketplace jala-agent-plugins --available --json
 Install the plugins you want; each command below installs one plugin:
 
 ```bash
+codex plugin add 9router-jala@jala-agent-plugins
 codex plugin add figma-ui@jala-agent-plugins
 codex plugin add gog@jala-agent-plugins
 codex plugin add mattermost-jala@jala-agent-plugins
@@ -155,6 +171,7 @@ Complete the selected plugin's requirements:
 
 | Plugin | Requirements |
 | --- | --- |
+| `9router-jala` | Python 3.9+, `keyring`, and a per-user API key; native saved-key support on macOS/Windows/Linux; see [setup](9router-jala/README.md). |
 | `figma-ui` | Figma Desktop and the local bridge; see [setup](figma-ui/README.md). |
 | `gog` | Local `gog` CLI and Google account authorization; see [setup](gog/README.md). |
 | `mattermost-jala` | Mattermost OAuth sign-in and server prerequisites; see [setup](mattermost-jala/README.md). |
@@ -206,9 +223,10 @@ skills or MCP configuration.
 jala-agent-plugins/
 ├── .agents/plugins/marketplace.json
 ├── .claude-plugin/marketplace.json
+├── 9router-jala/
 ├── figma-ui/
 ├── gog/
-├── odoo-jala-web/
 ├── mattermost-jala/
-└── mattpocock-skills-productivity/
+├── mattpocock-skills-productivity/
+└── odoo-jala-web/
 ```

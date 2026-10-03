@@ -1,0 +1,105 @@
+{
+  "verified_date": "2026-10-03",
+  "gateway": "https://9router.jala.tech",
+  "skills": {
+    "9router-chat": {
+      "catalog": "/v1/models",
+      "endpoint": "/v1/chat/completions",
+      "default_model": "9router-jala",
+      "models": [
+        "9router-jala",
+        "9router-jala-finance",
+        "openai/gpt-6-astra",
+        "openai/gpt-6.1-sol",
+        "openai/gpt-6-sol",
+        "openai/gpt-6-luna",
+        "openai/gpt-5.4-mini",
+        "openai/gpt-4o-mini",
+        "cx/gpt-6-astra[1m]",
+        "cx/gpt-6-sol",
+        "cx/gpt-6-sol[1m]",
+        "cx/gpt-6-luna",
+        "cx/gpt-6-luna[1m]",
+        "cx/gpt-5.6-sol[1m]",
+        "cx/gpt-5.6-terra[1m]",
+        "cx/gpt-5.6-luna[1m]",
+        "cx/gpt-daybreak-blue-latest",
+        "cx/gpt-reserve",
+        "cx/gpt-6-astra-high",
+        "cx/gpt-6-luna-xhigh",
+        "cx/gpt-6-luna-high",
+        "cx/gpt-6-sol-low",
+        "cx/gpt-6.1-sol-low"
+      ]
+    },
+    "9router-image": {
+      "catalog": "/v1/models/image",
+      "endpoint": "/v1/images/generations",
+      "default_model": "openai/gpt-image-2.5-sunburst",
+      "models": [
+        "openai/gpt-image-2.5",
+        "openai/gpt-image-2.5-flare",
+        "openai/gpt-image-2.5-sunburst",
+        "openai/gpt-image-1",
+        "openai/dall-e-3",
+        "openai/dall-e-2",
+        "cx/gpt-image-2.5",
+        "cx/gpt-image-2.5-flare",
+        "cx/gpt-image-2.5-sunburst",
+        "cx/gpt-image-2",
+        "cx/gpt-image-1.5",
+        "cx/gpt-5.6-sol-image",
+        "cx/gpt-5.6-terra-image",
+        "cx/gpt-5.6-luna-image",
+        "cx/gpt-5.5-image",
+        "cx/gpt-5.3-image"
+      ]
+    },
+    "9router-tts": {
+      "catalog": "/v1/models/tts",
+      "endpoint": "/v1/audio/speech",
+      "default_model": "openai/gpt-4o-mini-tts",
+      "models": [
+        "openai/tts-1",
+        "openai/tts-1-hd",
+        "openai/gpt-4o-mini-tts"
+      ]
+    },
+    "9router-stt": {
+      "catalog": "/v1/models/stt",
+      "endpoint": "/v1/audio/transcriptions",
+      "default_model": "openai/gpt-4o-transcribe",
+      "models": [
+        "openai/whisper-1",
+        "openai/gpt-4o-transcribe",
+        "openai/gpt-4o-mini-transcribe"
+      ]
+    },
+    "9router-embeddings": {
+      "catalog": "/v1/models/embedding",
+      "endpoint": "/v1/embeddings",
+      "default_model": "openai/text-embedding-3-large",
+      "models": [
+        "openai/text-embedding-3-large",
+        "openai/text-embedding-3-small",
+        "openai/text-embedding-ada-002"
+      ]
+    },
+    "9router-web-search": {
+      "catalog": "/v1/models/web",
+      "endpoint": "/v1/search",
+      "default_model": "exa/search",
+      "models": [
+        "exa/search"
+      ]
+    },
+    "9router-web-fetch": {
+      "catalog": "/v1/models/web",
+      "endpoint": "/v1/web/fetch",
+      "default_model": "exa/fetch",
+      "models": [
+        "exa/fetch"
+      ]
+    }
+  }
+}

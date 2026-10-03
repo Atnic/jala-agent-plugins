@@ -1,0 +1,22 @@
+{
+  "name": "9router-jala",
+  "version": "0.1.0",
+  "description": "Use a configured 9Router gateway for JALA chat, images, audio, embeddings, web search, and web fetch workflows.",
+  "author": {
+    "name": "JALA"
+  },
+  "repository": "https://github.com/Atnic/jala-agent-plugins",
+  "homepage": "https://github.com/Atnic/jala-agent-plugins/tree/main/9router-jala",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "9Router JALA",
+    "shortDescription": "Chat, media, embeddings, and web tools through 9Router.",
+    "longDescription": "Use a configured 9Router gateway for JALA chat, images, audio, embeddings, web search, and web fetch workflows.",
+    "developerName": "JALA",
+    "category": "Productivity",
+    "capabilities": [],
+    "brandColor": "#F97815",
+    "composerIcon": "./assets/9router-icon.svg",
+    "logo": "./assets/9router-icon.svg"
+  }
+}
