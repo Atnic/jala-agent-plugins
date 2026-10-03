@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create Plugin"
+  short_description: "Create and validate a plugin in this repository"
+  default_prompt: "Use $create-plugin to package a new plugin in this repository."
