@@ -125,8 +125,14 @@ checks the live model catalog, and submits to the correct capability endpoint.
 Invoke `$9router` in Codex, or ask “Use the JALA 9Router gateway.”
 In Claude Code, invoke `/9router-jala:9router`. This entry point loads the JALA
 credential helper and model defaults before reading a capability skill. The
-seven capability skills retain their upstream contents; use the entry point
-to apply JALA configuration when reading their generic provider examples.
+seven capability skills each require reading this local entry point before
+execution, including when invoked directly. The helper loads the saved key even
+when the shell has no `NINEROUTER_URL` or `NINEROUTER_KEY`.
+
+The helper reports bounded, sanitized JSON error diagnostics. Explicit validation
+rejections allow one corrected retry under the shared skill rules; timeouts and
+unclear generation outcomes require checking completion or user authorization.
+The helper itself never repeats a request automatically.
 
 ## Installation
 
@@ -157,15 +163,18 @@ Installing from GitHub before publication will not include these local changes.
 
 ## Attribution and validation limits
 
-The seven capability `SKILL.md` files are byte-for-byte copies from
+The seven capability `SKILL.md` files are minimally adapted from
 [decolua/9router at `a99cf57239ff`](https://github.com/decolua/9router/tree/a99cf57239ff778b61e434c2786009d5ed1c412c/skills).
 The `9router` entry point has minimal JALA changes: setup/helper guidance,
 model-default references, bundled capability links, and API-key recovery.
+Each capability replaces its generic environment setup paragraph with a required
+link to the local entry point; its remaining upstream content is preserved.
 There is no separate wrapper skill.
 
 [upstream.json](upstream.json) records the commit, hashes for unchanged files,
-and the original hash and changes for the adapted entry point. An automated
-test verifies the seven unchanged copies and MIT license. The license is
+and the original hashes and changes for adapted skills. An automated test
+reverses the capability setup substitution and verifies the seven upstream hashes
+and MIT license. The license is
 retained in [LICENSE.upstream](LICENSE.upstream). Model mappings and credential
 instructions live in the entry point's references and the helper. The separate
 upstream video skill is outside the entry point's inventory.

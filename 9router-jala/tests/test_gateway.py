@@ -253,6 +253,43 @@ class GatewayTests(unittest.TestCase):
             self.assertNotIn("test-secret", str(caught.exception))
             builder.return_value.open.assert_called_once()
 
+    def test_validation_error_exposes_diagnostics_and_redacts_secrets(self):
+        import json
+        payload = {"error": {"message": "Unsupported size; key=test-secret; api_key=other-private; Bearer hidden-token; sk-provider-secret " + "A" * 100, "code": "invalid_size", "type": "invalid_request_error", "param": "size", "api_key": "other-private", "b64_json": "A" * 100}, "request": {"Authorization": "Bearer hidden-token"}}
+        error = urllib.error.HTTPError(gateway.GATEWAY + "/v1/images/generations", 400, "rejected", {}, io.BytesIO(json.dumps(payload).encode()))
+        with patch.object(gateway.urllib.request, "build_opener") as builder:
+            builder.return_value.open.side_effect = error
+            with self.assertRaises(ValueError) as caught:
+                gateway.send("/v1/images/generations", "test-secret", {"prompt": "car"})
+            message = str(caught.exception)
+            for expected in ("Unsupported size", "invalid_size", "param: size", "Correct the rejected inputs"):
+                self.assertIn(expected, message)
+            for secret in ("test-secret", "other-private", "hidden-token", "sk-provider-secret", "A" * 100):
+                self.assertNotIn(secret, message)
+            builder.return_value.open.assert_called_once()
+
+    def test_unstructured_and_oversized_errors_are_suppressed(self):
+        for raw in (b"<html>private backend dump</html>", b"not-json", b'[]', b'{"error":"private"}', b"x" * 16385):
+            with self.subTest(raw=raw[:20]):
+                error = urllib.error.HTTPError(gateway.GATEWAY + "/v1/models", 502, "failed", {}, io.BytesIO(raw))
+                self.assertEqual(gateway.safe_error_details(error, "test-secret"), "")
+
+    def test_error_fields_are_bounded_and_unknown_fields_omitted(self):
+        import json
+        raw = json.dumps({"error": {"message": "word " * 300, "param": "size", "debug": "private dump", "headers": {"Authorization": "private"}}}).encode()
+        error = urllib.error.HTTPError(gateway.GATEWAY + "/v1/models", 422, "rejected", {}, io.BytesIO(raw))
+        details = gateway.safe_error_details(error, "test-secret")
+        self.assertLessEqual(len(details), 430)
+        self.assertIn("param: size", details)
+        self.assertNotIn("private", details)
+
+    def test_timeout_does_not_retry(self):
+        with patch.object(gateway.urllib.request, "build_opener") as builder:
+            builder.return_value.open.side_effect = TimeoutError()
+            with self.assertRaisesRegex(ValueError, "timed out; request was not retried"):
+                gateway.send("/v1/images/generations", "test-secret", {"prompt": "car"})
+            builder.return_value.open.assert_called_once()
+
     def test_auth_header_and_json_body(self):
         with patch.object(gateway.urllib.request, "build_opener") as builder:
             response = builder.return_value.open.return_value.__enter__.return_value
@@ -346,10 +383,28 @@ class UpstreamCopiesTests(unittest.TestCase):
         import json
         root = Path(__file__).parents[1]
         manifest = json.loads((root / "upstream.json").read_text())
-        self.assertEqual(len([p for p in manifest["files"] if p.endswith("SKILL.md")]), 7)
+        self.assertEqual(len(manifest["adapted_files"]), 8)
         for name, digest in manifest["files"].items():
             with self.subTest(file=name):
                 self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest)
+
+
+    def test_capability_adaptations_preserve_upstream_content(self):
+        import hashlib
+        import json
+        root = Path(__file__).parents[1]
+        manifest = json.loads((root / "upstream.json").read_text())
+        original = 'Requires `NINEROUTER_URL` (and `NINEROUTER_KEY` if auth enabled). See https://raw.githubusercontent.com/decolua/9router/refs/heads/master/skills/9router/SKILL.md for setup.'
+        setup = 'Before executing requests, read [9Router setup](../9router/SKILL.md) and follow its authentication, model selection, execution, and error-handling instructions. Those instructions take precedence over the generic examples below.'
+        capabilities = [name for name in manifest["adapted_files"] if name != "skills/9router/SKILL.md"]
+        self.assertEqual(len(capabilities), 7)
+        for name in capabilities:
+            with self.subTest(file=name):
+                text = (root / name).read_text()
+                self.assertEqual(text.count(setup), 1)
+                self.assertTrue((root / name).parent.joinpath("../9router/SKILL.md").is_file())
+                restored = text.replace(setup, original).encode()
+                self.assertEqual(hashlib.sha256(restored).hexdigest(), manifest["adapted_files"][name]["upstream_sha256"])
 
 
 if __name__ == "__main__":
