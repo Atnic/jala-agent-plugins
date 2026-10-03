@@ -1,0 +1,4 @@
+interface:
+  display_name: "Clean Gog authentication"
+  short_description: "Remove local Gog accounts and OAuth clients"
+  default_prompt: "Use $gog-clean to inspect my local Gog profiles and clients and help remove the ones I choose."

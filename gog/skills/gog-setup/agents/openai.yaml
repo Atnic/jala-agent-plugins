@@ -1,0 +1,4 @@
+interface:
+  display_name: "Set up Gog"
+  short_description: "Install Gog and connect your Google account"
+  default_prompt: "Use $gog-setup to install Gog for future chats and connect my Google account."
