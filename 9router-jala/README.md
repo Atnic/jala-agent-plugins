@@ -190,7 +190,7 @@ Package creation passed the repository structural validator, all eight skill
 format checks, Claude's strict manifest validation, and `git diff --check`.
 The installed Codex CLI has no standalone plugin validation command, so its
 manifest was checked for local consistency without installing the package.
-The hosted `/api/health` check returned `200` and `{"ok":true}`. Thirty-five
+The hosted `/api/health` check returned `200` and `{"ok":true}`. Forty-two
 credential/request tests passed using mocked native stores, temporary legacy files, and mocked HTTP.
 A native macOS Keychain save/read/replace/delete test passed with a disposable
 dummy credential. Windows backend selection and local persistence were checked
