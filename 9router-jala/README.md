@@ -170,7 +170,11 @@ retained in [LICENSE.upstream](LICENSE.upstream). Model mappings and credential
 instructions live in the entry point's references and the helper. The separate
 upstream video skill is outside the entry point's inventory.
 
-Optional icon fields are omitted because no artwork was selected and verified.
+The logo and composer icon use the official [9Router SVG icon](https://github.com/decolua/9router/blob/a99cf57239ff778b61e434c2786009d5ed1c412c/public/favicon.svg).
+The source is preserved in `assets/9router-original.svg`; `9router-icon.svg`
+adds square-canvas padding without enlarging a raster favicon. A light-background
+render was inspected for centering and clipping. Dark-mode and actual host icon
+display have not been verified.
 Structural and skill-format checks do not establish gateway compatibility.
 Package creation passed the repository structural validator, all eight skill
 format checks, Claude's strict manifest validation, and `git diff --check`.
