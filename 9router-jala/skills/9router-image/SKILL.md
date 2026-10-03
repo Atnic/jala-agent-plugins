@@ -1,22 +1,11 @@
 ---
 name: 9router-image
-description: Generate images via 9Router /v1/images/generations using OpenAI / Gemini Imagen / DALL-E / FLUX / MiniMax / SDWebUI / ComfyUI / Codex models. Use when the user requests this capability through 9Router or the configured JALA AI gateway.
+description: Generate images via 9Router /v1/images/generations using OpenAI / Gemini Imagen / DALL-E / FLUX / MiniMax / SDWebUI / ComfyUI / Codex models. Use when the user wants to create, generate, draw, or render an image, picture, or text-to-image (txt2img).
 ---
 
 # 9Router — Image Generation
 
-## Gateway execution
-
-Read [Verified JALA model defaults and live catalog](../9router/references/models.md) before selecting a model. It takes precedence over provider and model examples below. Codex, OpenAI API, and Exa connections are configured for this plugin.
-
-The JALA gateway is **https://9router.jala.tech**. It is already deployed; do not install a server or ask users for a gateway URL. Every request requires the user's API key.
-
-Read [credential setup and request helper](../9router/references/authentication.md) before making requests. Use the bundled `gateway.py` helper to load the key without exposing it to chat or command arguments. If no key is configured, launch `gateway.py setup-web --no-open` and open its local URL for the user to submit their key. Do not inspect the key field or capture the page while they enter it. Never ask them to paste the key into chat. The terminal `setup` fallback must be run by the user. `NINEROUTER_KEY` is an optional environment override. Do not read or display the saved credential file.
-
-The curl/SDK examples below document endpoint shapes. Prefer the helper for execution; it uses the fixed JALA URL and authenticates discovery and inference calls. Substitute IDs and options discovered from this deployment for example models. Do not automatically repeat generation POSTs after an ambiguous timeout. This plugin supplies local scripts and REST guidance, not MCP tools or a host model-provider configuration.
-
-
-Uses the hosted JALA gateway and a per-user API key. Read [9Router setup](../9router/SKILL.md) for deployment configuration and authentication.
+Requires `NINEROUTER_URL` (and `NINEROUTER_KEY` if auth enabled). See https://raw.githubusercontent.com/decolua/9router/refs/heads/master/skills/9router/SKILL.md for setup.
 
 ## Discover
 
@@ -36,7 +25,7 @@ curl "$NINEROUTER_URL/v1/models/info?id=openai/dall-e-3"
 | `prompt` | yes | image description |
 | `n` | no | count (provider-dependent) |
 | `size` | no | `1024x1024`, `1792x1024`, ... |
-| `quality` | no | Discover per-model values; `standard` / `hd` apply to DALL-E, not GPT Image |
+| `quality` | no | `standard` / `hd` (OpenAI) |
 | `response_format` | no | `url` (default) or `b64_json` |
 
 Add query `?response_format=binary` to receive raw image bytes (handy for saving file).

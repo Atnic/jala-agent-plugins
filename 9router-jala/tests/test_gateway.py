@@ -340,5 +340,17 @@ class GatewayTests(unittest.TestCase):
             prompt.assert_not_called()
 
 
+class UpstreamCopiesTests(unittest.TestCase):
+    def test_vendored_upstream_files_match_pinned_hashes(self):
+        import hashlib
+        import json
+        root = Path(__file__).parents[1]
+        manifest = json.loads((root / "upstream.json").read_text())
+        self.assertEqual(len([p for p in manifest["files"] if p.endswith("SKILL.md")]), 8)
+        for name, digest in manifest["files"].items():
+            with self.subTest(file=name):
+                self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest)
+
+
 if __name__ == "__main__":
     unittest.main()

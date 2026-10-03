@@ -1,29 +1,22 @@
 ---
 name: 9router
-description: Connect to and discover the hosted JALA 9Router gateway and route requests to its bundled capability skills. Use when the user mentions 9Router, NINEROUTER_URL, or asks to use the JALA AI gateway.
+description: Entry point for 9Router — local/remote AI gateway with OpenAI-compatible REST for chat, image, TTS, embeddings, web search, web fetch. Use when the user mentions 9Router, NINEROUTER_URL, or wants AI without writing provider boilerplate. This skill covers setup + indexes capability skills; fetch the relevant capability SKILL.md from the URLs below when needed.
 ---
 
 # 9Router
-
-## Gateway execution
-
-Read [Verified JALA model defaults and live catalog](../9router/references/models.md) before selecting a model. It takes precedence over provider and model examples below. Codex, OpenAI API, and Exa connections are configured for this plugin.
-
-The JALA gateway is **https://9router.jala.tech**. It is already deployed; do not install a server or ask users for a gateway URL. Every request requires the user's API key.
-
-Read [credential setup and request helper](../9router/references/authentication.md) before making requests. Use the bundled `gateway.py` helper to load the key without exposing it to chat or command arguments. If no key is configured, launch `gateway.py setup-web --no-open` and open its local URL for the user to submit their key. Do not inspect the key field or capture the page while they enter it. Never ask them to paste the key into chat. The terminal `setup` fallback must be run by the user. `NINEROUTER_KEY` is an optional environment override. Do not read or display the saved credential file.
-
-The curl/SDK examples below document endpoint shapes. Prefer the helper for execution; it uses the fixed JALA URL and authenticates discovery and inference calls. Substitute IDs and options discovered from this deployment for example models. Do not automatically repeat generation POSTs after an ambiguous timeout. This plugin supplies local scripts and REST guidance, not MCP tools or a host model-provider configuration.
-
 
 Local/remote AI gateway exposing OpenAI-compatible REST. One key, many providers, auto-fallback.
 
 ## Setup
 
-Use the [credential setup guide](references/authentication.md). The gateway URL
-is fixed to `https://9router.jala.tech`; the helper attaches the user's saved key.
-The `NINEROUTER_URL` variable in upstream examples means this hosted base URL.
-Use `gateway.py request /v1/models` to verify authenticated access.
+```bash
+export NINEROUTER_URL="http://localhost:20128"      # or VPS / tunnel URL
+export NINEROUTER_KEY="sk-..."                      # from Dashboard → Keys (only if requireApiKey=true)
+```
+
+All requests: `${NINEROUTER_URL}/v1/...` with header `Authorization: Bearer ${NINEROUTER_KEY}` (omit if auth disabled).
+
+Verify: `curl $NINEROUTER_URL/api/health` → `{"ok":true}`
 
 ## Discover models
 
@@ -49,17 +42,17 @@ Response shape:
 
 ## Capability skills
 
-When the user needs a specific capability, read the bundled skill below:
+When the user needs a specific capability, fetch that skill's `SKILL.md` from its raw URL:
 
-| Capability | Bundled skill |
+| Capability | Raw URL |
 |---|---|
-| Chat / code-gen | [9router-chat](../9router-chat/SKILL.md) |
-| Image generation | [9router-image](../9router-image/SKILL.md) |
-| Text-to-speech | [9router-tts](../9router-tts/SKILL.md) |
-| Speech-to-text | [9router-stt](../9router-stt/SKILL.md) |
-| Embeddings | [9router-embeddings](../9router-embeddings/SKILL.md) |
-| Web search | [9router-web-search](../9router-web-search/SKILL.md) |
-| Web fetch (URL → markdown) | [9router-web-fetch](../9router-web-fetch/SKILL.md) |
+| Chat / code-gen | https://raw.githubusercontent.com/decolua/9router/refs/heads/master/skills/9router-chat/SKILL.md |
+| Image generation | https://raw.githubusercontent.com/decolua/9router/refs/heads/master/skills/9router-image/SKILL.md |
+| Text-to-speech | https://raw.githubusercontent.com/decolua/9router/refs/heads/master/skills/9router-tts/SKILL.md |
+| Speech-to-text | https://raw.githubusercontent.com/decolua/9router/refs/heads/master/skills/9router-stt/SKILL.md |
+| Embeddings | https://raw.githubusercontent.com/decolua/9router/refs/heads/master/skills/9router-embeddings/SKILL.md |
+| Web search | https://raw.githubusercontent.com/decolua/9router/refs/heads/master/skills/9router-web-search/SKILL.md |
+| Web fetch (URL → markdown) | https://raw.githubusercontent.com/decolua/9router/refs/heads/master/skills/9router-web-fetch/SKILL.md |
 
 ## Errors
 
