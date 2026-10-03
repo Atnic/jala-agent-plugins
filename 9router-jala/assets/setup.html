@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Connect to 9Router JALA</title>
+  <style>
+    :root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #171717; background: #faf9f6; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; background-image: linear-gradient(#e8e5df66 1px, transparent 1px), linear-gradient(90deg, #e8e5df66 1px, transparent 1px); background-size: 40px 40px; }
+    main { width: 100%; max-width: 448px; }
+    h1 { color: #d77353; text-align: center; font-size: 30px; letter-spacing: -.7px; margin: 0 0 10px; }
+    .intro { color: #737373; text-align: center; font-size: 16px; margin: 0 0 34px; }
+    form { background: white; border: 1px solid #f0eeeb; border-radius: 16px; padding: 26px 24px; box-shadow: 0 1px 2px #00000006; }
+    label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 9px; }
+    input { display: block; width: 100%; border: 1px solid #dedede; border-radius: 9px; padding: 11px 12px; font: inherit; font-size: 14px; background: #f5f5f5; outline: none; }
+    input:focus { border-color: #d77353; box-shadow: 0 0 0 3px #d7735326; }
+    input::placeholder { color: #999; }
+    button { width: 100%; background: #d77353; color: white; border: 0; border-radius: 9px; padding: 11px; font: inherit; font-size: 14px; font-weight: 500; margin-top: 16px; cursor: pointer; }
+    button:hover { background: #c66546; }
+    button:focus-visible, a:focus-visible { outline: 3px solid #d7735350; outline-offset: 3px; }
+    button:disabled { opacity: .6; cursor: default; }
+    .hint { color: #737373; text-align: center; font-size: 12px; margin: 24px 0 0; }
+    a { color: inherit; text-underline-offset: 3px; }
+    #message { color: #b5473b; font-size: 13px; line-height: 1.5; margin: 14px 0 0; }
+    #message:empty { display: none; }
+    #message.success { color: #28774d; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>9Router</h1>
+    <p class="intro">Enter your API key to connect to JALA</p>
+    <form id="form">
+      <label for="key">API key</label>
+      <input id="key" name="api-key" type="password" placeholder="Enter API key" autocomplete="off" spellcheck="false" autocapitalize="off" required maxlength="4096" autofocus>
+      <button id="submit" type="submit">Connect</button>
+      <p id="message" role="status" aria-live="polite"></p>
+    </form>
+  </main>
+  <script nonce="__NONCE__">
+    const form = document.getElementById('form');
+    const key = document.getElementById('key');
+    const submit = document.getElementById('submit');
+    const message = document.getElementById('message');
+    const token = new URLSearchParams(location.hash.slice(1)).get('token');
+    if (location.protocol !== 'file:') history.replaceState(null, '', location.pathname);
+    if (!token || location.hostname !== '127.0.0.1') {
+      submit.disabled = true;
+      key.disabled = true;
+      message.textContent = 'Launch this form using gateway.py setup-web to connect it to local credential storage.';
+    }
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!token || submit.disabled) return;
+      submit.disabled = true;
+      submit.textContent = 'Verifying…';
+      message.className = '';
+      message.textContent = '';
+      try {
+        const response = await fetch('/api/setup', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json', 'X-Setup-Token': token},
+          body: JSON.stringify({key: key.value.trim()}),
+          credentials: 'omit',
+          redirect: 'error'
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Unable to save your key. Please try again.');
+        key.value = '';
+        key.disabled = true;
+        submit.textContent = 'Connected';
+        message.className = 'success';
+        message.textContent = 'Connected. You can close this tab.';
+      } catch (error) {
+        message.textContent = error instanceof TypeError ? 'The local setup session is unavailable. Run setup-web again and use the new link.' : error.message;
+        submit.disabled = false;
+        submit.textContent = 'Connect';
+      }
+    });
+  </script>
+</body>
+</html>
