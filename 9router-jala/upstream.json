@@ -11,31 +11,31 @@
     },
     "skills/9router-chat/SKILL.md": {
       "upstream_sha256": "1c9db8504ffdf760922655084f2e94d053bff3ca2a32554b6aadf2384f31a338",
-      "changes": "Replace generic environment setup with mandatory bundled JALA 9Router setup instruction"
+      "changes": "Replace remote setup URL with ../9router/SKILL.md; preserve original wording"
     },
     "skills/9router-embeddings/SKILL.md": {
       "upstream_sha256": "95aff0e0b473847d551dcfc34823eac18930c9cd003e3918ec331551e29af9f5",
-      "changes": "Replace generic environment setup with mandatory bundled JALA 9Router setup instruction"
+      "changes": "Replace remote setup URL with ../9router/SKILL.md; preserve original wording"
     },
     "skills/9router-image/SKILL.md": {
       "upstream_sha256": "5660e477888718bdba385a5432b38f967f05ed4f61dacc6f705ae08ac90bf791",
-      "changes": "Replace generic environment setup with mandatory bundled JALA 9Router setup instruction"
+      "changes": "Replace remote setup URL with ../9router/SKILL.md; preserve original wording"
     },
     "skills/9router-stt/SKILL.md": {
       "upstream_sha256": "78ffb7a8857f895df970f4e34530edf1cfa737634f964b08173a51be4c4736d3",
-      "changes": "Replace generic environment setup with mandatory bundled JALA 9Router setup instruction"
+      "changes": "Replace remote setup URL with ../9router/SKILL.md; preserve original wording"
     },
     "skills/9router-tts/SKILL.md": {
       "upstream_sha256": "8f7b6ad7f846e8947ce50dd172157dd45ea6a61ed621e0c080fd9e6aa2af5db5",
-      "changes": "Replace generic environment setup with mandatory bundled JALA 9Router setup instruction"
+      "changes": "Replace remote setup URL with ../9router/SKILL.md; preserve original wording"
     },
     "skills/9router-web-fetch/SKILL.md": {
       "upstream_sha256": "6502e1184525f4e8de5499c7ae2c6bca63c2a070d310c06babb6653d58007edc",
-      "changes": "Replace generic environment setup with mandatory bundled JALA 9Router setup instruction"
+      "changes": "Replace remote setup URL with ../9router/SKILL.md; preserve original wording"
     },
     "skills/9router-web-search/SKILL.md": {
       "upstream_sha256": "fe8a0b6ac8026d11d40d4c4dafbcb9e8f6c2b594b3ebcb035e74b2f3817189cc",
-      "changes": "Replace generic environment setup with mandatory bundled JALA 9Router setup instruction"
+      "changes": "Replace remote setup URL with ../9router/SKILL.md; preserve original wording"
     }
   }
 }

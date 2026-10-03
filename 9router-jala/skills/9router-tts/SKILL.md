@@ -5,7 +5,7 @@ description: Text-to-speech via 9Router /v1/audio/speech using OpenAI / ElevenLa
 
 # 9Router — Text-to-Speech
 
-Before executing requests, read [9Router setup](../9router/SKILL.md) and follow its authentication, model selection, execution, and error-handling instructions. Those instructions take precedence over the generic examples below.
+Requires `NINEROUTER_URL` (and `NINEROUTER_KEY` if auth enabled). See ../9router/SKILL.md for setup.
 
 ## Discover
 

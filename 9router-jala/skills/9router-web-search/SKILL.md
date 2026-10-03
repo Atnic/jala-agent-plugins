@@ -5,7 +5,7 @@ description: Web and X search via 9Router /v1/search using Tavily / Exa / Brave 
 
 # 9Router — Web Search
 
-Before executing requests, read [9Router setup](../9router/SKILL.md) and follow its authentication, model selection, execution, and error-handling instructions. Those instructions take precedence over the generic examples below.
+Requires `NINEROUTER_URL` (and `NINEROUTER_KEY` if auth enabled). See ../9router/SKILL.md for setup.
 
 ## Discover
 

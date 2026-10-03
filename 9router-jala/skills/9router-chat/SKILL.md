@@ -5,7 +5,7 @@ description: Chat / code generation via 9Router using OpenAI /v1/chat/completion
 
 # 9Router — Chat
 
-Before executing requests, read [9Router setup](../9router/SKILL.md) and follow its authentication, model selection, execution, and error-handling instructions. Those instructions take precedence over the generic examples below.
+Requires `NINEROUTER_URL` (and `NINEROUTER_KEY` if auth enabled). See ../9router/SKILL.md for setup.
 
 ## Endpoints
 

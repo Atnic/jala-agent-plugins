@@ -413,7 +413,7 @@ class UpstreamCopiesTests(unittest.TestCase):
         root = Path(__file__).parents[1]
         manifest = json.loads((root / "upstream.json").read_text())
         original = 'Requires `NINEROUTER_URL` (and `NINEROUTER_KEY` if auth enabled). See https://raw.githubusercontent.com/decolua/9router/refs/heads/master/skills/9router/SKILL.md for setup.'
-        setup = 'Before executing requests, read [9Router setup](../9router/SKILL.md) and follow its authentication, model selection, execution, and error-handling instructions. Those instructions take precedence over the generic examples below.'
+        setup = 'Requires `NINEROUTER_URL` (and `NINEROUTER_KEY` if auth enabled). See ../9router/SKILL.md for setup.'
         capabilities = [name for name in manifest["adapted_files"] if name != "skills/9router/SKILL.md"]
         self.assertEqual(len(capabilities), 7)
         for name in capabilities:

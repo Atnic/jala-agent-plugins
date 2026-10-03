@@ -167,7 +167,7 @@ The seven capability `SKILL.md` files are minimally adapted from
 [decolua/9router at `a99cf57239ff`](https://github.com/decolua/9router/tree/a99cf57239ff778b61e434c2786009d5ed1c412c/skills).
 The `9router` entry point has minimal JALA changes: setup/helper guidance,
 model-default references, bundled capability links, and API-key recovery.
-Each capability replaces its generic environment setup paragraph with a required
+Each capability preserves its generic environment setup wording with a local
 link to the local entry point; its remaining upstream content is preserved.
 There is no separate wrapper skill.
 

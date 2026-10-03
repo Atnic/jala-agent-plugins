@@ -5,7 +5,7 @@ description: Generate images via 9Router /v1/images/generations using OpenAI / G
 
 # 9Router — Image Generation
 
-Before executing requests, read [9Router setup](../9router/SKILL.md) and follow its authentication, model selection, execution, and error-handling instructions. Those instructions take precedence over the generic examples below.
+Requires `NINEROUTER_URL` (and `NINEROUTER_KEY` if auth enabled). See ../9router/SKILL.md for setup.
 
 ## Discover
 

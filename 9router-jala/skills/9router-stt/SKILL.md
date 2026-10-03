@@ -5,7 +5,7 @@ description: Speech-to-text via 9Router /v1/audio/transcriptions using OpenAI Wh
 
 # 9Router — Speech-to-Text
 
-Before executing requests, read [9Router setup](../9router/SKILL.md) and follow its authentication, model selection, execution, and error-handling instructions. Those instructions take precedence over the generic examples below.
+Requires `NINEROUTER_URL` (and `NINEROUTER_KEY` if auth enabled). See ../9router/SKILL.md for setup.
 
 ## Discover
 
