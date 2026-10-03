@@ -3,6 +3,7 @@
 A collection of portable Agent Plugins for JALA workflows.
 
 Figma UI plugin: [GitHub](https://github.com/Atnic/jala-agent-plugins/tree/main/figma-ui).
+Odoo JALA Web plugin: [GitHub](https://github.com/Atnic/jala-agent-plugins/tree/main/odoo-jala-web).
 Gog plugin: [GitHub](https://github.com/Atnic/jala-agent-plugins/tree/main/gog).
 Mattermost JALA plugin: [GitHub](https://github.com/Atnic/jala-agent-plugins/tree/main/mattermost-jala).
 Matt Pocock Skills: Productivity plugin: [GitHub](https://github.com/Atnic/jala-agent-plugins/tree/main/mattpocock-skills-productivity).
@@ -53,6 +54,12 @@ questionnaires, plain-language explanations, and agent-facing writing.
 See [`mattpocock-skills-productivity/README.md`](mattpocock-skills-productivity/README.md)
 for the included skills, upstream attribution, and installation.
 
+### `odoo-jala-web`
+
+Automate browser tasks on JALA’s Odoo 16 instance and learn reusable personal workflows from chat explanations and browser demonstrations.
+
+See [`odoo-jala-web/README.md`](odoo-jala-web/README.md) for browser requirements, personal skill storage, and export behavior.
+
 ## Install in Claude Code
 
 This repository also has a Claude Code marketplace at
@@ -60,6 +67,7 @@ This repository also has a Claude Code marketplace at
 
 ```bash
 claude plugin marketplace add Atnic/jala-agent-plugins
+claude plugin install odoo-jala-web@jala-agent-plugins
 claude plugin install gog@jala-agent-plugins
 claude plugin install figma-ui@jala-agent-plugins
 claude plugin install mattermost-jala@jala-agent-plugins
@@ -80,48 +88,101 @@ This repository includes a Codex marketplace catalog at
 `.agents/plugins/marketplace.json`. It is a repository marketplace, not a listing in
 the public GitHub Marketplace.
 
+### Prerequisites
+
+Use a Codex CLI version that supports `codex plugin`. Check with:
+
+```bash
+codex plugin --help
+```
+
 ### From GitHub
 
-Add the repository as a marketplace, then install the plugin you want:
+Register the marketplace and inspect the available plugins:
 
 ```bash
 codex plugin marketplace add https://github.com/Atnic/jala-agent-plugins.git --ref main
-codex plugin list
-codex plugin add gog@jala-agent-plugins
+codex plugin marketplace list
+codex plugin list --marketplace jala-agent-plugins --available --json
 ```
 
-Use `codex plugin add figma-ui@jala-agent-plugins` for the Figma UI plugin,
-`codex plugin add mattermost-jala@jala-agent-plugins` for Mattermost, and
-`codex plugin add mattpocock-skills-productivity@jala-agent-plugins` for Matt
-Pocock's general workflow skills.
-
-The repository URL must point to the repository itself. Do not use a GitHub `/tree/`
-URL. The `--ref main` option pins the marketplace snapshot to the `main` branch.
-For a private repository, authenticate GitHub when prompted and make sure the
-account has read access.
-
-After installation, restart the Codex desktop app or start a new task so the
-installed plugin components are loaded. When a plugin is updated, refresh the
-marketplace and reinstall that plugin:
+Install the plugins you want; each command below installs one plugin:
 
 ```bash
-codex plugin marketplace upgrade jala-agent-plugins
+codex plugin add figma-ui@jala-agent-plugins
 codex plugin add gog@jala-agent-plugins
+codex plugin add mattermost-jala@jala-agent-plugins
+codex plugin add mattpocock-skills-productivity@jala-agent-plugins
+codex plugin add odoo-jala-web@jala-agent-plugins
 ```
 
-Replace `gog` with `figma-ui` or `mattermost-jala` when updating those plugins.
-For Matt Pocock Skills, use `mattpocock-skills-productivity`.
+The repository URL must point to the repository itself. Do not use a GitHub
+`/tree/` URL. `--ref main` selects the Git branch to fetch. For a private
+repository, make sure your Git credentials have read access.
+
+GitHub installation uses the published `main` branch. To try a new plugin or
+changes that have not been pushed there, use the local checkout instructions.
 
 ### From a local checkout
 
+Register the absolute path to this repository, then install the desired plugin:
+
 ```bash
 codex plugin marketplace add /absolute/path/to/jala-agent-plugins
-codex plugin add gog@jala-agent-plugins
+codex plugin list --marketplace jala-agent-plugins --available --json
+codex plugin add odoo-jala-web@jala-agent-plugins
 ```
 
-Replace `gog` with `figma-ui`, `mattermost-jala`, or
-`mattpocock-skills-productivity` to install another plugin from the local
-checkout.
+Replace `odoo-jala-web` with any plugin identifier in the GitHub installation
+list. If you already registered the GitHub marketplace with the same name,
+remove that registration before adding the local source:
+
+```bash
+codex plugin marketplace remove jala-agent-plugins
+codex plugin marketplace add /absolute/path/to/jala-agent-plugins
+```
+
+### Load and verify
+
+After installation, restart the Codex desktop app or start a new task so its
+installed components are loaded. Check the CLI's installed plugin list:
+
+```bash
+codex plugin list --marketplace jala-agent-plugins --json
+```
+
+Complete the selected plugin's requirements:
+
+| Plugin | Requirements |
+| --- | --- |
+| `figma-ui` | Figma Desktop and the local bridge; see [setup](figma-ui/README.md). |
+| `gog` | Local `gog` CLI and Google account authorization; see [setup](gog/README.md). |
+| `mattermost-jala` | Mattermost OAuth sign-in and server prerequisites; see [setup](mattermost-jala/README.md). |
+| `mattpocock-skills-productivity` | See the [skill inventory and usage](mattpocock-skills-productivity/README.md). |
+| `odoo-jala-web` | An available browser capability and Odoo sign-in; see [setup](odoo-jala-web/README.md). The plugin does not install Browser itself. |
+
+For Odoo JALA Web, start with “Learn this workflow” or invoke
+`$odoo-jala-web-learn-workflow`. Generated personal skills are stored separately
+from the plugin, using the active harness's personal skill directory when
+available, with an export fallback otherwise.
+
+### Update a plugin
+
+For a GitHub marketplace, fetch its latest snapshot and reinstall the plugin:
+
+```bash
+codex plugin marketplace upgrade jala-agent-plugins
+codex plugin add odoo-jala-web@jala-agent-plugins
+```
+
+For a local marketplace, reinstall after editing the checkout:
+
+```bash
+codex plugin add odoo-jala-web@jala-agent-plugins
+```
+
+Replace `odoo-jala-web` with the plugin you are updating, then restart the app
+or start a new task to load the updated components.
 
 ### Workspace import
 
@@ -147,6 +208,7 @@ jala-agent-plugins/
 ├── .claude-plugin/marketplace.json
 ├── figma-ui/
 ├── gog/
+├── odoo-jala-web/
 ├── mattermost-jala/
 └── mattpocock-skills-productivity/
 ```

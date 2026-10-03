@@ -19,6 +19,11 @@
       "name": "mattermost-jala",
       "source": "./mattermost-jala",
       "description": "Search Mattermost, read channel threads, create channels, and post in JALA."
+    },
+    {
+      "name": "odoo-jala-web",
+      "source": "./odoo-jala-web",
+      "description": "Automate personal Odoo JALA browser tasks and turn taught workflows into reusable personal skills."
     }
   ]
 }

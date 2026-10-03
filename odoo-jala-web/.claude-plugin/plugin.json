@@ -1,0 +1,9 @@
+{
+  "name": "odoo-jala-web",
+  "version": "0.1.0",
+  "description": "Automate personal workflows on JALA’s Odoo 16 web instance and turn taught procedures into reusable personal skills.",
+  "author": {
+    "name": "JALA"
+  },
+  "repository": "https://github.com/Atnic/jala-agent-plugins"
+}

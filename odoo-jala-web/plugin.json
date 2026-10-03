@@ -1,0 +1,35 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "odoo-jala-web",
+  "version": "0.1.0",
+  "description": "Automate personal workflows on JALA’s Odoo 16 web instance and turn taught procedures into reusable personal skills.",
+  "author": {
+    "name": "JALA"
+  },
+  "repository": "https://github.com/Atnic/jala-agent-plugins",
+  "keywords": [
+    "odoo",
+    "browser",
+    "automation",
+    "personal-skills"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Odoo JALA Web",
+        "shortDescription": "Automate JALA Odoo 16 tasks and learn workflows.",
+        "longDescription": "Automate personal workflows on JALA’s Odoo 16 web instance and turn taught procedures into reusable personal skills.",
+        "developerName": "JALA",
+        "category": "Productivity",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "brandColor": "#714B67",
+        "composerIcon": "./assets/odoo-plugin-icon.svg",
+        "logo": "./assets/odoo-plugin-icon.svg",
+        "logoDark": "./assets/odoo-plugin-icon-dark.svg"
+      }
+    }
+  }
+}
