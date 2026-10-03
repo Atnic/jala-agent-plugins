@@ -1,6 +1,6 @@
 # 9Router JALA
 
-Version: `0.1.0`. A skills-only plugin for Codex and Claude Code that uses a
+Version: `0.1.1`. A skills-only plugin for Codex and Claude Code that uses a
 hosted [JALA 9Router gateway](https://9router.jala.tech) for chat, images, audio, embeddings, and web tools.
 
 ## Requirements and API key setup
