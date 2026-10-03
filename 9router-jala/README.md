@@ -80,7 +80,7 @@ python3 "<plugin-root>/scripts/gateway.py" forget
 adds authentication internally. Run `setup-web` (browser) or `setup` (terminal) to replace a saved key; `forget`
 removes it locally without revoking it in the dashboard. Environment overrides
 remain active after forgetting a saved key. For POSTs, media output, and audio
-uploads, see the [helper guide](skills/9router-jala/references/authentication.md).
+uploads, see the [helper guide](skills/9router/references/authentication.md).
 
 ## Plaintext fallback and migration
 
@@ -105,7 +105,7 @@ credential; use setup to replace it instead. Plaintext fallback files are usable
 
 ## Skills
 
-See the [verified model mapping and live catalog](skills/9router-jala/references/models.md)
+See the [verified model mapping and live catalog](skills/9router/references/models.md)
 for the two JALA chat combos and capability defaults for Codex, OpenAI API, and Exa connections.
 These request models are selected separately from the harness configuration.
 `gateway.py run <skill> --body request.json` selects the configured default,
@@ -113,8 +113,7 @@ checks the live model catalog, and submits to the correct capability endpoint.
 
 | Skill | Purpose |
 | --- | --- |
-| `9router-jala` | JALA setup, credentials, model defaults, and helper execution |
-| `9router` | Unchanged upstream gateway setup, discovery, and capability routing |
+| `9router` | JALA setup, credentials, model defaults, and capability routing |
 | `9router-chat` | OpenAI and Anthropic chat formats, streaming, and fallback combos |
 | `9router-image` | Image generation and provider options |
 | `9router-tts` | Voice discovery and text-to-speech |
@@ -123,11 +122,11 @@ checks the live model catalog, and submits to the correct capability endpoint.
 | `9router-web-search` | Web and X search through configured providers |
 | `9router-web-fetch` | URL extraction to markdown, text, or HTML |
 
-Invoke `$9router-jala` in Codex, or ask “Use the JALA 9Router gateway.”
-In Claude Code, invoke `/9router-jala:9router-jala`. Start with this wrapper for
-JALA requests. The upstream skills retain their generic setup, broad provider
-examples, and remote links; invoking them directly does not load the wrapper's
-JALA configuration. Their original instructions are intentionally unchanged.
+Invoke `$9router` in Codex, or ask “Use the JALA 9Router gateway.”
+In Claude Code, invoke `/9router-jala:9router`. This entry point loads the JALA
+credential helper and model defaults before reading a capability skill. The
+seven capability skills retain their upstream contents; use the entry point
+to apply JALA configuration when reading their generic provider examples.
 
 ## Installation
 
@@ -158,20 +157,22 @@ Installing from GitHub before publication will not include these local changes.
 
 ## Attribution and validation limits
 
-The eight upstream `SKILL.md` files are byte-for-byte copies from
+The seven capability `SKILL.md` files are byte-for-byte copies from
 [decolua/9router at `a99cf57239ff`](https://github.com/decolua/9router/tree/a99cf57239ff778b61e434c2786009d5ed1c412c/skills).
-They include the entry point and all seven capability skills it links.
-[upstream.json](upstream.json) pins the commit and SHA-256 hashes; an automated
-test verifies the copies have not changed. The upstream MIT license is retained
-unchanged in [LICENSE.upstream](LICENSE.upstream).
+The `9router` entry point has minimal JALA changes: setup/helper guidance,
+model-default references, bundled capability links, and API-key recovery.
+There is no separate wrapper skill.
 
-JALA-specific instructions live in the separate `9router-jala` wrapper skill,
-its references, `models.json`, the credential form, and the request helper.
-The separate upstream video skill is outside the entry point's inventory.
+[upstream.json](upstream.json) records the commit, hashes for unchanged files,
+and the original hash and changes for the adapted entry point. An automated
+test verifies the seven unchanged copies and MIT license. The license is
+retained in [LICENSE.upstream](LICENSE.upstream). Model mappings and credential
+instructions live in the entry point's references and the helper. The separate
+upstream video skill is outside the entry point's inventory.
 
 Optional icon fields are omitted because no artwork was selected and verified.
 Structural and skill-format checks do not establish gateway compatibility.
-Package creation passed the repository structural validator, all nine skill
+Package creation passed the repository structural validator, all eight skill
 format checks, Claude's strict manifest validation, and `git diff --check`.
 The installed Codex CLI has no standalone plugin validation command, so its
 manifest was checked for local consistency without installing the package.

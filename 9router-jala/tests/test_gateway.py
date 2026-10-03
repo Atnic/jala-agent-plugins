@@ -346,7 +346,7 @@ class UpstreamCopiesTests(unittest.TestCase):
         import json
         root = Path(__file__).parents[1]
         manifest = json.loads((root / "upstream.json").read_text())
-        self.assertEqual(len([p for p in manifest["files"] if p.endswith("SKILL.md")]), 8)
+        self.assertEqual(len([p for p in manifest["files"] if p.endswith("SKILL.md")]), 7)
         for name, digest in manifest["files"].items():
             with self.subTest(file=name):
                 self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest)

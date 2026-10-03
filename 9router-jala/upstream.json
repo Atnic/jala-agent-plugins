@@ -9,7 +9,12 @@
     "skills/9router-stt/SKILL.md": "78ffb7a8857f895df970f4e34530edf1cfa737634f964b08173a51be4c4736d3",
     "skills/9router-tts/SKILL.md": "8f7b6ad7f846e8947ce50dd172157dd45ea6a61ed621e0c080fd9e6aa2af5db5",
     "skills/9router-web-fetch/SKILL.md": "6502e1184525f4e8de5499c7ae2c6bca63c2a070d310c06babb6653d58007edc",
-    "skills/9router-web-search/SKILL.md": "fe8a0b6ac8026d11d40d4c4dafbcb9e8f6c2b594b3ebcb035e74b2f3817189cc",
-    "skills/9router/SKILL.md": "5093d0080c388fd654d2b5aa89e52ed253008da95f0f707255de87678b01deda"
+    "skills/9router-web-search/SKILL.md": "fe8a0b6ac8026d11d40d4c4dafbcb9e8f6c2b594b3ebcb035e74b2f3817189cc"
+  },
+  "adapted_files": {
+    "skills/9router/SKILL.md": {
+      "upstream_sha256": "5093d0080c388fd654d2b5aa89e52ed253008da95f0f707255de87678b01deda",
+      "changes": "JALA setup/helper guidance and bundled capability links"
+    }
   }
 }
