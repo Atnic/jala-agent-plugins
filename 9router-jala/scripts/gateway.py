@@ -53,11 +53,16 @@ def credential_store():
             store.persist = "local machine"
             _ = store.priority  # Ensure the native Windows bindings are available.
             return store
+        if sys.platform.startswith("linux"):
+            from keyring.backends.SecretService import Keyring
+            store = Keyring()
+            _ = store.priority  # Check SecretStorage and the session D-Bus service.
+            return store
     except ImportError:
         raise ValueError("Run gateway.py install-runtime before setup.") from None
     except Exception:
         raise ValueError("Native credential storage is unavailable in this Python environment.") from None
-    raise ValueError("Saved keys require macOS Keychain or Windows Credential Manager. On other systems, supply NINEROUTER_KEY from a managed secret store.")
+    raise ValueError("Native saved-key storage supports macOS Keychain, Windows Credential Manager, and Linux Secret Service.")
 
 
 def store_operation(store, operation, *args):
@@ -372,7 +377,7 @@ def main():
     run.add_argument("--output", type=Path, help="Save the response to a new file")
     run.add_argument("--audio-file", type=Path, help="Audio input for transcription")
     args = parser.parse_args()
-    if args.command != "install-runtime" and sys.platform in ("darwin", "win32"):
+    if args.command != "install-runtime" and (sys.platform in ("darwin", "win32") or sys.platform.startswith("linux")):
         # Preserve the simple setup command across plugin upgrades and host interpreters.
         import importlib.util
         if importlib.util.find_spec("keyring") is None:

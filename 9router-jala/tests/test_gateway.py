@@ -70,8 +70,24 @@ class GatewayTests(unittest.TestCase):
                 self.assertIs(native_store_factory(), windows_store)
                 self.assertEqual(windows_store.persist, "local machine")
 
+    def test_linux_selects_secret_service_explicitly(self):
+        module = types.ModuleType("keyring.backends.SecretService")
+        store = Mock(priority=5)
+        module.Keyring = Mock(return_value=store)
+        with patch.dict(sys.modules, {"keyring.backends.SecretService": module}), patch.object(gateway.sys, "platform", "linux"):
+            self.assertIs(native_store_factory(), store)
+            module.Keyring.assert_called_once()
+
+    def test_linux_unavailable_service_uses_private_fallback(self):
+        module = types.ModuleType("keyring.backends.SecretService")
+        module.Keyring = Mock(side_effect=RuntimeError("no session bus"))
+        with patch.dict(sys.modules, {"keyring.backends.SecretService": module}), patch.object(gateway.sys, "platform", "linux"), patch.object(gateway, "credential_store", native_store_factory):
+            gateway.save_key("test-linux")
+            self.assertEqual(gateway.read_plaintext_key(), "test-linux")
+            self.assertEqual(gateway.credential_path().stat().st_mode & 0o777, 0o600)
+
     def test_unsupported_os_does_not_fallback_to_file(self):
-        with patch.object(gateway.sys, "platform", "linux"), self.assertRaises(ValueError):
+        with patch.object(gateway.sys, "platform", "freebsd"), self.assertRaises(ValueError):
             native_store_factory()
         self.assertFalse(gateway.credential_path().exists())
 
@@ -291,7 +307,7 @@ class GatewayTests(unittest.TestCase):
         body.write_text('{"input":"hello"}')
         for extra in [[], ["--output", str(Path(self.temporary.name) / "missing" / "speech.mp3")]]:
             argv = ["gateway.py", "run", "9router-tts", "--body", str(body), *extra]
-            with patch.object(gateway.sys, "platform", "linux"), patch.object(sys, "argv", argv), patch.object(gateway, "run_skill") as run, patch.object(sys, "stderr", io.StringIO()):
+            with patch.object(gateway.sys, "platform", "freebsd"), patch.object(sys, "argv", argv), patch.object(gateway, "run_skill") as run, patch.object(sys, "stderr", io.StringIO()):
                 self.assertEqual(gateway.main(), 1)
                 run.assert_not_called()
 
@@ -300,7 +316,7 @@ class GatewayTests(unittest.TestCase):
         body.write_text('{"input":"hello"}')
         output = Path(self.temporary.name) / "speech.mp3"
         argv = ["gateway.py", "run", "9router-tts", "--body", str(body), "--output", str(output)]
-        with patch.object(gateway.sys, "platform", "linux"), patch.object(sys, "argv", argv), patch.object(gateway, "run_skill", side_effect=ValueError("failed")), patch.object(sys, "stderr", io.StringIO()):
+        with patch.object(gateway.sys, "platform", "freebsd"), patch.object(sys, "argv", argv), patch.object(gateway, "run_skill", side_effect=ValueError("failed")), patch.object(sys, "stderr", io.StringIO()):
             self.assertEqual(gateway.main(), 1)
         self.assertFalse(output.exists())
 

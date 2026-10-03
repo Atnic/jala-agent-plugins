@@ -26,7 +26,7 @@ python3 "<plugin-root>/scripts/gateway.py" setup-web
 ```
 
 The browser form masks the key and verifies it through `/v1/models`, then saves
-it in **macOS Keychain** or **Windows Credential Manager**, under service
+it in **macOS Keychain**, **Windows Credential Manager**, or **Linux Secret Service**, under service
 `tech.jala.9router` and account `api-key`. Windows credentials persist for the
 current user on this machine. The helper selects these native encrypted stores
 explicitly and falls back to a private plaintext file if native storage is unavailable. OS access prompts may
@@ -41,7 +41,7 @@ python3 /absolute/path/to/jala-agent-plugins/9router-jala/scripts/gateway.py set
 
 `NINEROUTER_KEY` can be supplied through an existing environment or managed
 secret store instead; it takes precedence over the saved key. The helper does
-not encrypt environment variables. Linux uses the plaintext fallback for saved keys.
+not encrypt environment variables. Linux uses Secret Service when available, with the same plaintext fallback otherwise.
 
 The form opens when `setup-web` runs, rather than automatically during installation.
 It is served on a temporary loopback URL with a session token, closes after a
@@ -52,6 +52,20 @@ The original hidden terminal prompt remains available with `gateway.py setup`.
 It remains a skills package with a local helper, rather than an MCP connector.
 It does not change the host agent's own model provider. Provider availability,
 quota, billing, model IDs, and supported options depend on the deployment.
+
+## Linux credential storage
+
+The helper explicitly selects the Freedesktop Secret Service backend through
+`SecretStorage`, installed by `install-runtime` on Linux. A running session
+D-Bus and a Secret Service provider such as GNOME Keyring are required. KWallet
+works when its Secret Service interface is enabled; a KWallet-only D-Bus service
+is not selected. Users complete any desktop unlock prompt themselves.
+
+On headless systems without an accessible Secret Service, setup saves the
+permitted plaintext fallback with private permissions. `NINEROUTER_KEY` remains
+an alternative. Run `install-runtime` again after upgrading to install the Linux
+dependency. The private runtime is located at
+`~/.config/9router-jala/runtime`, as on macOS.
 
 ## Use and replace a key
 
@@ -148,7 +162,7 @@ and its seven linked capability skills at commit
 in [LICENSE.upstream](LICENSE.upstream). Local adaptations add the hosted JALA endpoint, a credential setup and
 request helper, narrow discovery descriptions to 9Router requests, replace
 remote skill loading with bundled links, and correct the web-fetch JavaScript
-response example. The separate upstream video skill is outside this inventory.
+response example. All seven capability skills linked from the upstream entry point are bundled. This is an adaptation, not a verbatim copy: local skill links, credential handling, scoped models, and endpoint model translation differ. The separate upstream video skill is outside this inventory.
 
 Optional icon fields are omitted because no artwork was selected and verified.
 Structural and skill-format checks do not establish gateway compatibility.
@@ -156,11 +170,11 @@ Package creation passed the repository structural validator, all eight skill
 format checks, Claude's strict manifest validation, and `git diff --check`.
 The installed Codex CLI has no standalone plugin validation command, so its
 manifest was checked for local consistency without installing the package.
-The hosted `/api/health` check returned `200` and `{"ok":true}`. Thirty-two
+The hosted `/api/health` check returned `200` and `{"ok":true}`. Thirty-four
 credential/request tests passed using mocked native stores, temporary legacy files, and mocked HTTP.
 A native macOS Keychain save/read/replace/delete test passed with a disposable
 dummy credential. Windows backend selection and local persistence were checked
-in tests; native Windows execution has not been verified on a Windows machine. Authenticated model catalogs were checked using the key submitted in the local
+in tests; native Windows and Linux Secret Service execution have not been verified on their respective systems. Linux backend selection and unavailable-service fallback are covered with mocks. Authenticated model catalogs were checked using the key submitted in the local
 form. Live smoke tests passed for the default chat and finance combos, Sunburst
 image generation, embeddings, spoken-audio transcription, TTS, and Exa search/fetch.
 TTS and Exa require translating catalog IDs to endpoint-specific formats; the

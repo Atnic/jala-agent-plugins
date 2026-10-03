@@ -35,14 +35,18 @@ status` to verify that setup succeeded. If the session expires, launch it again.
 For a terminal fallback, give the user `gateway.py setup` to run in their own
 interactive terminal; do not operate that hidden prompt yourself.
 
-Saved keys use macOS Keychain or Windows Credential Manager, with service
+Saved keys use macOS Keychain, Windows Credential Manager, or Linux Secret Service, with service
 `tech.jala.9router` and account `api-key`. Windows uses local-machine persistence
 for the current user. The native encrypted backend is selected explicitly; a private plaintext
 file is used as fallback if native storage fails. The user completes any OS authorization prompt.
 Do not read saved credentials using a keychain CLI or display them in tool output.
 
 `NINEROUTER_KEY` remains an environment override and is not encrypted by the
-helper. Linux uses the plaintext fallback for saved-key setup.
+helper. Linux explicitly uses SecretStorage with a session D-Bus and Secret
+Service provider (such as GNOME Keyring, or KWallet with Secret Service enabled).
+Run `install-runtime` again after upgrading to install the Linux dependency.
+Without an accessible service, Linux uses the permitted plaintext fallback.
+Native Linux and Windows execution have not been verified on those systems.
 
 For older versions, run `gateway.py migrate` to move the legacy plaintext file
 at `~/.config/9router-jala/api-key` into the OS store. This command never prints

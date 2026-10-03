@@ -17,7 +17,7 @@ Use the hosted JALA 9Router gateway for chat, image generation, speech,
 embeddings, web search, and URL extraction. This skills-only package bundles the
 upstream entry point and its seven linked capability skills for Codex and Claude
 Code. It requires Python 3.9+, `keyring`, and a per-user API key entered through a local
-HTML setup form, saved in macOS Keychain or Windows Credential Manager.
+HTML setup form, saved in macOS Keychain, Windows Credential Manager, or Linux Secret Service.
 
 See [`9router-jala/README.md`](9router-jala/README.md) for setup, attribution,
 and installation of the local unpublished package.
@@ -171,7 +171,7 @@ Complete the selected plugin's requirements:
 
 | Plugin | Requirements |
 | --- | --- |
-| `9router-jala` | Python 3.9+, `keyring`, and a per-user API key; native saved-key support on macOS/Windows; see [setup](9router-jala/README.md). |
+| `9router-jala` | Python 3.9+, `keyring`, and a per-user API key; native saved-key support on macOS/Windows/Linux; see [setup](9router-jala/README.md). |
 | `figma-ui` | Figma Desktop and the local bridge; see [setup](figma-ui/README.md). |
 | `gog` | Local `gog` CLI and Google account authorization; see [setup](gog/README.md). |
 | `mattermost-jala` | Mattermost OAuth sign-in and server prerequisites; see [setup](mattermost-jala/README.md). |
