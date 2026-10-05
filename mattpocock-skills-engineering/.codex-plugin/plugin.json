@@ -1,0 +1,37 @@
+{
+  "name": "mattpocock-skills-engineering",
+  "version": "1.3.1",
+  "description": "Engineering workflow skills from Matt Pocock's Engineering collection, packaged for Codex.",
+  "author": {
+    "name": "JALA"
+  },
+  "repository": "https://github.com/Atnic/jala-agent-plugins",
+  "homepage": "https://github.com/mattpocock/skills",
+  "keywords": [
+    "matt-pocock",
+    "engineering",
+    "code",
+    "testing",
+    "planning",
+    "agent-skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Matt Pocock Skills: Engineering",
+    "shortDescription": "Engineering skills for planning, implementing, reviewing, and maintaining code.",
+    "longDescription": "Twenty curated engineering skills for codebase design, debugging, domain modeling, TDD, research, issue triage, specs, tickets, implementation, and code review.",
+    "developerName": "JALA",
+    "websiteURL": "https://github.com/Atnic/jala-agent-plugins/tree/main/mattpocock-skills-engineering",
+    "category": "Productivity",
+    "capabilities": [],
+    "brandColor": "#4F46E5",
+    "composerIcon": "./assets/aihero-logo.svg",
+    "logo": "./assets/aihero-logo.svg",
+    "logoDark": "./assets/aihero-logo-dark.svg",
+    "defaultPrompt": [
+      "Help me plan and implement this feature.",
+      "Review this change against the spec and project standards.",
+      "Help me understand or improve this codebase."
+    ]
+  }
+}

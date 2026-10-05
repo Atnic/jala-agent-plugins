@@ -6,6 +6,7 @@ A collection of portable Agent Plugins for JALA workflows.
 - [Figma UI](figma-ui/README.md)
 - [Gog](gog/README.md)
 - [Mattermost JALA](mattermost-jala/README.md)
+- [Matt Pocock Skills: Engineering](mattpocock-skills-engineering/README.md)
 - [Matt Pocock Skills: Productivity](mattpocock-skills-productivity/README.md)
 - [Odoo JALA Web](odoo-jala-web/README.md)
 
@@ -56,6 +57,14 @@ server's tool definitions.
 
 See [`mattermost-jala/README.md`](mattermost-jala/README.md) for requirements,
 authentication, and installation.
+
+### `mattpocock-skills-engineering`
+
+A Codex plugin packaging 20 engineering skills from Matt Pocock's collection,
+including planning, implementation, testing, issue triage, and code review.
+
+See [`mattpocock-skills-engineering/README.md`](mattpocock-skills-engineering/README.md)
+for the skill inventory, setup requirements, upstream attribution, and installation.
 
 ### `mattpocock-skills-productivity`
 
@@ -128,6 +137,7 @@ codex plugin add 9router-jala@jala-agent-plugins
 codex plugin add figma-ui@jala-agent-plugins
 codex plugin add gog@jala-agent-plugins
 codex plugin add mattermost-jala@jala-agent-plugins
+codex plugin add mattpocock-skills-engineering@jala-agent-plugins
 codex plugin add mattpocock-skills-productivity@jala-agent-plugins
 codex plugin add odoo-jala-web@jala-agent-plugins
 ```
@@ -175,6 +185,7 @@ Complete the selected plugin's requirements:
 | `figma-ui` | Figma Desktop and the local bridge; see [setup](figma-ui/README.md). |
 | `gog` | Local `gog` CLI and Google account authorization; see [setup](gog/README.md). |
 | `mattermost-jala` | Mattermost OAuth sign-in and server prerequisites; see [setup](mattermost-jala/README.md). |
+| `mattpocock-skills-engineering` | Set up the target repository and issue tracker; see the [skill inventory and setup](mattpocock-skills-engineering/README.md). |
 | `mattpocock-skills-productivity` | See the [skill inventory and usage](mattpocock-skills-productivity/README.md). |
 | `odoo-jala-web` | An available browser capability and Odoo sign-in; see [setup](odoo-jala-web/README.md). The plugin does not install Browser itself. |
 
@@ -227,6 +238,7 @@ jala-agent-plugins/
 ├── figma-ui/
 ├── gog/
 ├── mattermost-jala/
+├── mattpocock-skills-engineering/
 ├── mattpocock-skills-productivity/
 └── odoo-jala-web/
 ```
