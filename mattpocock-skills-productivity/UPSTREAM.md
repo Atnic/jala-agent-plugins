@@ -2,7 +2,8 @@
 
 - Repository: <https://github.com/mattpocock/skills>
 - Source directory: `skills/productivity/`
-- Commit: `c55ee46073ed923f86ce59a5eb3b6d895095d1b7`
+- Release: `v1.3.1`
+- Commit: `24fe0ef7737efae15c87225755e9f6f5965e4888`
 - License: MIT; full notice is in [LICENSE.mattpocock](LICENSE.mattpocock)
 
 This plugin copies the upstream Productivity skills into a single Codex
