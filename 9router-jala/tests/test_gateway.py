@@ -1,5 +1,6 @@
 import importlib.util
 import io
+import json
 import os
 from pathlib import Path
 import tempfile
@@ -128,7 +129,7 @@ class GatewayTests(unittest.TestCase):
         port = server.server_port
         import json
         request = urllib.request.Request(
-            f"http://127.0.0.1:{port}/api/setup",
+            f"http://127.0.0.1:{port}{server.setup_endpoint}",
             data=json.dumps({"key": key}).encode(),
             headers={"Content-Type": "application/json",
                      "Origin": origin or f"http://127.0.0.1:{port}",
@@ -150,6 +151,133 @@ class GatewayTests(unittest.TestCase):
                 self.assertEqual(self.values[(gateway.KEYRING_SERVICE, gateway.KEYRING_ACCOUNT)], "test-web-secret")
                 self.assertFalse(gateway.credential_path().exists())
                 send.assert_called_once_with("/v1/models", "test-web-secret")
+
+    def test_codex_config_merge_preserves_other_provider_and_settings(self):
+        existing = '''model = "another-model"
+model_provider = "another-provider"
+approval_policy = "on-request"
+
+[model_providers.another-provider]
+base_url = "https://example.test/v1"
+
+[model_providers.9router-jala]
+custom_setting = "preserve"
+wire_api = "chat" # retain this note
+'''
+        merged = gateway.merge_codex_config(existing, "/tmp/codex/models_9router_jala.json", 'key"\\value')
+        parsed = gateway.tomllib.loads(merged)
+        self.assertEqual(parsed["approval_policy"], "on-request")
+        self.assertEqual(parsed["model"], "9router-jala")
+        self.assertEqual(parsed["model_provider"], "9router-jala")
+        self.assertEqual(parsed["preferred_auth_method"], "apikey")
+        self.assertEqual(parsed["forced_login_method"], "api")
+        self.assertEqual(parsed["model_reasoning_effort"], "high")
+        self.assertEqual(parsed["model_catalog_json"], "/tmp/codex/models_9router_jala.json")
+        self.assertEqual(parsed["model_providers"]["another-provider"]["base_url"], "https://example.test/v1")
+        self.assertEqual(parsed["model_providers"]["9router-jala"]["custom_setting"], "preserve")
+        self.assertEqual(parsed["model_providers"]["9router-jala"]["name"], "9Router JALA")
+        self.assertEqual(parsed["model_providers"]["9router-jala"]["wire_api"], "responses")
+        self.assertEqual(parsed["model_providers"]["9router-jala"]["experimental_bearer_token"], 'key"\\value')
+        self.assertIn("# retain this note", merged)
+
+    def test_codex_config_merge_uses_toml_structure_not_header_looking_string_content(self):
+        existing = '''prompt = """
+[model_providers.9router-jala]
+model = "keep this string content"
+"""
+
+[other]
+model = "keep this table value"
+'''
+        merged = gateway.merge_codex_config(existing, "/tmp/codex/models_9router_jala.json", "test-secret")
+        parsed = gateway.tomllib.loads(merged)
+        self.assertEqual(parsed["prompt"], '[model_providers.9router-jala]\nmodel = "keep this string content"\n')
+        self.assertEqual(parsed["other"]["model"], "keep this table value")
+        self.assertEqual(parsed["model"], "9router-jala")
+        self.assertEqual(parsed["model_providers"]["9router-jala"]["experimental_bearer_token"], "test-secret")
+
+    def test_codex_config_merge_rejects_invalid_toml(self):
+        with self.assertRaisesRegex(ValueError, "valid TOML"):
+            gateway.merge_codex_config("[invalid", "/tmp/models.json", "test-secret")
+
+    def test_configure_codex_leaves_invalid_config_untouched(self):
+        root = Path(self.temporary.name) / "codex-home"
+        root.mkdir()
+        config = root / "config.toml"
+        config.write_text("model = [\n")
+        with patch.dict(os.environ, {"CODEX_HOME": str(root)}), self.assertRaisesRegex(ValueError, "valid TOML"):
+            gateway.configure_codex("test-codex-secret")
+        self.assertEqual(config.read_text(), "model = [\n")
+        self.assertFalse((root / "9router-jala").exists())
+
+    def test_codex_setup_rejects_invalid_config_before_opening_key_form(self):
+        root = Path(self.temporary.name) / "codex-home"
+        root.mkdir()
+        config = root / "config.toml"
+        config.write_text("model = [\n")
+        with patch.dict(os.environ, {"CODEX_HOME": str(root)}), self.assertRaisesRegex(ValueError, "valid TOML"):
+            gateway.setup_server(configure=True)
+        self.assertEqual(config.read_text(), "model = [\n")
+        self.assertFalse((root / "models_9router_jala.json").exists())
+
+    def test_configure_codex_installs_bundled_catalog_and_private_config(self):
+        root = Path(self.temporary.name) / "codex-home"
+        root.mkdir()
+        root.chmod(0o755)
+        with patch.dict(os.environ, {"CODEX_HOME": str(root)}):
+            config_path = gateway.configure_codex("test-codex-secret")
+        parsed = gateway.tomllib.loads(config_path.read_text())
+        provider = parsed["model_providers"]["9router-jala"]
+        self.assertEqual(parsed["model"], "9router-jala")
+        self.assertEqual(parsed["model_provider"], "9router-jala")
+        self.assertEqual(parsed["preferred_auth_method"], "apikey")
+        self.assertEqual(parsed["forced_login_method"], "api")
+        self.assertEqual(parsed["model_reasoning_effort"], "high")
+        self.assertEqual(provider["name"], "9Router JALA")
+        self.assertEqual(provider["base_url"], "https://9router.jala.tech/v1")
+        self.assertEqual(provider["wire_api"], "responses")
+        self.assertEqual(provider["experimental_bearer_token"], "test-codex-secret")
+        self.assertEqual(parsed["model_catalog_json"], str(root.resolve() / "models_9router_jala.json"))
+        catalog = json.loads(Path(parsed["model_catalog_json"]).read_text())
+        self.assertNotIn("fetched_at", catalog)
+        self.assertNotIn("etag", catalog)
+        self.assertNotIn("client_version", catalog)
+        model = next(item for item in catalog["models"] if item["slug"] == "9router-jala")
+        self.assertNotIn("GPT-", model["description"])
+        self.assertEqual(config_path.stat().st_mode & 0o777, 0o600)
+        self.assertEqual(Path(parsed["model_catalog_json"]).stat().st_mode & 0o777, 0o600)
+        self.assertEqual(root.stat().st_mode & 0o777, 0o755)
+
+    def test_codex_web_setup_configures_provider_after_key_verification(self):
+        root = Path(self.temporary.name) / "codex-home"
+        with patch.dict(os.environ, {"CODEX_HOME": str(root)}), patch.object(gateway, "send", return_value=(b'{"data":[]}', "application/json")) as send:
+            with gateway.setup_server(configure=True) as server:
+                worker = threading.Thread(target=server.handle_request)
+                worker.start()
+                with self.post_setup(server, "test-codex-web-secret") as response:
+                    body = response.read()
+                    self.assertEqual(response.status, 200)
+                    self.assertNotIn(b"test-codex-web-secret", body)
+                worker.join(timeout=5)
+                self.assertTrue(server.completed)
+            config = gateway.tomllib.loads((root / "config.toml").read_text())
+            self.assertEqual(config["model_providers"]["9router-jala"]["experimental_bearer_token"], "test-codex-web-secret")
+            self.assertEqual(self.values[(gateway.KEYRING_SERVICE, gateway.KEYRING_ACCOUNT)], "test-codex-web-secret")
+            send.assert_called_once_with("/v1/models", "test-codex-web-secret")
+
+    def test_codex_setup_form_discloses_plaintext_storage_and_restart(self):
+        root = Path(self.temporary.name) / "codex-home"
+        with patch.dict(os.environ, {"CODEX_HOME": str(root)}):
+            with gateway.setup_server(configure=True) as server:
+                worker = threading.Thread(target=server.handle_request)
+                worker.start()
+                with urllib.request.urlopen(server.setup_url.split("#")[0], timeout=5) as response:
+                    page = response.read()
+                worker.join(timeout=5)
+        self.assertIn(b"const configureCodex = true", page)
+        self.assertIn(b"stored as plaintext in Codex config.toml", page)
+        self.assertIn(b"Restart Codex to apply the settings", page)
+        self.assertNotIn(b"__CONFIGURE__", page)
 
     def test_web_rejects_other_origins_and_bad_session_tokens(self):
         with patch.object(gateway, "verify_and_save") as verify:

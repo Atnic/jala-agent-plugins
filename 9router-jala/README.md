@@ -1,6 +1,6 @@
 # 9Router JALA
 
-Version: `0.1.1`. A skills-only plugin for Codex and Claude Code that uses a
+Version: `0.2.0`. A skills package for Codex and Claude Code that uses a
 hosted [JALA 9Router gateway](https://9router.jala.tech) for chat, images, audio, embeddings, and web tools.
 
 ## Requirements and API key setup
@@ -50,7 +50,8 @@ The HTML source is [assets/setup.html](assets/setup.html). Opening that file
 directly previews the form; submitting requires the local helper server.
 The original hidden terminal prompt remains available with `gateway.py setup`.
 It remains a skills package with a local helper, rather than an MCP connector.
-It does not change the host agent's own model provider. Provider availability,
+The capability skills do not change the host agent's own model provider; use
+`9router-setup` for that separate configuration. Provider availability,
 quota, billing, model IDs, and supported options depend on the deployment.
 
 ## Linux credential storage
@@ -81,6 +82,18 @@ adds authentication internally. Run `setup-web` (browser) or `setup` (terminal) 
 removes it locally without revoking it in the dashboard. Environment overrides
 remain active after forgetting a saved key. For POSTs, media output, and audio
 uploads, see the [helper guide](skills/9router/references/authentication.md).
+
+## Configure Codex as a 9Router provider
+
+The `9router-setup` skill configures Codex itself, independently of the API
+credential used by this plugin's capability skills. Ask “Set up Codex with
+JALA 9Router.” The local form verifies the key, saves it for plugin API use, and
+merges the provider configuration into `config.toml` while preserving unrelated
+settings. The key is stored in `config.toml` as `experimental_bearer_token`
+(plaintext), matching the JALA Mattermost instructions. The skill installs its
+bundled model catalog under the active Codex home and points the configuration
+to that file. See the [complete `config.toml` example](skills/9router-setup/SKILL.md#configuration-example).
+Restart Codex to apply the settings; restarting is the final step.
 
 ## Plaintext fallback and migration
 
@@ -114,6 +127,7 @@ checks the live model catalog, and submits to the correct capability endpoint.
 | Skill | Purpose |
 | --- | --- |
 | `9router` | JALA setup, credentials, model defaults, and capability routing |
+| `9router-setup` | Configure Codex itself to use JALA 9Router as its model provider |
 | `9router-chat` | OpenAI and Anthropic chat formats, streaming, and fallback combos |
 | `9router-image` | Image generation and provider options |
 | `9router-tts` | Voice discovery and text-to-speech |

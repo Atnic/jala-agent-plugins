@@ -1,7 +1,7 @@
 {
   "name": "9router-jala",
-  "version": "0.1.1",
-  "description": "Use a configured 9Router gateway for JALA chat, images, audio, embeddings, web search, and web fetch workflows.",
+  "version": "0.2.0",
+  "description": "Configure Codex for the JALA 9Router provider and use its chat, images, audio, embeddings, web search, and web fetch workflows.",
   "author": {
     "name": "JALA"
   },
@@ -10,8 +10,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "9Router JALA",
-    "shortDescription": "Chat, media, embeddings, and web tools through 9Router.",
-    "longDescription": "Use a configured 9Router gateway for JALA chat, images, audio, embeddings, web search, and web fetch workflows.",
+    "shortDescription": "9Router setup, chat, media, and web tools.",
+    "longDescription": "Configure Codex for the JALA 9Router provider and use its chat, images, audio, embeddings, web search, and web fetch workflows.",
     "developerName": "JALA",
     "category": "Productivity",
     "capabilities": [],

@@ -14,6 +14,20 @@ import re
 from pathlib import Path
 import sys
 import time
+try:
+    import tomllib
+except ModuleNotFoundError:
+    try:
+        import tomli as tomllib
+    except ModuleNotFoundError:
+        tomllib = None
+try:
+    import tomlkit
+    from tomlkit.items import InlineTable, Table
+    TOML_TABLE_TYPES = (InlineTable, Table)
+except ModuleNotFoundError:
+    tomlkit = None
+    TOML_TABLE_TYPES = ()
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -24,6 +38,7 @@ import webbrowser
 GATEWAY = "https://9router.jala.tech"
 KEYRING_SERVICE = "tech.jala.9router"
 KEYRING_ACCOUNT = "api-key"
+CODEX_PROVIDER = "9router-jala"
 
 
 def runtime_python():
@@ -75,6 +90,128 @@ def store_operation(store, operation, *args):
 
 def credential_path():
     return Path.home() / ".config" / "9router-jala" / "api-key"
+
+
+def codex_home():
+    configured = os.environ.get("CODEX_HOME")
+    return Path(configured).expanduser().resolve() if configured else Path.home() / ".codex"
+
+
+def restrict_windows_file(path):
+    identity = subprocess.run(["whoami", "/user", "/fo", "csv", "/nh"], capture_output=True, check=True).stdout
+    sid = re.search(rb"S-1-[0-9-]+", identity)
+    if not sid:
+        raise ValueError("Could not identify the Windows user for private file permissions.")
+    subprocess.run(["icacls", str(path), "/inheritance:r", "/grant:r", "*" + sid.group().decode("ascii") + ":F"], capture_output=True, check=True)
+
+
+def atomic_private_write(path, contents):
+    path = Path(path)
+    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    if path.is_symlink():
+        raise ValueError("Refusing to replace a symlink.")
+    fd, temporary = tempfile.mkstemp(dir=path.parent, prefix="." + path.name + ".")
+    try:
+        if os.name == "posix":
+            os.fchmod(fd, 0o600)
+        elif os.name == "nt":
+            restrict_windows_file(temporary)
+        with os.fdopen(fd, "w", encoding="utf-8", newline="") as handle:
+            fd = None
+            handle.write(contents)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    except subprocess.CalledProcessError:
+        raise ValueError("Could not set private Windows file permissions; no file was replaced.") from None
+    finally:
+        if fd is not None:
+            os.close(fd)
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+def merge_codex_config(existing, catalog_path, key):
+    if tomlkit is None:
+        raise ValueError("Run gateway.py install-runtime to install the Codex TOML parser.")
+    try:
+        document = tomlkit.parse(existing) if existing.strip() else tomlkit.document()
+    except Exception:
+        raise ValueError("Codex config.toml is not valid TOML; it was left unchanged.") from None
+    providers = document.get("model_providers")
+    if providers is not None and not isinstance(providers, TOML_TABLE_TYPES):
+        raise ValueError("Codex config.toml has an incompatible model_providers entry; it was left unchanged.")
+    provider = providers.get(CODEX_PROVIDER) if providers is not None else None
+    if provider is not None and not isinstance(provider, TOML_TABLE_TYPES):
+        raise ValueError("Codex config.toml has an incompatible 9Router provider entry; it was left unchanged.")
+
+    top_values = {
+        "model": CODEX_PROVIDER,
+        "model_provider": CODEX_PROVIDER,
+        "preferred_auth_method": "apikey",
+        "forced_login_method": "api",
+        "model_reasoning_effort": "high",
+        "model_catalog_json": str(catalog_path),
+    }
+    provider_values = {
+        "name": "9Router JALA",
+        "base_url": GATEWAY + "/v1",
+        "wire_api": "responses",
+        "experimental_bearer_token": key,
+    }
+    try:
+        for name, value in top_values.items():
+            document[name] = value
+        if providers is None:
+            providers = tomlkit.table()
+            document["model_providers"] = providers
+        if provider is None:
+            provider = tomlkit.table()
+            providers[CODEX_PROVIDER] = provider
+        for name, value in provider_values.items():
+            provider[name] = value
+        merged = tomlkit.dumps(document)
+        tomlkit.parse(merged)
+    except Exception:
+        raise ValueError("Could not safely merge the 9Router settings into config.toml; it was left unchanged.") from None
+    return merged
+
+
+def prepare_codex_config(key):
+    root = codex_home()
+    catalog_path = root / "models_9router_jala.json"
+    asset_path = Path(__file__).parents[1] / "skills" / "9router-setup" / "assets" / "models_9router_jala.json"
+    try:
+        catalog = json.loads(asset_path.read_text(encoding="utf-8"))
+        if not any(item.get("slug") == CODEX_PROVIDER for item in catalog.get("models", []) if isinstance(item, dict)):
+            raise ValueError
+    except (OSError, ValueError, TypeError):
+        raise ValueError("The bundled Codex model catalog is missing or invalid.") from None
+    catalog_text = json.dumps(catalog, ensure_ascii=True, indent=2) + "\n"
+    config_path = root / "config.toml"
+    if root.is_symlink():
+        raise ValueError("The Codex home directory cannot be a symlink for this setup.")
+    if config_path.is_symlink():
+        raise ValueError("Codex config.toml cannot be a symlink for this setup.")
+    try:
+        existing = config_path.read_text(encoding="utf-8") if config_path.exists() else ""
+    except (OSError, UnicodeError):
+        raise ValueError("Could not read Codex config.toml; no settings were changed.") from None
+    merged = merge_codex_config(existing, catalog_path, key)
+    return config_path, catalog_path, catalog_text, merged
+
+
+def validate_codex_config():
+    prepare_codex_config("configuration-preflight-placeholder")
+
+
+def configure_codex(key):
+    config_path, catalog_path, catalog_text, merged = prepare_codex_config(key)
+    if catalog_path.parent.is_symlink():
+        raise ValueError("The Codex home directory cannot be a symlink for this setup.")
+    atomic_private_write(catalog_path, catalog_text)
+    atomic_private_write(config_path, merged)
+    return config_path
 
 
 def validate_key(key):
@@ -324,19 +461,25 @@ def setup():
     print("API key verified and saved locally. Ready to use JALA 9Router.")
 
 
-def verify_and_save(key):
+def verify_and_save(key, configure=False):
     key = validate_key(key)
     data, content_type = send("/v1/models", key)
     result = json.loads(data)
     if content_type != "application/json" or not isinstance(result, dict) or not isinstance(result.get("data"), list):
         raise ValueError("Gateway did not return a model list; key was not saved.")
     save_key(key)
+    if configure:
+        configure_codex(key)
 
 
-def setup_server():
+def setup_server(configure=False):
+    if configure:
+        validate_codex_config()
     token = secrets.token_urlsafe(32)
     nonce = secrets.token_urlsafe(24)
-    html = (Path(__file__).parents[1] / "assets" / "setup.html").read_text().replace("__NONCE__", nonce).encode()
+    endpoint = "/api/setup-codex" if configure else "/api/setup"
+    html = (Path(__file__).parents[1] / "assets" / "setup.html").read_text()
+    html = html.replace("__NONCE__", nonce).replace("__CONFIGURE__", "true" if configure else "false").encode()
 
     class Handler(BaseHTTPRequestHandler):
         def setup(self):
@@ -369,7 +512,7 @@ def setup_server():
         def do_POST(self):
             origin = f"http://127.0.0.1:{self.server.server_port}"
             supplied = self.headers.get("X-Setup-Token", "")
-            if (not self.allowed_host() or self.path != "/api/setup"
+            if (not self.allowed_host() or self.path != endpoint
                     or self.headers.get("Origin") != origin
                     or not hmac.compare_digest(supplied.encode(), token.encode())):
                 self.reply(403, b'{"error":"Invalid setup session. Launch setup-web again."}')
@@ -384,8 +527,8 @@ def setup_server():
                 payload = json.loads(self.rfile.read(length))
                 if not isinstance(payload, dict) or not isinstance(payload.get("key"), str):
                     raise ValueError("Enter a valid API key.")
-                verify_and_save(payload["key"].strip())
-            except (ValueError, OSError):
+                verify_and_save(payload["key"].strip(), configure=configure)
+            except (ValueError, OSError, subprocess.CalledProcessError):
                 self.reply(400, b'{"error":"Could not verify and save the key. Check your API key, gateway connection, and local file permissions."}')
                 return
             self.reply(200, b'{"ok":true}')
@@ -394,12 +537,14 @@ def setup_server():
     server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
     server.timeout = 1
     server.completed = False
+    server.configure_codex = configure
+    server.setup_endpoint = endpoint
     server.setup_url = f"http://127.0.0.1:{server.server_port}/#token={token}"
     return server
 
 
-def setup_web(open_browser=True):
-    with setup_server() as server:
+def setup_web(open_browser=True, configure=False):
+    with setup_server(configure=configure) as server:
         print("Open this local API-key form: " + server.setup_url, flush=True)
         print("Session closes after saving or after 15 minutes. Ctrl+C cancels.", flush=True)
         if open_browser:
@@ -407,7 +552,10 @@ def setup_web(open_browser=True):
         deadline = time.monotonic() + 900
         while not server.completed and time.monotonic() < deadline:
             server.handle_request()
-        print("API key verified and saved." if server.completed else "Setup session expired.")
+        if server.completed and configure:
+            print("API key verified and saved. Codex configuration updated; restart Codex to apply it.")
+        else:
+            print("API key verified and saved." if server.completed else "Setup session expired.")
 
 
 def main():
@@ -416,6 +564,8 @@ def main():
     commands.add_parser("setup", help="Enter, verify, and save an API key in a hidden prompt")
     web = commands.add_parser("setup-web", help="Open a local HTML form to verify and save your API key")
     web.add_argument("--no-open", action="store_true", help="Print the local URL without opening a browser")
+    codex = commands.add_parser("setup-codex", help="Configure Codex to use the JALA 9Router provider")
+    codex.add_argument("--no-open", action="store_true", help="Print the local URL without opening a browser")
     commands.add_parser("status", help="Report whether a key is configured without displaying it")
     commands.add_parser("forget", help="Remove the locally saved key (does not revoke it)")
     commands.add_parser("migrate", help="Move a legacy plaintext key to the OS credential store")
@@ -436,17 +586,26 @@ def main():
     if args.command != "install-runtime" and (sys.platform in ("darwin", "win32") or sys.platform.startswith("linux")):
         # Preserve the simple setup command across plugin upgrades and host interpreters.
         import importlib.util
-        if importlib.util.find_spec("keyring") is None:
+        missing_runtime_modules = ["keyring"]
+        if args.command == "setup-codex":
+            missing_runtime_modules.append("tomlkit")
+        if sys.version_info < (3, 11):
+            missing_runtime_modules.append("tomli")
+        if any(importlib.util.find_spec(module) is None for module in missing_runtime_modules):
             python = runtime_python()
             if python.is_file() and os.path.abspath(python) != os.path.abspath(sys.executable):
                 os.execv(str(python), [str(python), str(Path(__file__).absolute()), *sys.argv[1:]])
     try:
+        if args.command == "setup-codex" and tomlkit is None:
+            raise ValueError("Run gateway.py install-runtime to install the Codex TOML parser.")
         if args.command == "install-runtime":
             install_runtime()
         elif args.command == "setup":
             setup()
         elif args.command == "setup-web":
             setup_web(not args.no_open)
+        elif args.command == "setup-codex":
+            setup_web(not args.no_open, configure=True)
         elif args.command == "status":
             load_key()
             print("API key configured. Gateway: " + GATEWAY)

@@ -1,2 +1,4 @@
 keyring>=25.6,<26
 SecretStorage>=3.3,<4; sys_platform == "linux"
+tomli>=2,<3; python_version < "3.11"
+tomlkit>=0.13,<1

@@ -1,6 +1,6 @@
 ---
 name: 9router
-description: Entry point for 9Router — local/remote AI gateway with OpenAI-compatible REST for chat, image, TTS, embeddings, web search, web fetch. Use when the user mentions 9Router, NINEROUTER_URL, or wants AI without writing provider boilerplate. This skill covers setup + indexes capability skills; read the relevant bundled capability skill below when needed.
+description: Entry point for 9Router — local/remote AI gateway with OpenAI-compatible REST for chat, image, TTS, embeddings, web search, web fetch. Use when the user mentions 9Router, NINEROUTER_URL, or wants AI without writing provider boilerplate. For configuring Codex itself as a 9Router provider, read 9router-setup; for API requests, this skill covers setup and indexes capability skills.
 ---
 
 # 9Router
@@ -21,6 +21,10 @@ Check configuration with `gateway.py status`; the helper uses the fixed URL and
 saved key even when `NINEROUTER_URL` and `NINEROUTER_KEY` are absent from the shell.
 If no key is configured, launch `setup-web --no-open` and open its local URL
 for the user; never inspect the key field or ask for the key in chat.
+
+When the user wants Codex itself to use JALA 9Router as its model provider,
+read [9router-setup](../9router-setup/SKILL.md). That workflow updates Codex
+configuration; it is distinct from this plugin's API credential setup.
 
 The JALA defaults and helper take precedence over generic setup, provider, and
 model examples in capability skills. `NINEROUTER_URL` below means the hosted

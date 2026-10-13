@@ -15,10 +15,13 @@ A collection of portable Agent Plugins for JALA workflows.
 ### `9router-jala`
 
 Use the hosted JALA 9Router gateway for chat, image generation, speech,
-embeddings, web search, and URL extraction. This skills-only package bundles the
-upstream entry point and seven capability skills with minimal JALA setup
-adaptations for Codex and Claude Code. It requires Python 3.9+, `keyring`, and a per-user API key entered through a local
-HTML setup form, saved in macOS Keychain, Windows Credential Manager, or Linux Secret Service.
+embeddings, web search, and URL extraction. This skills package bundles the
+upstream entry point, a Codex provider setup skill, and seven capability skills
+with minimal JALA setup adaptations for Codex and Claude Code. It requires Python
+3.9+, `keyring`, and a per-user API key entered through a local HTML setup form,
+saved in macOS Keychain, Windows Credential Manager, or Linux Secret Service.
+The optional `9router-setup` skill also writes provider settings to Codex
+`config.toml`, where its API key is stored in plaintext; restart Codex to apply it.
 
 See [`9router-jala/README.md`](9router-jala/README.md) for setup, attribution,
 and installation of the local unpublished package.

@@ -30,7 +30,7 @@
 <body>
   <main>
     <h1>9Router</h1>
-    <p class="intro">Enter your API key to connect to JALA</p>
+    <p class="intro" id="intro">Enter your API key to connect to JALA</p>
     <form id="form">
       <label for="key">API key</label>
       <input id="key" name="api-key" type="password" placeholder="Enter API key" autocomplete="off" spellcheck="false" autocapitalize="off" required maxlength="4096" autofocus>
@@ -40,9 +40,13 @@
   </main>
   <script nonce="__NONCE__">
     const form = document.getElementById('form');
+    const intro = document.getElementById('intro');
     const key = document.getElementById('key');
     const submit = document.getElementById('submit');
     const message = document.getElementById('message');
+    const configureCodex = __CONFIGURE__;
+    const endpoint = configureCodex ? '/api/setup-codex' : '/api/setup';
+    if (configureCodex) intro.textContent = 'The API key will be stored as plaintext in Codex config.toml.';
     const token = new URLSearchParams(location.hash.slice(1)).get('token');
     if (location.protocol !== 'file:') history.replaceState(null, '', location.pathname);
     if (!token || location.hostname !== '127.0.0.1') {
@@ -58,7 +62,7 @@
       message.className = '';
       message.textContent = '';
       try {
-        const response = await fetch('/api/setup', {
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: {'Content-Type': 'application/json', 'X-Setup-Token': token},
           body: JSON.stringify({key: key.value.trim()}),
@@ -71,7 +75,7 @@
         key.disabled = true;
         submit.textContent = 'Connected';
         message.className = 'success';
-        message.textContent = 'Connected. You can close this tab.';
+        message.textContent = configureCodex ? 'Codex is configured. Restart Codex to apply the settings.' : 'Connected. You can close this tab.';
       } catch (error) {
         message.textContent = error instanceof TypeError ? 'The local setup session is unavailable. Run setup-web again and use the new link.' : error.message;
         submit.disabled = false;
