@@ -5,7 +5,7 @@ description: Configure, update, or revert the JALA 9Router model provider setup 
 
 # Set up Codex with JALA 9Router
 
-Use this skill when the user wants Codex itself to send inference requests through JALA 9Router. This is separate from configuring the 9Router plugin's API credential for its capability skills.
+Use this skill only when the user explicitly asks to set up or change Codex itself to send inference requests through JALA 9Router, or agrees when asked, “Would you also like to set up Codex to use 9Router?” A general request to set up 9Router covers the plugin API credential only and does not authorize changes to `config.toml`. This provider configuration is separate from the credential used by plugin capability skills.
 
 ## Setup
 

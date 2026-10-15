@@ -20,11 +20,15 @@ helper at `<plugin-root>/scripts/gateway.py` from this skill's installation path
 Check configuration with `gateway.py status`; the helper uses the fixed URL and
 saved key even when `NINEROUTER_URL` and `NINEROUTER_KEY` are absent from the shell.
 If no key is configured, launch `setup-web --no-open` and open its local URL
-for the user; never inspect the key field or ask for the key in chat.
+for the user; never inspect the key field or ask for the key in chat. This
+general 9Router setup saves the plugin key only and never changes Codex's
+`config.toml`. Afterward, ask, “Would you also like to set up Codex to use
+9Router?” Run the separate Codex provider workflow only after an explicit yes.
 
 When the user wants Codex itself to use JALA 9Router as its model provider,
 read [9router-setup](../9router-setup/SKILL.md). That workflow updates Codex
-configuration; it is distinct from this plugin's API credential setup.
+configuration; it is distinct from this plugin's API credential setup. A
+general request to set up 9Router does not authorize editing `config.toml`.
 
 The JALA defaults and helper take precedence over generic setup, provider, and
 model examples in capability skills. `NINEROUTER_URL` below means the hosted

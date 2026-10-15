@@ -1,6 +1,6 @@
 # 9Router JALA
 
-Version: `0.2.2`. A skills package for Codex and Claude Code that uses a
+Version: `0.2.3`. A skills package for Codex and Claude Code that uses a
 hosted [JALA 9Router gateway](https://9router.jala.tech) for chat, images, audio, embeddings, and web tools.
 
 ## Requirements and API key setup
@@ -32,6 +32,10 @@ current user on this machine. The helper selects these native encrypted stores
 explicitly and falls back to a private plaintext file if native storage is unavailable. OS access prompts may
 appear; the user completes them directly. Never paste the key into chat.
 The saved key survives plugin updates and works across Codex and Claude Code.
+This general setup saves the key for 9Router plugin features and does not edit
+Codex's `config.toml`. The agent should ask, “Would you also like to set up
+Codex to use 9Router?” and configure the Codex provider only after an explicit
+yes.
 
 For a checkout of this repository, the command is:
 
@@ -87,8 +91,9 @@ uploads, see the [helper guide](skills/9router/references/authentication.md).
 
 The `9router-setup` skill configures Codex itself, independently of the API
 credential used by this plugin's capability skills. Ask “Set up Codex with
-JALA 9Router.” The local form verifies the key, saves it for plugin API use, and
-merges the provider configuration into `config.toml` while preserving unrelated
+JALA 9Router” or explicitly agree when the agent offers. The local form verifies
+the key, saves it for plugin API use, and merges the provider configuration into
+`config.toml` while preserving unrelated
 settings. The key is stored in `config.toml` as `experimental_bearer_token`
 (plaintext), matching the JALA Mattermost instructions. The skill installs its
 bundled model catalog under the active Codex home and points the configuration
