@@ -214,6 +214,26 @@ def configure_codex(key):
     return config_path
 
 
+def backup_codex_key():
+    """Save the configured Codex key to native credential storage before revert."""
+    config_path = codex_home() / "config.toml"
+    if config_path.is_symlink():
+        raise ValueError("Codex config.toml cannot be a symlink for this operation.")
+    try:
+        document = tomllib.loads(config_path.read_text(encoding="utf-8"))
+        key = document["model_providers"][CODEX_PROVIDER]["experimental_bearer_token"]
+        key = validate_key(key)
+    except (OSError, UnicodeError, KeyError, TypeError, ValueError):
+        raise ValueError("Could not find a valid 9Router key in Codex config; no credential was changed.") from None
+    store = credential_store()
+    saved = store_operation(store, "get_password")
+    if saved:
+        if not hmac.compare_digest(saved, key):
+            raise ValueError("A different 9Router key is already saved; no credential was changed.")
+        return
+    save_key(key, allow_fallback=False)
+
+
 def validate_key(key):
     if not isinstance(key, str) or not key or not key.isascii() or any(char.isspace() or ord(char) < 32 for char in key):
         raise ValueError("API key must be nonempty and contain no whitespace.")
@@ -566,6 +586,8 @@ def main():
     web.add_argument("--no-open", action="store_true", help="Print the local URL without opening a browser")
     codex = commands.add_parser("setup-codex", help="Configure Codex to use the JALA 9Router provider")
     codex.add_argument("--no-open", action="store_true", help="Print the local URL without opening a browser")
+    codex.add_argument("--reuse-saved-key", action="store_true", help="Verify and reuse the locally saved key without opening the form")
+    commands.add_parser("backup-codex-key", help="Save the Codex provider key to the OS credential store before reverting setup")
     commands.add_parser("status", help="Report whether a key is configured without displaying it")
     commands.add_parser("forget", help="Remove the locally saved key (does not revoke it)")
     commands.add_parser("migrate", help="Move a legacy plaintext key to the OS credential store")
@@ -605,7 +627,14 @@ def main():
         elif args.command == "setup-web":
             setup_web(not args.no_open)
         elif args.command == "setup-codex":
-            setup_web(not args.no_open, configure=True)
+            if args.reuse_saved_key:
+                verify_and_save(load_key(), configure=True)
+                print("Saved API key verified. Codex configuration updated; restart Codex to apply it.")
+            else:
+                setup_web(not args.no_open, configure=True)
+        elif args.command == "backup-codex-key":
+            backup_codex_key()
+            print("Codex API key saved in the OS credential store for later setup.")
         elif args.command == "status":
             load_key()
             print("API key configured. Gateway: " + GATEWAY)
