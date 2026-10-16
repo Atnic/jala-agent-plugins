@@ -57,8 +57,10 @@ def validate(plugin, repo):
             continue
         obj = read(path)
         manifests.append((host, obj))
-        if obj.get('name') != name or obj.get('version') != version:
-            fail(path, 'name/version must match portable manifest')
+        if obj.get('name') != name:
+            fail(path, 'name must match portable manifest')
+        if not (host == 'claude' and 'version' not in obj) and obj.get('version') != version:
+            fail(path, 'version must match portable manifest')
         data = read(repo / catalog)
         entries = data.get('plugins', [])
         if not isinstance(entries, list):

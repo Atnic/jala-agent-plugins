@@ -100,6 +100,26 @@ bundled model catalog under the active Codex home and points the configuration
 to that file. See the [complete `config.toml` example](skills/9router-setup/SKILL.md#configuration-example).
 Restart Codex to apply the settings; restarting is the final step.
 
+To remove this provider configuration, or configure it again with a saved key:
+
+```bash
+python3 "<plugin-root>/scripts/gateway.py" revert-codex
+python3 "<plugin-root>/scripts/gateway.py" setup-codex --reuse-saved-key
+```
+
+Revert preserves the plugin credential in native storage before removing owned
+settings. It keeps customized values, other providers, profiles, and the catalog
+file, and reports remaining references for explicit follow-up. Repeating a
+completed revert succeeds without changes. Revert returns to defaults rather
+than restoring a previous configuration. Restart Codex after a successful change.
+
+Setup validates configuration before changing credentials. Each file replacement
+is atomic; the entire setup is not a transaction. If a later write fails, the
+helper reports which steps completed and keeps the verified saved key for retry.
+Revert leaves configuration unchanged if credential preservation or writing fails.
+It refuses conflicting saved keys instead of overwriting them. See the
+[setup and revert skill](skills/9router-setup/SKILL.md) for failure handling.
+
 ## Plaintext fallback and migration
 
 Fallback storage is `~/.config/9router-jala/api-key`. On macOS/Linux the file

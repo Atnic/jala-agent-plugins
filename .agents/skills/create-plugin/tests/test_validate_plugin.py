@@ -66,6 +66,33 @@ class ValidationTests(unittest.TestCase):
                 self.put('sample/.codex-plugin/plugin.json', {**self.manifest, key: value, 'skills': './skills/'})
                 self.assertTrue(self.errors())
 
+    def test_legacy_claude_manifest_may_omit_version(self):
+        self.put('sample/.claude-plugin/plugin.json', {'name': 'sample'})
+        self.put('.claude-plugin/marketplace.json', {'plugins': [{'name': 'sample', 'source': './sample'}]})
+        self.assertEqual(self.errors(), [])
+
+    def test_declared_claude_version_must_match(self):
+        self.put('.claude-plugin/marketplace.json', {'plugins': [{'name': 'sample', 'source': './sample'}]})
+        self.put('sample/.claude-plugin/plugin.json', self.manifest)
+        self.assertEqual(self.errors(), [])
+        for version in ('0.0.9', None, '', 1):
+            with self.subTest(version=version):
+                self.put('sample/.claude-plugin/plugin.json', {**self.manifest, 'version': version})
+                self.assertTrue(any('version must match portable manifest' in error for error in self.errors()))
+
+    def test_legacy_claude_manifest_still_requires_matching_name(self):
+        self.put('.claude-plugin/marketplace.json', {'plugins': [{'name': 'sample', 'source': './sample'}]})
+        for name in ('other', None):
+            with self.subTest(name=name):
+                manifest = {} if name is None else {'name': name}
+                self.put('sample/.claude-plugin/plugin.json', manifest)
+                self.assertTrue(any('name must match portable manifest' in error for error in self.errors()))
+
+    def test_codex_manifest_requires_matching_version(self):
+        self.host()
+        self.put('sample/.codex-plugin/plugin.json', {'name': 'sample', 'skills': './skills/'})
+        self.assertTrue(any('version must match portable manifest' in error for error in self.errors()))
+
     def test_catalog_errors(self):
         self.host()
         self.assertEqual(self.errors(), [])

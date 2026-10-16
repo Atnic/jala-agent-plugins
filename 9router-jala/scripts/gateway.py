@@ -39,6 +39,17 @@ GATEWAY = "https://9router.jala.tech"
 KEYRING_SERVICE = "tech.jala.9router"
 KEYRING_ACCOUNT = "api-key"
 CODEX_PROVIDER = "9router-jala"
+CODEX_SETUP_VALUES = {
+    "model": CODEX_PROVIDER,
+    "model_provider": CODEX_PROVIDER,
+    "preferred_auth_method": "apikey",
+    "forced_login_method": "api",
+    "model_reasoning_effort": "high",
+}
+
+
+class CodexSetupError(ValueError):
+    """A sanitized lifecycle failure describing completed persistence stages."""
 
 
 def runtime_python():
@@ -94,7 +105,10 @@ def credential_path():
 
 def codex_home():
     configured = os.environ.get("CODEX_HOME")
-    return Path(configured).expanduser().resolve() if configured else Path.home() / ".codex"
+    root = Path(configured).expanduser() if configured else Path.home() / ".codex"
+    if root.is_symlink():
+        raise ValueError("The Codex home directory cannot be a symlink for this operation.")
+    return root.resolve()
 
 
 def restrict_windows_file(path):
@@ -107,6 +121,8 @@ def restrict_windows_file(path):
 
 def atomic_private_write(path, contents):
     path = Path(path)
+    if path.parent.is_symlink():
+        raise ValueError("Private file directory cannot be a symlink.")
     path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     if path.is_symlink():
         raise ValueError("Refusing to replace a symlink.")
@@ -131,7 +147,7 @@ def atomic_private_write(path, contents):
             os.unlink(temporary)
 
 
-def merge_codex_config(existing, catalog_path, key):
+def parse_codex_config(existing):
     if tomlkit is None:
         raise ValueError("Run gateway.py install-runtime to install the Codex TOML parser.")
     try:
@@ -144,15 +160,15 @@ def merge_codex_config(existing, catalog_path, key):
     provider = providers.get(CODEX_PROVIDER) if providers is not None else None
     if provider is not None and not isinstance(provider, TOML_TABLE_TYPES):
         raise ValueError("Codex config.toml has an incompatible 9Router provider entry; it was left unchanged.")
+    return document
 
-    top_values = {
-        "model": CODEX_PROVIDER,
-        "model_provider": CODEX_PROVIDER,
-        "preferred_auth_method": "apikey",
-        "forced_login_method": "api",
-        "model_reasoning_effort": "high",
-        "model_catalog_json": str(catalog_path),
-    }
+
+def merge_codex_config(existing, catalog_path, key):
+    document = parse_codex_config(existing)
+    providers = document.get("model_providers")
+    provider = providers.get(CODEX_PROVIDER) if providers is not None else None
+
+    top_values = {**CODEX_SETUP_VALUES, "model_catalog_json": str(catalog_path)}
     provider_values = {
         "name": "9Router JALA",
         "base_url": GATEWAY + "/v1",
@@ -209,8 +225,14 @@ def configure_codex(key):
     config_path, catalog_path, catalog_text, merged = prepare_codex_config(key)
     if catalog_path.parent.is_symlink():
         raise ValueError("The Codex home directory cannot be a symlink for this setup.")
-    atomic_private_write(catalog_path, catalog_text)
-    atomic_private_write(config_path, merged)
+    try:
+        atomic_private_write(catalog_path, catalog_text)
+    except (OSError, ValueError, subprocess.CalledProcessError):
+        raise CodexSetupError("Model catalog unchanged. Codex configuration unchanged.") from None
+    try:
+        atomic_private_write(config_path, merged)
+    except (OSError, ValueError, subprocess.CalledProcessError):
+        raise CodexSetupError("Model catalog updated. Codex configuration unchanged.") from None
     return config_path
 
 
@@ -225,13 +247,82 @@ def backup_codex_key():
         key = validate_key(key)
     except (OSError, UnicodeError, KeyError, TypeError, ValueError):
         raise ValueError("Could not find a valid 9Router key in Codex config; no credential was changed.") from None
+    if credential_path().exists() or credential_path().is_symlink():
+        if not hmac.compare_digest(read_plaintext_key(), key):
+            raise ValueError("A different 9Router key is already saved in the fallback file; no credential was changed.")
     store = credential_store()
     saved = store_operation(store, "get_password")
     if saved:
-        if not hmac.compare_digest(saved, key):
+        if not hmac.compare_digest(validate_key(saved), key):
             raise ValueError("A different 9Router key is already saved; no credential was changed.")
         return
     save_key(key, allow_fallback=False)
+
+
+def codex_catalog_matches(value, catalog_path):
+    if not isinstance(value, str):
+        return False
+    try:
+        return Path(value).expanduser().resolve() == catalog_path
+    except (OSError, ValueError, RuntimeError):
+        return False
+
+
+def remaining_codex_references(document, catalog_path):
+    references = []
+
+    def walk(value, prefix=""):
+        if isinstance(value, dict):
+            for name, item in value.items():
+                path = f"{prefix}.{name}" if prefix else name
+                if ((name in ("model", "model_provider") and item == CODEX_PROVIDER)
+                        or (name == "model_catalog_json" and codex_catalog_matches(item, catalog_path))):
+                    references.append(path)
+                walk(item, path)
+        elif isinstance(value, list):
+            for index, item in enumerate(value):
+                walk(item, f"{prefix}[{index}]")
+
+    walk(document)
+    return references
+
+
+def revert_codex():
+    """Remove setup-owned configuration while retaining the plugin credential."""
+    config_path = codex_home() / "config.toml"
+    if config_path.is_symlink():
+        raise ValueError("Codex config.toml cannot be a symlink for this operation.")
+    if not config_path.exists():
+        return False, []
+    if tomlkit is None:
+        raise ValueError("Run gateway.py install-runtime to install the Codex TOML parser.")
+    try:
+        existing = config_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        raise ValueError("Could not read Codex config.toml; it was left unchanged.") from None
+    document = parse_codex_config(existing)
+    providers = document.get("model_providers", {})
+    active = document.get("model_provider") == CODEX_PROVIDER
+    catalog_path = codex_home() / "models_9router_jala.json"
+    catalog = document.get("model_catalog_json")
+    owned_catalog = codex_catalog_matches(catalog, catalog_path)
+    if CODEX_PROVIDER not in providers and not active and not owned_catalog:
+        return False, remaining_codex_references(document, catalog_path)
+    backup_codex_key()
+    if active:
+        for name, value in CODEX_SETUP_VALUES.items():
+            if document.get(name) == value:
+                del document[name]
+    if owned_catalog:
+        del document["model_catalog_json"]
+    del document["model_providers"][CODEX_PROVIDER]
+    reverted = tomlkit.dumps(document)
+    tomlkit.parse(reverted)
+    try:
+        atomic_private_write(config_path, reverted)
+    except (OSError, ValueError, subprocess.CalledProcessError):
+        raise CodexSetupError("Plugin credential preserved. Codex configuration unchanged; revert was not completed. Fix local permissions and retry revert-codex.") from None
+    return True, remaining_codex_references(document, catalog_path)
 
 
 def validate_key(key):
@@ -254,25 +345,7 @@ def save_plaintext_key(key):
         raise ValueError("Credential directory cannot be a symlink.")
     if os.name == "posix":
         path.parent.chmod(0o700)
-    fd, temporary = tempfile.mkstemp(dir=path.parent)
-    try:
-        if os.name == "nt":
-            identity = subprocess.run(["whoami", "/user", "/fo", "csv", "/nh"], capture_output=True, check=True).stdout
-            sid = re.search(rb'S-1-[0-9-]+', identity)
-            if not sid:
-                raise ValueError("Could not identify the Windows user for private file permissions.")
-            subprocess.run(["icacls", temporary, "/inheritance:r", "/grant:r", "*" + sid.group().decode("ascii") + ":F"], capture_output=True, check=True)
-        with os.fdopen(fd, "w") as handle:
-            fd = None
-            handle.write(key + "\n")
-        os.replace(temporary, path)
-    except subprocess.CalledProcessError:
-        raise ValueError("Could not set private Windows file permissions; key was not saved to plaintext.") from None
-    finally:
-        if fd is not None:
-            os.close(fd)
-        if os.path.exists(temporary):
-            os.unlink(temporary)
+    atomic_private_write(path, key + "\n")
 
 
 def load_key():
@@ -483,13 +556,24 @@ def setup():
 
 def verify_and_save(key, configure=False):
     key = validate_key(key)
+    if configure:
+        validate_codex_config()
     data, content_type = send("/v1/models", key)
     result = json.loads(data)
     if content_type != "application/json" or not isinstance(result, dict) or not isinstance(result.get("data"), list):
         raise ValueError("Gateway did not return a model list; key was not saved.")
-    save_key(key)
+    try:
+        save_key(key)
+    except (OSError, ValueError, subprocess.CalledProcessError):
+        if configure:
+            raise CodexSetupError("Credential verified, but local credential storage could not be confirmed. Model catalog unchanged. Codex configuration unchanged. Restore access to local credential storage before retrying setup.") from None
+        raise
     if configure:
-        configure_codex(key)
+        try:
+            configure_codex(key)
+        except (OSError, ValueError, subprocess.CalledProcessError) as error:
+            details = str(error) if isinstance(error, CodexSetupError) else "Model catalog unchanged. Codex configuration unchanged."
+            raise CodexSetupError("Credential verified and saved. " + details + " Retry setup with --reuse-saved-key after fixing local configuration or permissions.") from None
 
 
 def setup_server(configure=False):
@@ -548,6 +632,9 @@ def setup_server(configure=False):
                 if not isinstance(payload, dict) or not isinstance(payload.get("key"), str):
                     raise ValueError("Enter a valid API key.")
                 verify_and_save(payload["key"].strip(), configure=configure)
+            except CodexSetupError as error:
+                self.reply(400, json.dumps({"error": str(error)}).encode())
+                return
             except (ValueError, OSError, subprocess.CalledProcessError):
                 self.reply(400, b'{"error":"Could not verify and save the key. Check your API key, gateway connection, and local file permissions."}')
                 return
@@ -588,6 +675,7 @@ def main():
     codex.add_argument("--no-open", action="store_true", help="Print the local URL without opening a browser")
     codex.add_argument("--reuse-saved-key", action="store_true", help="Verify and reuse the locally saved key without opening the form")
     commands.add_parser("backup-codex-key", help="Save the Codex provider key to the OS credential store before reverting setup")
+    commands.add_parser("revert-codex", help="Remove JALA 9Router Codex settings, preserving the saved plugin key")
     commands.add_parser("status", help="Report whether a key is configured without displaying it")
     commands.add_parser("forget", help="Remove the locally saved key (does not revoke it)")
     commands.add_parser("migrate", help="Move a legacy plaintext key to the OS credential store")
@@ -609,7 +697,7 @@ def main():
         # Preserve the simple setup command across plugin upgrades and host interpreters.
         import importlib.util
         missing_runtime_modules = ["keyring"]
-        if args.command == "setup-codex":
+        if args.command in ("setup-codex", "revert-codex"):
             missing_runtime_modules.append("tomlkit")
         if sys.version_info < (3, 11):
             missing_runtime_modules.append("tomli")
@@ -618,7 +706,7 @@ def main():
             if python.is_file() and os.path.abspath(python) != os.path.abspath(sys.executable):
                 os.execv(str(python), [str(python), str(Path(__file__).absolute()), *sys.argv[1:]])
     try:
-        if args.command == "setup-codex" and tomlkit is None:
+        if args.command in ("setup-codex", "revert-codex") and tomlkit is None:
             raise ValueError("Run gateway.py install-runtime to install the Codex TOML parser.")
         if args.command == "install-runtime":
             install_runtime()
@@ -635,6 +723,14 @@ def main():
         elif args.command == "backup-codex-key":
             backup_codex_key()
             print("Codex API key saved in the OS credential store for later setup.")
+        elif args.command == "revert-codex":
+            changed, references = revert_codex()
+            if changed:
+                print("Codex provider setup reverted; restart Codex and sign in if prompted. Saved plugin key retained.")
+            else:
+                print("Codex provider setup already reverted; no settings or credentials changed.")
+            if references:
+                print("Remaining 9Router references (unchanged; update explicitly): " + json.dumps(references))
         elif args.command == "status":
             load_key()
             print("API key configured. Gateway: " + GATEWAY)
