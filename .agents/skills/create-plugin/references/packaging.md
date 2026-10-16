@@ -6,11 +6,11 @@ Read the current catalogs and a plugin with comparable components instead of cop
 
 Every package has root `plugin.json`. Skills live under `skills/<skill-name>/SKILL.md`; use lowercase hyphenated names and YAML frontmatter containing `name` and `description`. Keep supporting material behind pointers that state when to read it.
 
-Package Codex compatibility under `.codex-plugin/plugin.json` and Claude Code compatibility under `.claude-plugin/plugin.json` only for selected hosts. Match their names and versions to the portable manifest. A Codex skills package declares its skills directory. Host support requires the appropriate component configuration, not merely a manifest.
+Package Codex compatibility under `.codex-plugin/plugin.json` and Claude Code compatibility under `.claude-plugin/plugin.json` only for selected hosts. Host names must match the portable manifest. Codex versions must also match; a declared Claude version must match, while legacy Claude manifests may omit the version entirely. An explicit null or empty version is invalid. A Codex skills package declares its skills directory. Host support requires the appropriate component configuration, not merely a manifest.
 
 MCP-only packages are valid. Use root `.mcp.json` or an explicit `mcpServers` file/inline configuration supported by the host. Include only identified servers and actual transport configuration. Keep secrets outside the package; document authentication and installation prerequisites. The validator checks configuration structure and paths, not connectivity.
 
-New packages start at `0.1.0`. For updates, inspect that plugin's release history and conventions; keep versions consistent wherever they are specified. Some legacy Claude manifests omit versions: inspect compatibility requirements before changing that convention.
+New packages start at `0.1.0`. For updates, inspect that plugin's release history and conventions; preserve intentional legacy version omission rather than adding a version just to satisfy validation.
 
 ## Registration
 
