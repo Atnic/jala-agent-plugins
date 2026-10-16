@@ -29,6 +29,11 @@
       "name": "odoo-jala-web",
       "source": "./odoo-jala-web",
       "description": "Automate personal Odoo JALA browser tasks and turn taught workflows into reusable personal skills."
+    },
+    {
+      "name": "odoo-jala-xmlrpc",
+      "source": "./odoo-jala-xmlrpc",
+      "description": "Query and update JALA Odoo records through XML-RPC with a bundled Python client and workflow guidance."
     }
   ]
 }
