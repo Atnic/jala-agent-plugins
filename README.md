@@ -9,6 +9,7 @@ A collection of portable Agent Plugins for JALA workflows.
 - [Matt Pocock Skills: Engineering](mattpocock-skills-engineering/README.md)
 - [Matt Pocock Skills: Productivity](mattpocock-skills-productivity/README.md)
 - [Odoo JALA Web](odoo-jala-web/README.md)
+- [Odoo JALA XML-RPC](odoo-jala-xmlrpc/README.md)
 
 ## Plugins
 
@@ -84,6 +85,19 @@ Automate browser tasks on JALA’s Odoo 16 instance and learn reusable personal 
 
 See [`odoo-jala-web/README.md`](odoo-jala-web/README.md) for browser requirements, personal skill storage, and export behavior.
 
+### `odoo-jala-xmlrpc`
+
+Query JALA Odoo records and inspect fields through a read-only XML-RPC Python
+client. Record changes and workflow actions are disabled. Discover visible installed addons
+and schemas, with a source-backed guide to JALA's custom Finance workflows.
+Requires Python 3.9+, an Odoo
+login, and an API key or password entered through a local setup page; the JALA
+database defaults to `jala_production`. Saved connections load automatically; native credential storage uses
+`keyring`, with a private-file fallback when unavailable.
+
+See [`odoo-jala-xmlrpc/README.md`](odoo-jala-xmlrpc/README.md) for authentication,
+request examples, and installation.
+
 ## Install in Claude Code
 
 This repository also has a Claude Code marketplace at
@@ -96,6 +110,7 @@ claude plugin install figma-ui@jala-agent-plugins
 claude plugin install gog@jala-agent-plugins
 claude plugin install mattermost-jala@jala-agent-plugins
 claude plugin install odoo-jala-web@jala-agent-plugins
+claude plugin install odoo-jala-xmlrpc@jala-agent-plugins
 ```
 
 For a local checkout, use `claude plugin marketplace add /absolute/path/to/jala-agent-plugins`
@@ -105,6 +120,7 @@ authorization. Figma UI still needs Figma Desktop and the local bridge described
 in its README. Mattermost JALA requires Mattermost OAuth sign-in; see its README
 for server administrator prerequisites.
 9Router JALA needs Python 3.9+, `keyring`, and a per-user API key; see its README for setup.
+Odoo JALA XML-RPC needs Python 3.9+ and local Odoo connection setup; its helper installs native credential-store dependencies. See its README for setup and fallback storage details.
 
 Some older Claude manifests omit fixed versions so Git commits provide plugin
 updates; newer packages declare a version matching their portable manifest.
@@ -143,6 +159,7 @@ codex plugin add mattermost-jala@jala-agent-plugins
 codex plugin add mattpocock-skills-engineering@jala-agent-plugins
 codex plugin add mattpocock-skills-productivity@jala-agent-plugins
 codex plugin add odoo-jala-web@jala-agent-plugins
+codex plugin add odoo-jala-xmlrpc@jala-agent-plugins
 ```
 
 The repository URL must point to the repository itself. Do not use a GitHub
@@ -191,6 +208,7 @@ Complete the selected plugin's requirements:
 | `mattpocock-skills-engineering` | Set up the target repository and issue tracker; see the [skill inventory and setup](mattpocock-skills-engineering/README.md). |
 | `mattpocock-skills-productivity` | See the [skill inventory and usage](mattpocock-skills-productivity/README.md). |
 | `odoo-jala-web` | An available browser capability and Odoo sign-in; see [setup](odoo-jala-web/README.md). The plugin does not install Browser itself. |
+| `odoo-jala-xmlrpc` | Python 3.9+, shell execution, and a connection saved through its local setup page; native credential storage uses `keyring`, with private-file fallback. See [setup](odoo-jala-xmlrpc/README.md). No MCP server. |
 
 For Odoo JALA Web, start with “Learn this workflow” or invoke
 `$odoo-jala-web-learn-workflow`. Generated personal skills are stored separately
@@ -243,5 +261,6 @@ jala-agent-plugins/
 ├── mattermost-jala/
 ├── mattpocock-skills-engineering/
 ├── mattpocock-skills-productivity/
-└── odoo-jala-web/
+├── odoo-jala-web/
+└── odoo-jala-xmlrpc/
 ```

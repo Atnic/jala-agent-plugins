@@ -1,0 +1,34 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "odoo-jala-xmlrpc",
+  "version": "0.1.0",
+  "description": "Read JALA Odoo records and discover schemas through a read-only XML-RPC client and workflow guidance.",
+  "author": {
+    "name": "JALA"
+  },
+  "repository": "https://github.com/Atnic/jala-agent-plugins",
+  "keywords": [
+    "odoo",
+    "xmlrpc",
+    "erp",
+    "automation"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Odoo JALA XML-RPC",
+        "shortDescription": "Read and inspect JALA Odoo through XML-RPC.",
+        "longDescription": "Read JALA Odoo records and discover schemas through a read-only XML-RPC client and workflow guidance.",
+        "developerName": "JALA",
+        "category": "Productivity",
+        "capabilities": [
+          "Read"
+        ],
+        "brandColor": "#714B67",
+        "composerIcon": "./assets/odoo-plugin-icon.svg",
+        "logo": "./assets/odoo-plugin-icon.svg",
+        "logoDark": "./assets/odoo-plugin-icon-dark.svg"
+      }
+    }
+  }
+}

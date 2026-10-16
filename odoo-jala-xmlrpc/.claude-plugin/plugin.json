@@ -1,0 +1,9 @@
+{
+  "name": "odoo-jala-xmlrpc",
+  "version": "0.1.0",
+  "description": "Read JALA Odoo records and discover schemas through a read-only XML-RPC client and workflow guidance.",
+  "author": {
+    "name": "JALA"
+  },
+  "repository": "https://github.com/Atnic/jala-agent-plugins"
+}
