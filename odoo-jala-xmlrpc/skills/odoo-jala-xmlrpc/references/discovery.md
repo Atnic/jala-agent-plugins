@@ -82,7 +82,8 @@ resolution order, or every side effect of a public method. A view/button name
 does not establish its method contract. Action domains/context are data strings;
 do not evaluate them as Python. Read source/documentation for the installed
 addons, inspect their inherited implementations, and establish preconditions,
-arguments, company/role checks, and side effects before workflow execution.
+arguments, company/role checks, and side effects when explaining workflow states.
+Workflow execution is disabled in this read-only plugin.
 
 For this project's supplied source snapshot and Finance workflows, read
 [jala-source-map.md](jala-source-map.md). Its source presence/version is separate

@@ -1,7 +1,7 @@
 # Odoo JALA XML-RPC
 
-Version: `0.1.0`. Query models and perform authorized record and workflow changes
-on JALA's Odoo instance through XML-RPC. Supports Codex and Claude Code with one
+Version: `0.1.0`. Inspect models, discover schemas, and query records on JALA's
+Odoo instance through a read-only XML-RPC client. Supports Codex and Claude Code with one
 skill and a Python client. The existing [Odoo JALA Web](../odoo-jala-web/README.md)
 plugin remains available for browser tasks and teaching personal workflows.
 
@@ -81,7 +81,7 @@ Invoke `$odoo-jala-xmlrpc` in Codex or
 - “Set up my Odoo connection.”
 - “Inspect the fields available on this JALA model.”
 - “Discover the installed addons and explain JALA's purchase approval workflow.”
-- “Update this contact's phone number and verify the result.”
+- “Show this contact's current phone number and company.”
 
 The client is installed inside the skill; resolve `<plugin-root>` to the actual
 checkout or installed plugin directory:
@@ -129,13 +129,17 @@ python3 "<plugin-root>/skills/odoo-jala-xmlrpc/scripts/odoo_rpc.py" execute res.
 ```
 
 Successful calls output JSON; failures output JSON on stderr and exit nonzero.
-Use `--input -` for stdin. Create, update, delete, and unclassified methods need
-`--allow-write` as an invocation guard. They execute immediately and remain subject
-to Odoo access rules and the user's authorized scope. The client has no dry run
-or rollback and makes no automatic retries. After an ambiguous result, inspect
-record state before repeating a change. See the
+Use `--input -` for stdin. Only the listed read methods are supported. Create,
+update, delete, workflow actions, and unclassified custom methods are rejected
+before authentication. There is no write-enable flag; `--allow-write` is not
+accepted. Connection setup and discovery still write local credentials/profiles.
+The client makes no automatic retries. See the
 [request guide](skills/odoo-jala-xmlrpc/references/requests.md) for discovery,
-pagination, company context, relational fields, and writes.
+pagination, company context, relational fields, and the allowed methods.
+
+The client filters method names; it does not change Odoo account permissions or
+custom server implementations. Use a read-only Odoo account for server-enforced
+access restrictions, since custom overrides of read methods can have side effects.
 
 ## Try the local package
 
@@ -178,8 +182,8 @@ the installed host's icon display has not been tested.
 
 The protocol follows the [official Odoo 16 External API documentation](https://www.odoo.com/documentation/16.0/developer/reference/external_api.html).
 Local tests use an isolated XML-RPC server to check authentication, model calls,
-write guards, saved credentials, the local setup form, failures, and no retry
-after a lost response. Discovery tests cover scoped profiles, partial metadata
+write rejection (including attempted overrides), saved credentials, the local setup
+form, failures, and no retry after a lost read response. Discovery tests cover scoped profiles, partial metadata
 access, bounded pagination, cache freshness, and source matching.
 Native credential-store behavior uses fake backends in
 tests. They do not verify live OS credential-store integrations, JALA's endpoint,

@@ -4,7 +4,11 @@ Call `python3 "<client>" execute MODEL METHOD --input request.json`. The input
 is a UTF-8 JSON object with `args` (array, default `[]`) and `kwargs` (object,
 default `{}`). Use `--input -` to read it from stdin. Use temporary payload files
 outside the repository for private record data. The helper returns the raw RPC
-result as JSON; binary values are represented as `{"base64": "..."}`.
+result as JSON; binary values are represented as `{"base64": "..."}`. This release
+is read-only; the helper accepts only the methods listed below.
+
+Allowed methods: `search`, `search_read`, `search_count`, `read`, `fields_get`,
+`name_get`, `name_search`, `read_group`, and `check_access_rights`.
 
 ## Discover and read
 
@@ -57,38 +61,24 @@ Pass context inside kwargs on each relevant call:
 Resolve allowed company IDs from the user's records or known configuration;
 the example ID is not JALA configuration. Context cannot grant access. Include
 an explicit `company_id` domain when the task calls for company-owned records;
-shared records can have `company_id: false`. Creation may also require an explicit
-company value. Company-dependent fields follow the context's current company.
+shared records can have `company_id: false`. Company-dependent fields follow the
+context's current company.
 
 Use `false` for unset Odoo fields, not JSON `null`. Many2one reads commonly return
-`[id, display_name]` or `false`; write a numeric ID or `false`. One2many and
-many2many writes use Odoo command arrays; for example `[[6, 0, [10, 11]]]`
-**replaces** the relation set, while `[[4, 10, 0]]` adds a link. Inspect the field
-and current links before selecting a command. Datetime field strings use Odoo's
+`[id, display_name]` or `false`. One2many and many2many reads return related IDs;
+inspect those records with another allowed read when needed. Datetime field strings use Odoo's
 server format and UTC semantics; convert the user's time explicitly.
 
-## Changes and workflow methods
+## Read-only scope
 
-Add `--allow-write` for the following examples. This does not simulate or preview
-the operation: it executes it. The client's read-method list is an accident guard;
-custom Odoo overrides may have side effects even on a method named `read`.
+`create`, `write`, `unlink`, posting, approval, payment, sending, and all methods
+outside the read list are rejected before authentication. There is no
+`--allow-write` override. Custom reports are also blocked unless they use a listed
+read method. If a request needs an unsupported method, explain the limitation and
+continue supported reads; keep this release's read-only constraint in place.
 
-| Call | Input |
-| --- | --- |
-| `res.partner create` | `{"args": [{"name": "User-approved contact"}]}` |
-| `res.partner write` | `{"args": [[123], {"phone": "+62..."}]}` |
-| `res.partner unlink` | `{"args": [[123]]}` |
+The filter restricts method names, not Odoo's implementation of them. Custom
+overrides may have side effects on a method named `read`; a read-only Odoo account
+provides server-side access restrictions. Current role and record rules still apply.
 
-`create` returns the new ID (or IDs for a supported batch); `write` and `unlink`
-normally return true. Read back the new/updated record, or confirm a deleted ID
-is absent. `unlink` deletes; use the model's supported archive behavior when the
-request is to archive instead. Readonly/computed fields and constraints can
-reject values even when their JSON shape is valid.
-
-Public custom methods use the same positional and keyword envelope. Establish
-their contract and business effect before invoking them. Workflow methods may
-send messages or create accounting effects; keep them within the user's requested
-outcome. Split large jobs into reviewable batches and reconcile a failed or
-ambiguous batch before resuming. The helper provides no dry run or rollback.
-
-Protocol and field-command reference: [Odoo 16 External API](https://www.odoo.com/documentation/16.0/developer/reference/external_api.html).
+Protocol reference: [Odoo 16 External API](https://www.odoo.com/documentation/16.0/developer/reference/external_api.html).

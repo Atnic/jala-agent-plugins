@@ -87,8 +87,8 @@ See [`odoo-jala-web/README.md`](odoo-jala-web/README.md) for browser requirement
 
 ### `odoo-jala-xmlrpc`
 
-Query JALA Odoo models, inspect fields, and execute authorized record changes
-through XML-RPC using a bundled Python client. Discover visible installed addons
+Query JALA Odoo records and inspect fields through a read-only XML-RPC Python
+client. Record changes and workflow actions are disabled. Discover visible installed addons
 and schemas, with a source-backed guide to JALA's custom Finance workflows.
 Requires Python 3.9+, an Odoo
 login, and an API key or password entered through a local setup page; the JALA

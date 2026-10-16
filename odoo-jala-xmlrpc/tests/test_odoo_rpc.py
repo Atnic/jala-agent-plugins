@@ -172,24 +172,28 @@ class ClientTests(unittest.TestCase):
             result = self.assert_ok(self.cli("execute", "res.partner", "fields_get", "--input", str(path)))
         self.assertEqual(result["name"]["type"], "char")
 
-    def test_unguarded_writes_and_unknown_methods_block_before_auth(self):
+    def test_writes_and_unknown_methods_block_before_auth(self):
         for method in ["create", "write", "unlink", "action_post", "custom_report"]:
             with self.subTest(method=method):
                 result = self.call(method)
                 self.assertEqual(result.returncode, 1)
-                self.assertIn("--allow-write", result.stderr)
+                self.assertIn("read-only", result.stderr)
         self.assertEqual(self.calls, [])
 
-    def test_authorized_write_and_readback(self):
-        self.assertTrue(self.assert_ok(self.call("write", {"args": [[123], {"name": "Updated"}]}, write=True)))
-        result = self.assert_ok(self.call("read", {"args": [[123]]}))
-        self.assertEqual(result, [{"id": 123, "name": "Updated"}])
-
-    def test_create_and_delete(self):
-        record_id = self.assert_ok(self.call("create", {"args": [{"name": "Created"}]}, write=True))
-        self.assertEqual(record_id, 123)
-        self.assertTrue(self.assert_ok(self.call("unlink", {"args": [[record_id]]}, write=True)))
-        self.assertEqual(self.assert_ok(self.call("read", {"args": [[record_id]]})), [])
+    def test_allow_write_flag_cannot_enable_mutations(self):
+        cases = [
+            ("write", {"args": [[123], {"name": "Changed"}]}),
+            ("create", {"args": [{"name": "Created"}]}),
+            ("unlink", {"args": [[123]]}),
+            ("action_post", {"args": [[123]]}),
+            ("custom_report", {}),
+        ]
+        for method, payload in cases:
+            with self.subTest(method=method):
+                result = self.call(method, payload, write=True)
+                self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(self.calls, [])
+        self.assertEqual(self.records, {123: {"id": 123, "name": "Before"}})
 
     def test_invalid_inputs_do_not_authenticate(self):
         payloads = [[], {"args": {}}, {"kwargs": []}, {"unexpected": True},
@@ -230,17 +234,18 @@ class ClientTests(unittest.TestCase):
         self.assertEqual(json.loads(result.stderr)["error"], "AccessError")
         self.assertNotIn("Traceback", result.stderr)
 
-    def test_lost_response_does_not_repeat_committed_write(self):
+    def test_lost_response_does_not_repeat_read(self):
         self.server.lose_response = True
-        result = self.call("create", {"args": [{"name": "Committed"}]}, write=True)
+        result = self.call("read", {"args": [[123]]})
         self.assertEqual(result.returncode, 1)
         self.assertEqual(json.loads(result.stderr)["error"], "transport")
-        self.assertEqual(self.records[123]["name"], "Committed")
+        self.assertEqual(self.records[123]["name"], "Before")
         self.assertEqual(sum(call[0] == "res.partner" for call in self.calls), 1)
 
     def test_binary_result_is_json(self):
-        result = self.assert_ok(self.call("binary_data", write=True))
-        self.assertEqual(result, {"base64": "dGVzdA=="})
+        self.records[123]["attachment"] = xmlrpc.client.Binary(b"test")
+        result = self.assert_ok(self.call("read", {"args": [[123]]}))
+        self.assertEqual(result[0]["attachment"], {"base64": "dGVzdA=="})
 
     def test_unicode_result_survives_legacy_stdout_encoding(self):
         self.records[123]["name"] = "供应商 🦐"

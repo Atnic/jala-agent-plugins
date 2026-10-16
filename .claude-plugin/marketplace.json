@@ -33,7 +33,7 @@
     {
       "name": "odoo-jala-xmlrpc",
       "source": "./odoo-jala-xmlrpc",
-      "description": "Query and update JALA Odoo records through XML-RPC with a bundled Python client and workflow guidance."
+      "description": "Read JALA Odoo records and discover schemas through a read-only XML-RPC client and workflow guidance."
     }
   ]
 }

@@ -160,7 +160,7 @@ def source_reference(inventory, models):
             for addon in addons for declaration in addon["model_declarations"]
             if declaration["model"] == model or model in declaration["inherits"]
         ] for model in models},
-        "note": "Matching names link to source candidates, not verified deployed revisions. Missing names may be hidden or truncated. Read the implementation and full installed inheritance chain before using a workflow method.",
+        "note": "Matching names link to source candidates, not verified deployed revisions. Missing names may be hidden or truncated. Read source to interpret workflow state; this client does not execute workflow methods.",
     }
 
 

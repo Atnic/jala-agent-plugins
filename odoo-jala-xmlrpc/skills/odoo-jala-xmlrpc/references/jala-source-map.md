@@ -18,7 +18,8 @@ The index is static: it excludes tests, migrations, and build outputs, can inclu
 unimported declarations, and does not reconstruct Odoo's registered inheritance
 order. A public method entry is a source locator, not a callable contract or an
 authorization whitelist. Recheck the source revision and installed versions
-before applying a snapshot-specific workflow. No addon Python code was executed
+before using the snapshot to explain a workflow. This read-only plugin does not
+invoke the indexed workflow methods. No addon Python code was executed
 to build the index, and no addon implementation is bundled by this plugin.
 
 ## Find the relevant operational area
@@ -38,7 +39,7 @@ These are starting points. Multiple installed addons can extend the same model,
 and further dependencies can live outside this source repository. A Finance
 request about a standard-named model therefore still needs JALA source context.
 
-## Observed contracts that change execution decisions
+## Observed contracts for interpreting workflow state
 
 **Purchase approval submission.** In
 `jala_approvals/models/purchase_order.py:103`, `purchase.order.action_req_approval`
@@ -62,9 +63,8 @@ do not equate a posted invoice with a completed JALA approval.
 These are large, document-specific implementations with approval-level logic,
 activity updates, and effects on linked business documents. Their signatures
 alone do not establish a safe RPC call for every document type. Read the branch
-for the actual linked document and its inherited methods; use the current user's
-legitimate Approver role. Internal `sudo()` usage does not grant the agent
-permission to bypass the business workflow.
+for the actual linked document and its inherited methods when explaining its
+state. Approval execution is outside this plugin's read-only scope.
 
 **Expense workflow and settlement.**
 `jala_approvals/models/hr_expense_sheet.py:93` overrides submission and can send
@@ -72,8 +72,8 @@ email; `:146` implements approval submission and rebuilds approval records.
 `ys_core/models/expense.py:151` and
 `jala_expenses/models/hr_expense_sheet.py:112` implement `register_payment` logic
 that returns a settlement wizard/action with context. Returning an action is not
-proof that a payment was registered. Resolve the wizard's actual required values
-and business method before executing a user-authorized settlement. The source
+proof that a payment was registered. Inspect the recorded payment and settlement
+state through allowed reads rather than executing the wizard. The source
 also has responsible-validation checks in `ys_core/models/expense.py:173`.
 
 **Payment-method reporting.** `jala_expenses/models/hr_expense.py:14` associates

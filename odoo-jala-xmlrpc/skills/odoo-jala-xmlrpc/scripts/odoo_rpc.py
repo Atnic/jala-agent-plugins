@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Small JSON CLI for Odoo's XML-RPC API. Requires Python 3.9+ only."""
+"""Read-only JSON CLI for Odoo's XML-RPC API. Requires Python 3.9+ only."""
 
 import argparse
 import base64
@@ -32,8 +32,8 @@ READ_METHODS = frozenset({
 
 
 class SingleRequest:
-    # Transport.request normally retries some disconnects. A lost response may
-    # follow a committed write, so send each RPC exactly once.
+    # Transport.request normally retries some disconnects. Keep calls single-shot
+    # so the caller receives an ambiguous response without an automatic retry.
     def request(self, host, handler, request_body, verbose=False):
         return self.single_request(host, handler, request_body, verbose)
 
@@ -118,7 +118,7 @@ def load_request(filename):
         raise InputError("kwargs.context must be an object.")
     validate_numbers(data)
     # Validate before authentication or dispatch (including null and integer
-    # range limitations) so a local marshalling failure cannot follow a write.
+    # range limitations) so invalid input never reaches the server.
     try:
         xmlrpc.client.dumps((args, kwargs), allow_none=False)
     except (TypeError, OverflowError):
@@ -225,11 +225,10 @@ def parser():
     discover.add_argument("--company-id", dest="company_ids", type=int, action="append", help="Discover in this allowed company context (repeatable)")
     discover.add_argument("--limit", type=int, default=2000, help="Maximum rows per metadata section (default: 2000)")
     discover.add_argument("--refresh", action="store_true", help="Refresh the base inventory instead of reusing a profile up to 24 hours old")
-    execute = commands.add_parser("execute", help="Call a model method through execute_kw")
+    execute = commands.add_parser("execute", help="Call an allowed read-only model method through execute_kw")
     execute.add_argument("model")
     execute.add_argument("method")
     execute.add_argument("--input", required=True, help="JSON {args: [], kwargs: {}} file; '-' for stdin")
-    execute.add_argument("--allow-write", action="store_true", help="Enable a write-capable or unclassified method for an authorized task")
     return cli
 
 
@@ -247,8 +246,8 @@ def run(options):
             raise InputError("Invalid model name.")
         if not re.fullmatch(r"[a-zA-Z][a-zA-Z0-9_]*", options.method):
             raise InputError("Use a public model method name.")
-        if options.method not in READ_METHODS and not options.allow_write:
-            raise InputError("Method may change records. Use --allow-write only within the user's authorized scope.")
+        if options.method not in READ_METHODS:
+            raise InputError("This client is read-only. Writes, workflow actions, and unclassified methods are disabled.")
         args, kwargs = load_request(options.input)
     if options.command == "version" and options.url:
         options.url = base_url(options.url)
