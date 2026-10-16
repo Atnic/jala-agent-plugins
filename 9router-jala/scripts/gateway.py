@@ -121,6 +121,8 @@ def restrict_windows_file(path):
 
 def atomic_private_write(path, contents):
     path = Path(path)
+    if path.parent.is_symlink():
+        raise ValueError("Private file directory cannot be a symlink.")
     path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     if path.is_symlink():
         raise ValueError("Refusing to replace a symlink.")
@@ -343,25 +345,7 @@ def save_plaintext_key(key):
         raise ValueError("Credential directory cannot be a symlink.")
     if os.name == "posix":
         path.parent.chmod(0o700)
-    fd, temporary = tempfile.mkstemp(dir=path.parent)
-    try:
-        if os.name == "nt":
-            identity = subprocess.run(["whoami", "/user", "/fo", "csv", "/nh"], capture_output=True, check=True).stdout
-            sid = re.search(rb'S-1-[0-9-]+', identity)
-            if not sid:
-                raise ValueError("Could not identify the Windows user for private file permissions.")
-            subprocess.run(["icacls", temporary, "/inheritance:r", "/grant:r", "*" + sid.group().decode("ascii") + ":F"], capture_output=True, check=True)
-        with os.fdopen(fd, "w") as handle:
-            fd = None
-            handle.write(key + "\n")
-        os.replace(temporary, path)
-    except subprocess.CalledProcessError:
-        raise ValueError("Could not set private Windows file permissions; key was not saved to plaintext.") from None
-    finally:
-        if fd is not None:
-            os.close(fd)
-        if os.path.exists(temporary):
-            os.unlink(temporary)
+    atomic_private_write(path, key + "\n")
 
 
 def load_key():
