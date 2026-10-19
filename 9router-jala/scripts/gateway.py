@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Local credential setup and authenticated requests to the JALA gateway."""
 import argparse
+from collections.abc import MutableMapping
 import getpass
 import hmac
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -42,10 +43,10 @@ CODEX_PROVIDER = "9router-jala"
 CODEX_SETUP_VALUES = {
     "model": CODEX_PROVIDER,
     "model_provider": CODEX_PROVIDER,
-    "preferred_auth_method": "apikey",
     "forced_login_method": "api",
     "model_reasoning_effort": "high",
 }
+CODEX_LEGACY_SETUP_VALUES = {"preferred_auth_method": "apikey"}
 
 
 class CodexSetupError(ValueError):
@@ -163,19 +164,38 @@ def parse_codex_config(existing):
     return document
 
 
-def merge_codex_config(existing, catalog_path, key):
+def merge_codex_config(existing, catalog_path, key, auth_mode=None):
     document = parse_codex_config(existing)
     providers = document.get("model_providers")
     provider = providers.get(CODEX_PROVIDER) if providers is not None else None
 
-    top_values = {**CODEX_SETUP_VALUES, "model_catalog_json": str(catalog_path)}
+    if auth_mode is None:
+        provider_mode = "chatgpt" if provider is not None and provider.get("requires_openai_auth") is True else "api"
+        auth_mode = document.get("forced_login_method", provider_mode)
+    if auth_mode not in ("chatgpt", "api"):
+        raise ValueError("Choose --auth-mode chatgpt or --auth-mode api; config.toml was left unchanged.")
+    top_values = {**CODEX_SETUP_VALUES, "forced_login_method": auth_mode, "model_catalog_json": str(catalog_path)}
     provider_values = {
         "name": "9Router JALA",
         "base_url": GATEWAY + "/v1",
         "wire_api": "responses",
         "experimental_bearer_token": key,
+        "requires_openai_auth": auth_mode == "chatgpt",
     }
     try:
+        # Guardian context is unconditional; remove only its retired toggle.
+        scopes = [document]
+        profiles = document.get("profiles")
+        if isinstance(profiles, MutableMapping):
+            scopes.extend(profile for profile in profiles.values() if isinstance(profile, MutableMapping))
+        for scope in scopes:
+            features = scope.get("features")
+            guardian = features.get("guardianv2") if isinstance(features, MutableMapping) else None
+            if isinstance(guardian, MutableMapping) and "thread_context" in guardian:
+                del guardian["thread_context"]
+        for name, value in CODEX_LEGACY_SETUP_VALUES.items():
+            if document.get(name) == value:
+                del document[name]
         for name, value in top_values.items():
             document[name] = value
         if providers is None:
@@ -193,7 +213,7 @@ def merge_codex_config(existing, catalog_path, key):
     return merged
 
 
-def prepare_codex_config(key):
+def prepare_codex_config(key, auth_mode=None):
     root = codex_home()
     catalog_path = root / "models_9router_jala.json"
     asset_path = Path(__file__).parents[1] / "skills" / "9router-setup" / "assets" / "models_9router_jala.json"
@@ -213,16 +233,17 @@ def prepare_codex_config(key):
         existing = config_path.read_text(encoding="utf-8") if config_path.exists() else ""
     except (OSError, UnicodeError):
         raise ValueError("Could not read Codex config.toml; no settings were changed.") from None
-    merged = merge_codex_config(existing, catalog_path, key)
+    merged = merge_codex_config(existing, catalog_path, key, auth_mode=auth_mode)
     return config_path, catalog_path, catalog_text, merged
 
 
-def validate_codex_config():
-    prepare_codex_config("configuration-preflight-placeholder")
+def validate_codex_config(auth_mode=None):
+    _, _, _, merged = prepare_codex_config("configuration-preflight-placeholder", auth_mode=auth_mode)
+    return "preferred_auth_method" in tomllib.loads(merged)
 
 
-def configure_codex(key):
-    config_path, catalog_path, catalog_text, merged = prepare_codex_config(key)
+def configure_codex(key, auth_mode=None):
+    config_path, catalog_path, catalog_text, merged = prepare_codex_config(key, auth_mode=auth_mode)
     if catalog_path.parent.is_symlink():
         raise ValueError("The Codex home directory cannot be a symlink for this setup.")
     try:
@@ -276,7 +297,9 @@ def remaining_codex_references(document, catalog_path):
             for name, item in value.items():
                 path = f"{prefix}.{name}" if prefix else name
                 if ((name in ("model", "model_provider") and item == CODEX_PROVIDER)
-                        or (name == "model_catalog_json" and codex_catalog_matches(item, catalog_path))):
+                        or (name == "model_catalog_json" and codex_catalog_matches(item, catalog_path))
+                        or (not prefix and name == "preferred_auth_method")
+                        or (not prefix and name == "forced_login_method" and item == "chatgpt")):
                     references.append(path)
                 walk(item, path)
         elif isinstance(value, list):
@@ -310,7 +333,8 @@ def revert_codex():
         return False, remaining_codex_references(document, catalog_path)
     backup_codex_key()
     if active:
-        for name, value in CODEX_SETUP_VALUES.items():
+        # ChatGPT sign-in may predate setup; retain that account preference.
+        for name, value in {**CODEX_SETUP_VALUES, **CODEX_LEGACY_SETUP_VALUES}.items():
             if document.get(name) == value:
                 del document[name]
     if owned_catalog:
@@ -554,10 +578,11 @@ def setup():
     print("API key verified and saved locally. Ready to use JALA 9Router.")
 
 
-def verify_and_save(key, configure=False):
+def verify_and_save(key, configure=False, auth_mode=None):
     key = validate_key(key)
+    retained_unsupported_auth = False
     if configure:
-        validate_codex_config()
+        retained_unsupported_auth = validate_codex_config(auth_mode=auth_mode)
     data, content_type = send("/v1/models", key)
     result = json.loads(data)
     if content_type != "application/json" or not isinstance(result, dict) or not isinstance(result.get("data"), list):
@@ -570,20 +595,25 @@ def verify_and_save(key, configure=False):
         raise
     if configure:
         try:
-            configure_codex(key)
+            configure_codex(key, auth_mode=auth_mode)
         except (OSError, ValueError, subprocess.CalledProcessError) as error:
             details = str(error) if isinstance(error, CodexSetupError) else "Model catalog unchanged. Codex configuration unchanged."
-            raise CodexSetupError("Credential verified and saved. " + details + " Retry setup with --reuse-saved-key after fixing local configuration or permissions.") from None
+            retry_command = "setup-codex --reuse-saved-key"
+            if auth_mode in ("chatgpt", "api"):
+                retry_command += " --auth-mode " + auth_mode
+            raise CodexSetupError("Credential verified and saved. " + details + " Retry setup with " + retry_command + " after fixing local configuration or permissions.") from None
+    return retained_unsupported_auth
 
 
-def setup_server(configure=False):
+def setup_server(configure=False, auth_mode=None):
     if configure:
-        validate_codex_config()
+        validate_codex_config(auth_mode=auth_mode)
     token = secrets.token_urlsafe(32)
     nonce = secrets.token_urlsafe(24)
     endpoint = "/api/setup-codex" if configure else "/api/setup"
     html = (Path(__file__).parents[1] / "assets" / "setup.html").read_text()
-    html = html.replace("__NONCE__", nonce).replace("__CONFIGURE__", "true" if configure else "false").encode()
+    html = html.replace("__NONCE__", nonce).replace("__CONFIGURE__", "true" if configure else "false")
+    html = html.replace("__AUTH_MODE__", json.dumps(auth_mode or "")).encode()
 
     class Handler(BaseHTTPRequestHandler):
         def setup(self):
@@ -631,27 +661,35 @@ def setup_server(configure=False):
                 payload = json.loads(self.rfile.read(length))
                 if not isinstance(payload, dict) or not isinstance(payload.get("key"), str):
                     raise ValueError("Enter a valid API key.")
-                verify_and_save(payload["key"].strip(), configure=configure)
+                selected_auth_mode = payload.get("auth_mode", auth_mode)
+                if selected_auth_mode == "":
+                    selected_auth_mode = None
+                retained_unsupported_auth = verify_and_save(payload["key"].strip(), configure=configure, auth_mode=selected_auth_mode)
             except CodexSetupError as error:
                 self.reply(400, json.dumps({"error": str(error)}).encode())
                 return
             except (ValueError, OSError, subprocess.CalledProcessError):
                 self.reply(400, b'{"error":"Could not verify and save the key. Check your API key, gateway connection, and local file permissions."}')
                 return
-            self.reply(200, b'{"ok":true}')
+            self.server.retained_unsupported_auth = retained_unsupported_auth
+            response = {"ok": True}
+            if retained_unsupported_auth:
+                response["warning"] = "Unsupported preferred_auth_method was retained because it has a customized value."
+            self.reply(200, json.dumps(response).encode())
             self.server.completed = True
 
     server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
     server.timeout = 1
     server.completed = False
     server.configure_codex = configure
+    server.retained_unsupported_auth = False
     server.setup_endpoint = endpoint
     server.setup_url = f"http://127.0.0.1:{server.server_port}/#token={token}"
     return server
 
 
-def setup_web(open_browser=True, configure=False):
-    with setup_server(configure=configure) as server:
+def setup_web(open_browser=True, configure=False, auth_mode=None):
+    with setup_server(configure=configure, auth_mode=auth_mode) as server:
         print("Open this local API-key form: " + server.setup_url, flush=True)
         print("Session closes after saving or after 15 minutes. Ctrl+C cancels.", flush=True)
         if open_browser:
@@ -661,6 +699,8 @@ def setup_web(open_browser=True, configure=False):
             server.handle_request()
         if server.completed and configure:
             print("API key verified and saved. Codex configuration updated; restart Codex to apply it.")
+            if server.retained_unsupported_auth:
+                print("Unsupported preferred_auth_method was retained because it has a customized value.")
         else:
             print("API key verified and saved." if server.completed else "Setup session expired.")
 
@@ -674,6 +714,7 @@ def main():
     codex = commands.add_parser("setup-codex", help="Configure Codex to use the JALA 9Router provider")
     codex.add_argument("--no-open", action="store_true", help="Print the local URL without opening a browser")
     codex.add_argument("--reuse-saved-key", action="store_true", help="Verify and reuse the locally saved key without opening the form")
+    codex.add_argument("--auth-mode", choices=("chatgpt", "api"), help="chatgpt: desktop Work identity plus gateway inference; api: API-only. Omit to keep configured sign-in (API-only on fresh setup).")
     commands.add_parser("backup-codex-key", help="Save the Codex provider key to the OS credential store before reverting setup")
     commands.add_parser("revert-codex", help="Remove JALA 9Router Codex settings, preserving the saved plugin key")
     commands.add_parser("status", help="Report whether a key is configured without displaying it")
@@ -716,10 +757,12 @@ def main():
             setup_web(not args.no_open)
         elif args.command == "setup-codex":
             if args.reuse_saved_key:
-                verify_and_save(load_key(), configure=True)
+                retained_unsupported_auth = verify_and_save(load_key(), configure=True, auth_mode=args.auth_mode)
                 print("Saved API key verified. Codex configuration updated; restart Codex to apply it.")
+                if retained_unsupported_auth:
+                    print("Unsupported preferred_auth_method was retained because it has a customized value.")
             else:
-                setup_web(not args.no_open, configure=True)
+                setup_web(not args.no_open, configure=True, auth_mode=args.auth_mode)
         elif args.command == "backup-codex-key":
             backup_codex_key()
             print("Codex API key saved in the OS credential store for later setup.")
@@ -730,7 +773,7 @@ def main():
             else:
                 print("Codex provider setup already reverted; no settings or credentials changed.")
             if references:
-                print("Remaining 9Router references (unchanged; update explicitly): " + json.dumps(references))
+                print("Remaining configuration references or unsupported settings (unchanged; update explicitly): " + json.dumps(references))
         elif args.command == "status":
             load_key()
             print("API key configured. Gateway: " + GATEWAY)

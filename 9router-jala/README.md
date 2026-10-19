@@ -98,7 +98,27 @@ settings. The key is stored in `config.toml` as `experimental_bearer_token`
 (plaintext), matching the JALA Mattermost instructions. The skill installs its
 bundled model catalog under the active Codex home and points the configuration
 to that file. See the [complete `config.toml` example](skills/9router-setup/SKILL.md#configuration-example).
-Restart Codex to apply the settings; restarting is the final step.
+For desktop Work, choose **ChatGPT + gateway** in the form or run
+`gateway.py setup-codex --auth-mode chatgpt`. This retains ChatGPT identity
+alongside gateway bearer inference using `forced_login_method = "chatgpt"` and
+provider-scoped `requires_openai_auth = true`. Restart Codex and sign in if needed.
+The combination was verified on desktop app `26.1013.31256`; compatibility with
+other builds and account features must be checked separately. No ChatGPT tokens
+are changed by setup. This is distinct from the official managed
+[ChatGPT-through-gateway route](https://learn.chatgpt.com/docs/enterprise/sign-in-with-chatgpt-through-a-gateway).
+
+For API-only use, choose **API-only** or pass `--auth-mode api`; this sets the
+login restriction to `api` and the provider auth flag to `false`. Omitting the
+option preserves a configured login restriction, otherwise honors the existing
+9Router ChatGPT auth flag, and defaults to API-only on a fresh installation.
+An older API-only setup needs an explicit ChatGPT mode choice for desktop Work.
+
+Setup removes the old setup-owned `preferred_auth_method = "apikey"` setting
+and the ignored `features.guardianv2.thread_context` toggle from `config.toml`,
+including its embedded profile overrides. Other Guardian settings remain intact;
+thread-owned context is always enabled. Customized `preferred_auth_method`
+values are retained and reported as unsupported. Separate profile files are not
+rewritten. See the setup skill for the migration scope.
 
 To remove this provider configuration, or configure it again with a saved key:
 
@@ -110,8 +130,10 @@ python3 "<plugin-root>/scripts/gateway.py" setup-codex --reuse-saved-key
 Revert preserves the plugin credential in native storage before removing owned
 settings. It keeps customized values, other providers, profiles, and the catalog
 file, and reports remaining references for explicit follow-up. Repeating a
-completed revert succeeds without changes. Revert returns to defaults rather
-than restoring a previous configuration. Restart Codex after a successful change.
+completed revert succeeds without changes. Revert removes the provider rather
+than restoring a previous configuration; it preserves and reports a ChatGPT
+sign-in restriction because that account preference may predate setup.
+Workspace restrictions also remain. Restart Codex after a successful change.
 
 Setup validates configuration before changing credentials. Each file replacement
 is atomic; the entire setup is not a transaction. If a later write fails, the
