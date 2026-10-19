@@ -1,6 +1,6 @@
 {
   "name": "microsoft-office-addin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Read and edit open Microsoft Office documents through a local Office.js bridge.",
   "author": { "name": "JALA" },
   "repository": "https://github.com/Atnic/jala-agent-plugins",

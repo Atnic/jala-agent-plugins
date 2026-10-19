@@ -111,7 +111,7 @@ wsServer.on("connection", (socket, _req, metadata) => {
 });
 }
 
-const mcp = new McpServer({ name: "microsoft-office-addin", version: "0.1.0" }, {
+const mcp = new McpServer({ name: "microsoft-office-addin", version: "0.1.1" }, {
   instructions: "Use office_list_documents first. It lists open task panes, not all files on disk. Select the target documentId explicitly before calling office_run_script. Scripts execute in that Office task pane with Office.js and unrestricted ambient JavaScript capabilities. Read the document before changing it when the request is ambiguous, and return a concise summary of what changed.",
 });
 
