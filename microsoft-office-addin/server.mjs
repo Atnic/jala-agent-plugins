@@ -9,7 +9,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-const root = fileURLToPath(new URL(".", import.meta.url));
+const root = resolve(fileURLToPath(new URL(".", import.meta.url)));
 const host = process.env.OFFICE_BRIDGE_HOST ?? "localhost";
 const port = Number(process.env.OFFICE_BRIDGE_PORT ?? 3000);
 const origin = `https://${host}:${port}`;
