@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "microsoft-office-addin": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${PLUGIN_ROOT}/bootstrap.mjs"],
+      "cwd": "${PLUGIN_ROOT}"
+    }
+  }
+}

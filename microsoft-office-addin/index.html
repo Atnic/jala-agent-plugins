@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Microsoft Office for Codex</title>
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <style>
+    :root { color-scheme: light; font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #1f2328; background: #f5f7fa; }
+    body { margin: 20px; }
+    main { max-width: 720px; margin: auto; background: white; border: 1px solid #dfe3e8; border-radius: 12px; padding: 22px; }
+    h1 { font-size: 20px; margin: 0 0 8px; }
+    p { color: #596579; }
+    .status { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: #9aa4b2; }
+    .connected .dot { background: #168550; }
+    .error .dot { background: #c4372d; }
+    dl { display: grid; grid-template-columns: 120px 1fr; gap: 7px 12px; }
+    dt { color: #687383; } dd { margin: 0; overflow-wrap: anywhere; font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+    h2 { font-size: 14px; margin: 18px 0 7px; }
+    pre { min-height: 32px; max-height: 150px; overflow: auto; margin: 0; padding: 10px; border-radius: 8px; background: #f1f4f8; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .note { margin: 18px 0 0; font-size: 12px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Microsoft Office for Codex</h1>
+  <p>This pane connects the current document's Office.js context to the local Codex plugin.</p>
+  <div id="status" class="status"><span class="dot"></span><span>Waiting for Office.js…</span></div>
+  <dl>
+    <dt>Office host</dt><dd id="host">Detecting</dd>
+    <dt>Platform</dt><dd id="platform">Detecting</dd>
+    <dt>Document ID</dt><dd id="document">Starting</dd>
+  </dl>
+  <h2>Last action result</h2><pre id="result">Waiting for Codex.</pre>
+  <p class="note">Scripts requested through Codex run in this pane with its regular JavaScript capabilities. Review requests before running scripts you do not trust.</p>
+</main>
+<script>
+  const documentId = crypto.randomUUID();
+  const $ = (id) => document.getElementById(id);
+  const state = { ready: false, socket: null, retry: null };
+  const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+  $("document").textContent = documentId;
+
+  function status(kind, label) {
+    const el = $("status");
+    el.className = `status ${kind}`;
+    el.lastElementChild.textContent = label;
+  }
+
+  function asJson(value) {
+    if (value === undefined) return null;
+    const encoded = JSON.stringify(value);
+    if (encoded === undefined) throw new TypeError("The script result must be JSON-serializable.");
+    if (encoded.length > 50000) throw new RangeError("Result exceeds the 50,000 character limit.");
+    return JSON.parse(encoded);
+  }
+
+  async function execute(message) {
+    $("result").textContent = `Running request ${message.requestId}…`;
+    try {
+      const fn = new AsyncFunction("Office", "Excel", "Word", "PowerPoint", "globalThis", `"use strict";\n${message.script}`);
+      const result = asJson(await fn(Office, globalThis.Excel, globalThis.Word, globalThis.PowerPoint, globalThis));
+      const response = { type: "result", requestId: message.requestId, ok: true, result };
+      $("result").textContent = JSON.stringify(response, null, 2);
+      state.socket?.send(JSON.stringify(response));
+    } catch (error) {
+      const response = { type: "result", requestId: message.requestId, ok: false, error: { name: error?.name ?? "Error", message: error?.message ?? String(error) } };
+      $("result").textContent = JSON.stringify(response, null, 2);
+      state.socket?.send(JSON.stringify(response));
+    }
+  }
+
+  function connect(info) {
+    if (!info.host) {
+      status("error", "Open this pane inside Word, Excel, or PowerPoint.");
+      return;
+    }
+    const query = new URLSearchParams({ documentId, officeHost: info.host, platform: info.platform ?? "unknown" });
+    const socket = new WebSocket(`wss://${location.host}/bridge/ws?${query}`);
+    state.socket = socket;
+    socket.onopen = () => status("", "Connecting to Codex bridge…");
+    socket.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.type === "connected") status("connected", "Connected to Codex. Ready for requests.");
+      if (message.type === "execute" && message.documentId === documentId) execute(message);
+    };
+    socket.onerror = () => status("error", "Codex bridge unavailable. Reconnecting…");
+    socket.onclose = () => {
+      status("error", "Codex bridge disconnected. Reconnecting…");
+      if (state.ready) state.retry = setTimeout(() => connect(info), 1200);
+    };
+  }
+
+  Office.onReady((info) => {
+    state.ready = true;
+    $("host").textContent = info.host ?? "Unavailable";
+    $("platform").textContent = info.platform ?? "Unavailable";
+    connect(info);
+  });
+</script>
+</body>
+</html>

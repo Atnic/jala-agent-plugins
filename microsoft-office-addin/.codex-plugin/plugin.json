@@ -1,0 +1,22 @@
+{
+  "name": "microsoft-office-addin",
+  "version": "0.1.0",
+  "description": "Read and edit open Microsoft Office documents through a local Office.js bridge.",
+  "author": { "name": "JALA" },
+  "repository": "https://github.com/Atnic/jala-agent-plugins",
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Microsoft Office",
+    "shortDescription": "Read and edit open Office documents through Office.js.",
+    "longDescription": "Connects Codex to task panes loaded in Microsoft Office. Discover connected documents and run JavaScript in a specifically selected document's Office.js context. Scripts can read and write the document and have the task pane's normal JavaScript capabilities.",
+    "developerName": "JALA",
+    "websiteURL": "https://github.com/Atnic/jala-agent-plugins/tree/main/microsoft-office-addin",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "brandColor": "#D83B01",
+    "composerIcon": "./assets/icon-32.png",
+    "logo": "./assets/icon-64.png",
+    "defaultPrompt": "Use Microsoft Office to inspect or edit my open Office documents."
+  }
+}

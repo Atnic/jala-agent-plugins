@@ -1,0 +1,4 @@
+interface:
+  display_name: "Set up Microsoft Office"
+  short_description: "Prepare the Office add-in for Codex"
+  default_prompt: "Set up Microsoft Office for Codex on this computer."

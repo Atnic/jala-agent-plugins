@@ -26,3 +26,20 @@ The model a 9router capability skill selects for its own API request. It is inde
 
 **Codex provider setup**:
 Configuration that directs Codex's own inference requests to the JALA 9Router gateway. It is independent of the 9router capability skills' API requests.
+
+## Microsoft Office–Codex Bridge
+
+**Office Add-in**:
+A Microsoft Office extension whose user interface is a web application hosted by an Office client.
+_Avoid_: Codex plugin, when referring to the component loaded inside Excel or Word
+
+**Office action**:
+A request to inspect or change the active Excel workbook or Word document through the Office Add-in.
+
+**Connected Office document**:
+An open Excel workbook or Word document that has an active connection from its Office Add-in to the Codex bridge.
+_Avoid_: active document, when several documents can be connected
+
+**Codex bridge**:
+A local service connecting an Office Add-in to a Codex conversation so Codex can work with the active Office document.
+_Avoid_: Office plugin, when referring to the service between Office and Codex
