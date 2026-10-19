@@ -1,6 +1,6 @@
 # 9Router JALA
 
-Version: `0.2.3`. A skills package for Codex and Claude Code that uses a
+Version: `0.2.4`. A skills package for Codex and Claude Code that uses a
 hosted [JALA 9Router gateway](https://9router.jala.tech) for chat, images, audio, embeddings, and web tools.
 
 ## Requirements and API key setup
@@ -98,8 +98,8 @@ settings. The key is stored in `config.toml` as `experimental_bearer_token`
 (plaintext), matching the JALA Mattermost instructions. The skill installs its
 bundled model catalog under the active Codex home and points the configuration
 to that file. See the [complete `config.toml` example](skills/9router-setup/SKILL.md#configuration-example).
-For desktop Work, choose **ChatGPT + gateway** in the form or run
-`gateway.py setup-codex --auth-mode chatgpt`. This retains ChatGPT identity
+Run `gateway.py setup-codex` to use **ChatGPT + gateway** by default. The form
+asks only for the API key. This retains ChatGPT identity
 alongside gateway bearer inference using `forced_login_method = "chatgpt"` and
 provider-scoped `requires_openai_auth = true`. Restart Codex and sign in if needed.
 The combination was verified on desktop app `26.1013.31256`; compatibility with
@@ -107,11 +107,10 @@ other builds and account features must be checked separately. No ChatGPT tokens
 are changed by setup. This is distinct from the official managed
 [ChatGPT-through-gateway route](https://learn.chatgpt.com/docs/enterprise/sign-in-with-chatgpt-through-a-gateway).
 
-For API-only use, choose **API-only** or pass `--auth-mode api`; this sets the
-login restriction to `api` and the provider auth flag to `false`. Omitting the
-option preserves a configured login restriction, otherwise honors the existing
-9Router ChatGPT auth flag, and defaults to API-only on a fresh installation.
-An older API-only setup needs an explicit ChatGPT mode choice for desktop Work.
+For explicit API-only use, pass `--auth-mode api`; this sets the login
+restriction to `api` and the provider auth flag to `false`. Omitting the option
+selects ChatGPT + gateway for fresh and existing setups, including older
+API-only configurations.
 
 Setup removes the old setup-owned `preferred_auth_method = "apikey"` setting
 and the ignored `features.guardianv2.thread_context` toggle from `config.toml`,

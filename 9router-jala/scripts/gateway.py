@@ -43,7 +43,6 @@ CODEX_PROVIDER = "9router-jala"
 CODEX_SETUP_VALUES = {
     "model": CODEX_PROVIDER,
     "model_provider": CODEX_PROVIDER,
-    "forced_login_method": "api",
     "model_reasoning_effort": "high",
 }
 CODEX_LEGACY_SETUP_VALUES = {"preferred_auth_method": "apikey"}
@@ -170,8 +169,7 @@ def merge_codex_config(existing, catalog_path, key, auth_mode=None):
     provider = providers.get(CODEX_PROVIDER) if providers is not None else None
 
     if auth_mode is None:
-        provider_mode = "chatgpt" if provider is not None and provider.get("requires_openai_auth") is True else "api"
-        auth_mode = document.get("forced_login_method", provider_mode)
+        auth_mode = "chatgpt"
     if auth_mode not in ("chatgpt", "api"):
         raise ValueError("Choose --auth-mode chatgpt or --auth-mode api; config.toml was left unchanged.")
     top_values = {**CODEX_SETUP_VALUES, "forced_login_method": auth_mode, "model_catalog_json": str(catalog_path)}
@@ -334,7 +332,7 @@ def revert_codex():
     backup_codex_key()
     if active:
         # ChatGPT sign-in may predate setup; retain that account preference.
-        for name, value in {**CODEX_SETUP_VALUES, **CODEX_LEGACY_SETUP_VALUES}.items():
+        for name, value in {**CODEX_SETUP_VALUES, **CODEX_LEGACY_SETUP_VALUES, "forced_login_method": "api"}.items():
             if document.get(name) == value:
                 del document[name]
     if owned_catalog:
@@ -613,7 +611,7 @@ def setup_server(configure=False, auth_mode=None):
     endpoint = "/api/setup-codex" if configure else "/api/setup"
     html = (Path(__file__).parents[1] / "assets" / "setup.html").read_text()
     html = html.replace("__NONCE__", nonce).replace("__CONFIGURE__", "true" if configure else "false")
-    html = html.replace("__AUTH_MODE__", json.dumps(auth_mode or "")).encode()
+    html = html.encode()
 
     class Handler(BaseHTTPRequestHandler):
         def setup(self):
@@ -714,7 +712,7 @@ def main():
     codex = commands.add_parser("setup-codex", help="Configure Codex to use the JALA 9Router provider")
     codex.add_argument("--no-open", action="store_true", help="Print the local URL without opening a browser")
     codex.add_argument("--reuse-saved-key", action="store_true", help="Verify and reuse the locally saved key without opening the form")
-    codex.add_argument("--auth-mode", choices=("chatgpt", "api"), help="chatgpt: desktop Work identity plus gateway inference; api: API-only. Omit to keep configured sign-in (API-only on fresh setup).")
+    codex.add_argument("--auth-mode", choices=("chatgpt", "api"), help="chatgpt: desktop Work identity plus gateway inference (default); api: API-only.")
     commands.add_parser("backup-codex-key", help="Save the Codex provider key to the OS credential store before reverting setup")
     commands.add_parser("revert-codex", help="Remove JALA 9Router Codex settings, preserving the saved plugin key")
     commands.add_parser("status", help="Report whether a key is configured without displaying it")

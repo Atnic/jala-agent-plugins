@@ -174,7 +174,7 @@ wire_api = "chat" # retain this note
         self.assertEqual(parsed["model"], "9router-jala")
         self.assertEqual(parsed["model_provider"], "9router-jala")
         self.assertNotIn("preferred_auth_method", parsed)
-        self.assertEqual(parsed["forced_login_method"], "api")
+        self.assertEqual(parsed["forced_login_method"], "chatgpt")
         self.assertEqual(parsed["model_reasoning_effort"], "high")
         self.assertEqual(parsed["model_catalog_json"], "/tmp/codex/models_9router_jala.json")
         self.assertEqual(parsed["model_providers"]["another-provider"]["base_url"], "https://example.test/v1")
@@ -249,12 +249,12 @@ model = "keep this table value"
         self.assertEqual(parsed["model"], "9router-jala")
         self.assertEqual(parsed["model_provider"], "9router-jala")
         self.assertNotIn("preferred_auth_method", parsed)
-        self.assertEqual(parsed["forced_login_method"], "api")
+        self.assertEqual(parsed["forced_login_method"], "chatgpt")
         self.assertEqual(parsed["model_reasoning_effort"], "high")
         self.assertEqual(provider["name"], "9Router JALA")
         self.assertEqual(provider["base_url"], "https://9router.jala.tech/v1")
         self.assertEqual(provider["wire_api"], "responses")
-        self.assertFalse(provider["requires_openai_auth"])
+        self.assertTrue(provider["requires_openai_auth"])
         self.assertEqual(provider["experimental_bearer_token"], "test-codex-secret")
         self.assertEqual(parsed["model_catalog_json"], str(root.resolve() / "models_9router_jala.json"))
         catalog = json.loads(Path(parsed["model_catalog_json"]).read_text())
@@ -284,9 +284,27 @@ model = "keep this table value"
                 self.assertTrue(server.completed)
             config = gateway.tomllib.loads((root / "config.toml").read_text())
             self.assertEqual(config["preferred_auth_method"], "custom-auth")
+            self.assertEqual(config["forced_login_method"], "chatgpt")
+            self.assertTrue(config["model_providers"]["9router-jala"]["requires_openai_auth"])
             self.assertEqual(config["model_providers"]["9router-jala"]["experimental_bearer_token"], "test-codex-web-secret")
             self.assertEqual(self.values[(gateway.KEYRING_SERVICE, gateway.KEYRING_ACCOUNT)], "test-codex-web-secret")
             send.assert_called_once_with("/v1/models", "test-codex-web-secret")
+
+    def test_codex_web_form_respects_command_auth_mode_without_payload_choice(self):
+        root = Path(self.temporary.name) / "codex-home"
+        with patch.dict(os.environ, {"CODEX_HOME": str(root)}), patch.object(gateway, "send", return_value=(b'{"data":[]}', "application/json")):
+            for mode in ("api", "chatgpt"):
+                with self.subTest(mode=mode), gateway.setup_server(configure=True, auth_mode=mode) as server:
+                    worker = threading.Thread(target=server.handle_request)
+                    worker.start()
+                    try:
+                        with self.post_setup(server, "test-command-mode-secret") as response:
+                            self.assertEqual(response.status, 200)
+                    finally:
+                        worker.join(timeout=5)
+                    config = gateway.tomllib.loads((root / "config.toml").read_text())
+                    self.assertEqual(config["forced_login_method"], mode)
+                    self.assertEqual(config["model_providers"]["9router-jala"]["requires_openai_auth"], mode == "chatgpt")
 
     def test_codex_web_setup_supports_explicit_auth_mode_choices(self):
         root = Path(self.temporary.name) / "codex-home"
@@ -334,7 +352,7 @@ model = "keep this table value"
     def test_codex_setup_form_discloses_plaintext_storage_and_restart(self):
         root = Path(self.temporary.name) / "codex-home"
         with patch.dict(os.environ, {"CODEX_HOME": str(root)}):
-            with gateway.setup_server(configure=True, auth_mode="chatgpt") as server:
+            with gateway.setup_server(configure=True) as server:
                 worker = threading.Thread(target=server.handle_request)
                 worker.start()
                 with urllib.request.urlopen(server.setup_url.split("#")[0], timeout=5) as response:
@@ -343,9 +361,9 @@ model = "keep this table value"
         self.assertIn(b"const configureCodex = true", page)
         self.assertIn(b"stored as plaintext in Codex config.toml", page)
         self.assertIn(b"Restart Codex to apply the settings", page)
-        self.assertIn(b'authMode.value = "chatgpt"', page)
-        self.assertIn(b'ChatGPT + gateway (desktop Work)', page)
-        self.assertIn(b'API-only (no ChatGPT sign-in)', page)
+        self.assertNotIn(b"Codex sign-in", page)
+        self.assertNotIn(b"<select", page)
+        self.assertNotIn(b"authMode", page)
         self.assertNotIn(b"__CONFIGURE__", page)
         self.assertNotIn(b"__AUTH_MODE__", page)
 

@@ -56,7 +56,7 @@ class CodexLifecycleTests(unittest.TestCase):
         result, output, error = self.command("revert-codex")
         self.assertEqual((result, error), (0, ""))
         document = gateway.tomllib.loads(self.config.read_text())
-        self.assertEqual(document, {"approval_policy": "on-request", "model_providers": {"other": {"base_url": "https://example.test/v1"}}})
+        self.assertEqual(document, {"forced_login_method": "chatgpt", "approval_policy": "on-request", "model_providers": {"other": {"base_url": "https://example.test/v1"}}})
         self.assertIn("# keep this note", self.config.read_text())
         self.assertEqual(self.values["key"], "test-lifecycle-secret")
         self.assertTrue(self.catalog.exists())
@@ -97,7 +97,7 @@ class CodexLifecycleTests(unittest.TestCase):
             self.assertEqual((result, error), (0, ""))
             document = gateway.tomllib.loads(self.config.read_text())
             self.assertNotIn("preferred_auth_method", document)
-            self.assertEqual(document["forced_login_method"], "api")
+            self.assertEqual(document["forced_login_method"], "chatgpt")
             self.assertEqual(document["approval_policy"], "on-request")
             self.assertEqual(document["model_providers"]["other"]["base_url"], "https://example.test/v1")
             self.assertEqual(document["model_providers"]["9router-jala"]["wire_api"], "responses")
@@ -227,6 +227,22 @@ class CodexLifecycleTests(unittest.TestCase):
             self.assertEqual(auth_file.read_text(), '{"test_identity": "unchanged"}')
         self.assertEqual(self.values["key"], "test-desktop-secret")
 
+    def test_default_setup_selects_chatgpt_for_fresh_and_existing_configurations(self):
+        self.values["key"] = "test-default-mode-secret"
+        for existing in ("", 'forced_login_method = "api"\n',
+                         '[model_providers.9router-jala]\nrequires_openai_auth = false\n',
+                         'forced_login_method = "custom"\n'):
+            with self.subTest(existing=existing):
+                self.config.write_text(existing)
+                result, output, error = self.command("setup-codex", "--reuse-saved-key")
+                self.assertEqual((result, error), (0, ""))
+                document = gateway.tomllib.loads(self.config.read_text())
+                provider = document["model_providers"]["9router-jala"]
+                self.assertEqual(document["forced_login_method"], "chatgpt")
+                self.assertTrue(provider["requires_openai_auth"])
+                self.assertEqual(provider["experimental_bearer_token"], "test-default-mode-secret")
+                self.assertNotIn("test-default-mode-secret", output + error)
+
     def test_explicit_auth_modes_switch_without_changing_gateway_credentials(self):
         self.values["key"] = "test-auth-choice-secret"
         self.config.write_text('approval_policy = "on-request"\n')
@@ -273,7 +289,7 @@ class CodexLifecycleTests(unittest.TestCase):
         self.assertEqual((result, error), (0, ""))
         document = gateway.tomllib.loads(self.config.read_text())
         self.assertEqual(document["preferred_auth_method"], "custom-auth")
-        self.assertEqual(document["forced_login_method"], "api")
+        self.assertEqual(document["forced_login_method"], "chatgpt")
         self.assertEqual(document["approval_policy"], "on-request")
         self.assertNotIn("test-custom-auth-secret", output + error)
         self.assertIn("Unsupported preferred_auth_method was retained", output)
@@ -570,7 +586,7 @@ class CodexLifecycleTests(unittest.TestCase):
         self.assertEqual(document["model_provider"], "other")
         self.assertEqual(document["model"], "9router-jala")
         self.assertEqual(document["preferred_auth_method"], "apikey")
-        self.assertEqual(document["forced_login_method"], "api")
+        self.assertEqual(document["forced_login_method"], "chatgpt")
         self.assertEqual(document["model_reasoning_effort"], "high")
         self.assertNotIn("model_catalog_json", document)
         self.assertNotIn("9router-jala", document.get("model_providers", {}))
