@@ -6,34 +6,54 @@
   <title>Microsoft Office for Codex</title>
   <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
   <style>
-    :root { color-scheme: light; font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #1f2328; background: #f5f7fa; }
-    body { margin: 20px; }
-    main { max-width: 720px; margin: auto; background: white; border: 1px solid #dfe3e8; border-radius: 12px; padding: 22px; }
-    h1 { font-size: 20px; margin: 0 0 8px; }
-    p { color: #596579; }
-    .status { display: flex; gap: 8px; align-items: center; font-weight: 650; }
-    .dot { width: 9px; height: 9px; border-radius: 50%; background: #9aa4b2; }
-    .connected .dot { background: #168550; }
-    .error .dot { background: #c4372d; }
-    dl { display: grid; grid-template-columns: 120px 1fr; gap: 7px 12px; }
-    dt { color: #687383; } dd { margin: 0; overflow-wrap: anywhere; font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
-    h2 { font-size: 14px; margin: 18px 0 7px; }
-    pre { min-height: 32px; max-height: 150px; overflow: auto; margin: 0; padding: 10px; border-radius: 8px; background: #f1f4f8; white-space: pre-wrap; overflow-wrap: anywhere; }
-    .note { margin: 18px 0 0; font-size: 12px; }
+    :root {
+      color-scheme: light;
+      font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #252525;
+      background: #fff;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { width: min(100%, 420px); margin: 0 auto; padding: 18px 16px 24px; }
+    header { display: flex; align-items: center; gap: 11px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+    header img { width: 38px; height: 38px; object-fit: contain; }
+    h1 { margin: 0; font-size: 16px; line-height: 1.25; font-weight: 650; }
+    .subtitle { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+    .status { display: flex; align-items: center; gap: 8px; min-height: 42px; margin: 14px 0 10px; font-weight: 600; }
+    .dot { flex: 0 0 8px; width: 8px; height: 8px; border-radius: 50%; background: #9ca3af; }
+    .connected .dot { background: #15803d; }
+    .error .dot { background: #dc2626; }
+    .connecting .dot { background: #d97706; }
+    dl { margin: 0; padding: 2px 0 14px; border-bottom: 1px solid var(--line); }
+    .detail { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; }
+    dt { color: var(--muted); }
+    dd { max-width: 68%; margin: 0; text-align: right; overflow-wrap: anywhere; font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    h2 { margin: 16px 0 7px; font-size: 12px; font-weight: 650; }
+    pre { min-height: 36px; max-height: 220px; overflow: auto; margin: 0; padding: 11px 12px; border: 1px solid var(--line); border-radius: 7px; background: #f8f9fb; color: #374151; font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .note { margin: 14px 0 0; color: var(--muted); font-size: 11px; }
+    @media (max-width: 300px) { main { padding-right: 12px; padding-left: 12px; } }
   </style>
 </head>
 <body>
 <main>
-  <h1>Microsoft Office for Codex</h1>
-  <p>This pane connects the current document's Office.js context to the local Codex plugin.</p>
-  <div id="status" class="status"><span class="dot"></span><span>Waiting for Office.js…</span></div>
+  <header>
+    <img src="/assets/icon-64.png" alt="">
+    <div>
+      <h1>Microsoft Office for Codex</h1>
+      <p class="subtitle">Connected document and activity</p>
+    </div>
+  </header>
+  <div id="status" class="status connecting" role="status" aria-live="polite"><span class="dot"></span><span>Waiting for Office.js…</span></div>
   <dl>
-    <dt>Office host</dt><dd id="host">Detecting</dd>
-    <dt>Platform</dt><dd id="platform">Detecting</dd>
-    <dt>Document ID</dt><dd id="document">Starting</dd>
+    <div class="detail"><dt>Office app</dt><dd id="host">Detecting</dd></div>
+    <div class="detail"><dt>Platform</dt><dd id="platform">Detecting</dd></div>
+    <div class="detail"><dt>Document ID</dt><dd id="document">Starting</dd></div>
   </dl>
-  <h2>Last action result</h2><pre id="result">Waiting for Codex.</pre>
-  <p class="note">Scripts requested through Codex run in this pane with its regular JavaScript capabilities. Review requests before running scripts you do not trust.</p>
+  <h2>LAST RESULT</h2>
+  <pre id="result">Waiting for Codex.</pre>
+  <p class="note">Scripts have this pane’s regular JavaScript access. Review requests before allowing edits.</p>
 </main>
 <script>
   const documentId = crypto.randomUUID();
@@ -79,7 +99,7 @@
     const query = new URLSearchParams({ documentId, officeHost: info.host, platform: info.platform ?? "unknown" });
     const socket = new WebSocket(`wss://${location.host}/bridge/ws?${query}`);
     state.socket = socket;
-    socket.onopen = () => status("", "Connecting to Codex bridge…");
+    socket.onopen = () => status("connecting", "Connecting to Codex bridge…");
     socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
       if (message.type === "connected") status("connected", "Connected to Codex. Ready for requests.");
