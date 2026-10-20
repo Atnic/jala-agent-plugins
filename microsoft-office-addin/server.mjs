@@ -12,7 +12,7 @@ import { CodexChat } from "./codex-chat.mjs";
 
 const root = resolve(fileURLToPath(new URL(".", import.meta.url)));
 const host = process.env.OFFICE_BRIDGE_HOST ?? "localhost";
-const port = Number(process.env.OFFICE_BRIDGE_PORT ?? 3000);
+const port = Number(process.env.OFFICE_BRIDGE_PORT ?? 43187);
 const origin = `https://${host}:${port}`;
 const maxScriptChars = 32_000;
 const requestTimeoutMs = 120_000;
@@ -147,7 +147,7 @@ mcp.registerTool("office_list_documents", {
   try {
     await ensureBridgeStarted();
   } catch (error) {
-    return { isError: true, content: [{ type: "text", text: `Office bridge is not ready: ${error.message}. Ask Codex to set up Microsoft Office for Codex.` }] };
+    return { isError: true, content: [{ type: "text", text: `Office bridge is not ready: ${error.message}. Ask Codex to set up Codex for Microsoft Office.` }] };
   }
   const documents = listPanes();
   return { structuredContent: { documents }, content: [{ type: "text", text: documents.length ? JSON.stringify(documents, null, 2) : "No Office task panes are connected. Open the Microsoft Office add-in pane in a document and try again." }] };
@@ -165,7 +165,7 @@ mcp.registerTool("office_run_script", {
   try {
     await ensureBridgeStarted();
   } catch (error) {
-    return { isError: true, content: [{ type: "text", text: `Office bridge is not ready: ${error.message}. Ask Codex to set up Microsoft Office for Codex.` }] };
+    return { isError: true, content: [{ type: "text", text: `Office bridge is not ready: ${error.message}. Ask Codex to set up Codex for Microsoft Office.` }] };
   }
   const response = await bridgeRequest("/bridge/execute", { documentId, script });
   if (!response.ok) return { isError: true, structuredContent: { error: response.error }, content: [{ type: "text", text: `${response.error.name}: ${response.error.message}` }] };
@@ -193,7 +193,7 @@ async function ensureBridgeStarted() {
       server.once("error", rejectPromise);
       server.listen(port, host, () => {
         server.off("error", rejectPromise);
-        console.error(`Microsoft Office for Codex bridge listening at ${origin}`);
+        console.error(`Codex for Microsoft Office bridge listening at ${origin}`);
         resolvePromise();
       });
     });

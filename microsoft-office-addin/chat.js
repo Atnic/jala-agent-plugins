@@ -3,7 +3,8 @@
   let materialized = false;
   let socket, threadId, running = false, ready = false, sending = false, pendingText = "", historyCursor, threadsCursor;
   let attachments = [], readingFiles = false, models = [], currentModel, currentEffort, selectedModel, selectedEffort, loadingModels = false;
-  let currentProject, changingThread = false, projectBusy = false, projectHome, defaultProject, folderPath, folderParent, folderCursor;
+  let currentProject, changingThread = false, projectBusy = false, projectLocked = false;
+  let projectCatalog = [], showProjectChats = false;
   const items = new Map();
   const icons = () => window.lucide?.createIcons({ attrs: { 'aria-hidden': 'true' } });
   function emptyState() {
@@ -40,15 +41,16 @@
     $('refresh-models').disabled = blocked;
     $('model-choice').disabled = blocked || !models.length;
     $('effort-choice').disabled = $('model-choice').disabled || !$('effort-choice').options.length;
-    $('project-toggle').disabled = !ready || running || sending || changingThread || loadingModels || readingFiles;
-    $('project-home').disabled = blocked || !projectHome;
-    $('project-up').disabled = blocked || !folderParent || folderParent === folderPath;
-    $('project-default').disabled = blocked || !defaultProject;
-    $('folder-go').disabled = blocked;
-    $('folder-path').disabled = blocked;
-    $('folder-more').disabled = blocked;
-    $('project-use').disabled = blocked || !folderPath || $('folder-path').value !== folderPath;
-    for (const button of document.querySelectorAll('.project-option, .folder-option')) button.disabled = blocked;
+    const hasConversation = materialized || projectLocked;
+    $('composer-context').hidden = hasConversation;
+    if (hasConversation) {
+      closeProjects();
+      $('connection-details').open = false;
+      $('details-toggle').setAttribute('aria-expanded', 'false');
+    }
+    $('project-toggle').disabled = blocked || materialized || projectLocked;
+    $('project-toggle').title = materialized || projectLocked ? 'Project is fixed for this conversation. Start a new chat to change it.' : currentProject || 'Choose project';
+    for (const button of document.querySelectorAll('.project-option')) button.disabled = blocked || materialized || projectLocked;
     $('stop').hidden = !running;
     $('send').hidden = running;
     $('threads').disabled = blocked;
@@ -61,39 +63,28 @@
   function closeProjects() { $('project-panel').hidden = true; $('project-toggle').setAttribute('aria-expanded', 'false'); }
   function changeConversation(message) {
     if (!ready || changingThread || running || sending || projectBusy || loadingModels || readingFiles) return;
+    if (message.type === 'project/select' && (materialized || projectLocked)) return;
     changingThread = true; $('error').hidden = true;
-    if (message.type === 'project/select') $('project-status').textContent = 'Opening project…';
+    if (message.type === 'project/select') {
+      showProjectChats = true;
+      $('project-status').textContent = 'Opening project…';
+    }
     controls(); send(message);
-  }
-  function browseFolder(path, offset) {
-    if (!ready || projectBusy || changingThread) return;
-    projectBusy = true; $('project-status').textContent = 'Loading folders…'; controls();
-    send({type:'project/browse',path,...(offset != null ? {offset} : {})});
   }
   function renderProjects(projects) {
     $('project-list').replaceChildren();
-    for (const project of projects) {
+    const query = $('project-search').value.trim().toLocaleLowerCase();
+    for (const project of projects.filter(project => project.name.toLocaleLowerCase().includes(query))) {
       const button = document.createElement('button'); button.type = 'button'; button.className = 'project-option'; button.title = project.path;
       button.setAttribute('aria-current', String(project.path === currentProject));
       const name = document.createElement('strong'); name.textContent = project.name;
-      const path = document.createElement('small'); path.textContent = project.path;
-      button.append(name, path); button.onclick = () => changeConversation({type:'project/select',path:project.path});
+      const icon = document.createElement('i'); icon.dataset.lucide = 'folder-closed';
+      const check = document.createElement('i'); check.dataset.lucide = 'check'; check.className = 'project-check';
+      button.append(icon, name, check); button.onclick = () => changeConversation({type:'project/select',path:project.path});
       $('project-list').append(button);
     }
-  }
-  function renderFolders(message) {
-    if (!message.offset) $('folder-list').replaceChildren();
-    folderPath = message.path; folderParent = message.parent; folderCursor = message.nextOffset;
-    $('folder-path').value = folderPath;
-    for (const folder of message.folders) {
-      const button = document.createElement('button'); button.type = 'button'; button.className = 'folder-option'; button.title = folder.path;
-      const icon = document.createElement('i'); icon.dataset.lucide = 'folder-closed';
-      const name = document.createElement('span'); name.textContent = folder.name;
-      button.append(icon, name); button.onclick = () => browseFolder(folder.path); $('folder-list').append(button);
-    }
-    $('folder-more').hidden = folderCursor == null;
-    $('project-status').textContent = $('folder-list').children.length ? '' : 'No subfolders. You can use this folder.';
-    icons(); controls();
+    if (projects.length) $('project-status').textContent = $('project-list').children.length ? '' : 'No projects found.';
+    icons();
   }
   function renderAttachments() {
     $('attachments').replaceChildren();
@@ -156,7 +147,7 @@
     const scroller = $('messages');
     const follow = !before && scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 160;
     if (!['userMessage', 'agentMessage', ...activityTypes].includes(item.type)) return;
-    if (item.type === 'userMessage') materialized = true;
+    if (item.type === 'userMessage') { materialized = true; controls(); }
     $('empty')?.remove();
     let record = items.get(item.id);
     if (!record) {
@@ -247,7 +238,9 @@
     socket = new WebSocket(`wss://${location.host}/chat/ws?${new URLSearchParams({documentId:document.body.dataset.documentId})}`);
     socket.onmessage = ({data}) => {
       let m; try { m = JSON.parse(data); } catch { return; }
-      if (m.type === 'ready') { ready = true; changeConversation(threadId && materialized ? {type:'resume',threadId} : {type:'new'}); }
+      if (m.type === 'startup') $('chat-status').textContent = m.message;
+      if (m.type === 'ready') { ready = true; changeConversation(threadId && materialized ? {type:'resume',threadId,restoreProject:true} : {type:'new'}); }
+      if (m.type === 'threads/error') { showProjectChats = false; showError(`Could not load chats: ${m.message}`); }
       if (m.type === 'threads') {
         if (m.cwd && currentProject && m.cwd !== currentProject) return;
         if (!m.append) $('threads').replaceChildren(new Option('Choose a conversation', ''));
@@ -255,6 +248,11 @@
         threadsCursor = m.cursor; $('more-threads').hidden = !threadsCursor;
         if (threadId) $('threads').value = threadId;
         updateChats();
+        if (showProjectChats) {
+          showProjectChats = false;
+          $('history-panel').hidden = false;
+          $('history-toggle').setAttribute('aria-expanded', 'true');
+        }
       }
       if (m.type === 'thread') {
         if (currentProject !== m.cwd) { $('threads').replaceChildren(new Option('Choose a conversation', '')); threadsCursor = null; $('more-threads').hidden = true; }
@@ -263,25 +261,26 @@
         $('project-toggle').title = m.cwd || 'Choose project';
         $('project-toggle').setAttribute('aria-label', `Choose project. ${m.projectName || ''}`);
         historyCursor = null; $('older').hidden = true;
-        threadId = m.threadId; materialized = false; running = m.running; items.clear(); $('messages').replaceChildren(); $('approvals').replaceChildren();
+        threadId = m.threadId; materialized = false; projectLocked = false; running = m.running; items.clear(); $('messages').replaceChildren(); $('approvals').replaceChildren();
         $('messages').append(emptyState()); icons();
         currentModel = m.model; currentEffort = m.effort; selectedModel = undefined; selectedEffort = undefined;
         populateModels();
         if (![...$('threads').options].some(o => o.value === threadId)) $('threads').add(new Option('New conversation', threadId));
         $('threads').value = threadId; controls(); $('prompt').focus();
       }
-      if (m.type === 'chat-opened' && m.threadId === threadId) { changingThread = false; controls(); $('prompt').focus(); }
+      if (m.type === 'chat-opened' && m.threadId === threadId) { changingThread = false; controls(); $('prompt').focus(); send({type:'list'}); }
       if (m.type === 'history') {
         const anchor = m.prepend ? $('messages').firstChild : null;
         for (const turn of m.turns) for (const item of turn.items) render(item, anchor);
         historyCursor = m.cursor; $('older').hidden = !historyCursor;
       }
       if (m.type === 'event') event(m.method, m.params);
+      if (m.type === 'project/locked') { projectLocked = m.locked !== false; controls(); }
       if (m.type === 'projects') {
-        projectBusy = false; projectHome = m.home; defaultProject = m.defaultPath;
-        renderProjects(m.projects); browseFolder(m.cwd === m.defaultPath ? m.home : m.cwd);
+        projectBusy = false; projectCatalog = m.projects; renderProjects(projectCatalog);
+        $('project-status').textContent = m.projects.length ? '' : 'Ask Codex to start the Microsoft Office bridge to refresh your projects.';
+        controls();
       }
-      if (m.type === 'project/folders') { projectBusy = false; renderFolders(m); }
       if (m.type === 'project/error') { projectBusy = false; $('project-status').textContent = m.message; controls(); }
       if (m.type === 'models') {
         loadingModels = false; models = m.models;
@@ -305,23 +304,19 @@
   }
   window.addEventListener('office-bridge-ready', connect);
   $('reconnect').onclick = connect;
-  $('history-toggle').onclick = () => { const panel=$('history-panel'); panel.hidden=!panel.hidden; $('history-toggle').setAttribute('aria-expanded', String(!panel.hidden)); };
+  $('history-toggle').onclick = () => { const panel=$('history-panel'); panel.hidden=!panel.hidden; $('history-toggle').setAttribute('aria-expanded', String(!panel.hidden)); if (!panel.hidden && ready && !changingThread) send({type:'list'}); };
   $('details-toggle').onclick = () => { const details=$('connection-details'); details.open=!details.open; $('details-toggle').setAttribute('aria-expanded', String(details.open)); if (details.open) { closeProjects(); $('model-panel').hidden = true; $('model-toggle').setAttribute('aria-expanded','false'); } };
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeProjects(); $('history-panel').hidden = true; $('connection-details').open = false; $('model-panel').hidden = true; $('model-toggle').setAttribute('aria-expanded','false'); $('history-toggle').setAttribute('aria-expanded','false'); $('details-toggle').setAttribute('aria-expanded','false'); } });
+  $('project-search').oninput = () => { renderProjects(projectCatalog); controls(); };
   $('project-toggle').onclick = () => {
     const panel = $('project-panel'); panel.hidden = !panel.hidden; $('project-toggle').setAttribute('aria-expanded', String(!panel.hidden));
     if (!panel.hidden) {
+      $('project-search').value = ''; renderProjects(projectCatalog); $('project-search').focus();
       $('connection-details').open = false; $('model-panel').hidden = true; $('model-toggle').setAttribute('aria-expanded','false');
       if (ready && !projectBusy) { projectBusy = true; $('project-status').textContent = 'Loading projects…'; controls(); send({type:'projects'}); }
     }
   };
-  $('project-home').onclick = () => browseFolder(projectHome);
-  $('project-up').onclick = () => browseFolder(folderParent);
-  $('project-default').onclick = () => changeConversation({type:'project/select',path:defaultProject});
-  $('folder-form').onsubmit = e => { e.preventDefault(); browseFolder($('folder-path').value); };
-  $('folder-path').oninput = () => { $('project-use').disabled = $('folder-path').value !== folderPath; };
-  $('folder-more').onclick = () => browseFolder(folderPath, folderCursor);
-  $('project-use').onclick = () => changeConversation({type:'project/select',path:folderPath});
+
   $('model-toggle').onclick = () => {
     const panel = $('model-panel'); panel.hidden = !panel.hidden;
     $('model-toggle').setAttribute('aria-expanded', String(!panel.hidden));

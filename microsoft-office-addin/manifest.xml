@@ -6,13 +6,13 @@
   <Version>1.1.0.0</Version>
   <ProviderName>JALA</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="Microsoft Office for Codex"/>
+  <DisplayName DefaultValue="Codex for Microsoft Office"/>
   <Description DefaultValue="Connect Codex to the current Office document through Office.js."/>
-  <IconUrl DefaultValue="https://localhost:3000/assets/icon-32.png"/>
-  <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-64.png"/>
+  <IconUrl DefaultValue="https://localhost:43187/assets/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="https://localhost:43187/assets/icon-64.png"/>
   <SupportUrl DefaultValue="https://github.com/Atnic/jala-agent-plugins/tree/main/microsoft-office-addin"/>
   <AppDomains>
-    <AppDomain>https://localhost:3000</AppDomain>
+    <AppDomain>https://localhost:43187</AppDomain>
   </AppDomains>
   <Hosts>
     <Host Name="Document"/>
@@ -20,7 +20,7 @@
     <Host Name="Presentation"/>
   </Hosts>
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://localhost:3000/index.html"/>
+    <SourceLocation DefaultValue="https://localhost:43187/index.html"/>
   </DefaultSettings>
   <Permissions>ReadWriteDocument</Permissions>
 </OfficeApp>

@@ -1,6 +1,6 @@
 {
   "name": "microsoft-office-addin-codex-bridge",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "type": "module",
   "description": "Local MCP server and Office task pane bridge for Codex.",

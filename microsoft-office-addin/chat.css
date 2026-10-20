@@ -123,14 +123,6 @@ textarea::placeholder { color: var(--subtle); }
 .project-option strong, .project-option small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .project-option strong { font-size: 12px; font-weight: 500; }
 .project-option small { color: var(--subtle); font-size: 10px; }
-.folder-toolbar { display: flex; flex-wrap: wrap; gap: 4px; border-top: 1px solid var(--line); padding-top: 7px; }
-#folder-form { display: flex; gap: 4px; margin: 8px 0; }
-#folder-path { min-width: 0; width: 100%; padding: 7px; border: 1px solid var(--line); border-radius: 6px; background: var(--canvas); font-size: 12px; }
-#folder-list { max-height: 180px; overflow-y: auto; margin: 0 -6px; }
-.folder-option { display: flex; align-items: center; gap: 7px; width: 100%; text-align: left; padding: 6px 7px; border-radius: 6px; font-size: 12px; }
-.folder-option > span { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.folder-option svg { width: 14px; height: 14px; color: var(--secondary); }
-.project-use { width: 100%; padding: 8px 10px; margin-top: 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 12px; }
 .attachments { display: flex; flex-wrap: wrap; gap: 6px; padding-bottom: 10px; max-height: 110px; overflow-y: auto; font-size: 11px; color: var(--secondary); }
 .attachment { display: inline-flex; align-items: center; min-width: 0; max-width: 100%; padding-left: 9px; background: var(--context); border: 1px solid var(--line); border-radius: 8px; }
 .attachment > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -148,3 +140,18 @@ dd { margin: 0; overflow-wrap: anywhere; }
 .connection pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 140px; overflow: auto; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 @media (max-width: 310px) { .context-computer span { display: none; } .composer-context { gap: 8px; } #messages { padding-right: 16px; padding-left: 16px; } }
+
+/* Compact project menu, matching the composer chip. */
+#composer-context[hidden] { display: none; }
+.project-panel { right: auto; width: min(320px, calc(100% - 28px)); padding: 6px; border-radius: 14px; }
+.project-search { display: flex; align-items: center; gap: 7px; margin: 0 6px 4px; padding: 7px 2px; border-bottom: 1px solid var(--line); color: var(--subtle); }
+.project-search svg { width: 14px; height: 14px; flex: none; }
+.project-search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--text); font: inherit; font-size: 12px; }
+.project-search:focus-within { border-bottom-color: var(--secondary); }
+#project-list { max-height: min(260px, 45vh); margin: 0; }
+.project-option { display: flex; align-items: center; gap: 8px; padding: 8px; }
+.project-option > svg { width: 15px; height: 15px; flex: none; color: var(--secondary); }
+.project-option strong { flex: 1; min-width: 0; }
+.project-option .project-check { visibility: hidden; }
+.project-option[aria-current="true"] .project-check { visibility: visible; }
+.project-panel p { margin: 8px; }

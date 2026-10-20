@@ -14,6 +14,7 @@ const manifest = join(packageRoot, "manifest.xml");
 const filename = "microsoft-office-addin.xml";
 const macApps = ["com.microsoft.Word", "com.microsoft.Excel", "com.microsoft.Powerpoint"];
 const officeApps = ["word", "excel", "powerpoint"];
+const bridgePort = process.env.OFFICE_BRIDGE_PORT ?? "43187";
 
 if (process.platform === "win32" || process.platform === "linux") {
   const officePlatform = process.platform === "win32" ? "desktop" : "web";
@@ -22,7 +23,7 @@ if (process.platform === "win32" || process.platform === "linux") {
       runNpx([
         "--yes", "office-addin-debugging", "start", "manifest.xml", officePlatform,
         "--app", app, "--debug-method", "direct", "--no-debug", "--no-live-reload",
-        "--dev-server-port", "3000",
+        "--dev-server-port", bridgePort,
       ]);
       console.log(`Sideloaded ${app}.`);
     }
@@ -30,8 +31,8 @@ if (process.platform === "win32" || process.platform === "linux") {
     runNpx(["--yes", "office-addin-debugging", "stop", "manifest.xml", officePlatform]);
   }
   const completion = process.platform === "win32"
-    ? "The Office apps may have opened; keep them open and use the Microsoft Office for Codex task pane."
-    : "Office on the web may have opened in your browser; sign in to your Microsoft 365 account if prompted, then use the Microsoft Office for Codex task pane."
+    ? "The Office apps may have opened; keep them open and use the Codex for Microsoft Office task pane."
+    : "Office on the web may have opened in your browser; sign in to your Microsoft 365 account if prompted, then use the Codex for Microsoft Office task pane."
   console.log(action === "install"
     ? `Manifest installed for Word, Excel, and PowerPoint. ${completion}`
     : "Manifest sideload removed from Word, Excel, and PowerPoint.");

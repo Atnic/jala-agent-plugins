@@ -8,7 +8,7 @@ function fixture() {
   const directory = resolve(homedir(), '.codex', 'office-chats');
   const state = { threads: {} };
   const projects = { directory, read: async () => state, folder: async path => resolve(path), owns: async thread => Object.hasOwn(state.threads, thread.id) || resolve(thread.cwd) === directory, remember: async (cwd, id) => { state.threads[id] = cwd; } };
-  const chat = new CodexChat({ send: m => sent.push(m), documentId: 'selected-document', root: '/plugin', port: 3000, certDirectory: '/certs', projects });
+  const chat = new CodexChat({ send: m => sent.push(m), documentId: 'selected-document', root: '/plugin', port: 43187, certDirectory: '/certs', projects });
   chat.write = m => writes.push(m);
   return { chat, sent, writes };
 }
@@ -43,17 +43,17 @@ test('MCP form validates choices and omits unrequested fields', () => {
   chat.answer({id:5,decision:'accept',content:{choice:'allow',extra:'ignore'}});
   assert.deepEqual(writes[0].result.content,{choice:'allow'});
 });
-test('resume rejects a conversation outside the Office chat directory', async () => {
+test('resume rejects a conversation outside the selected project', async () => {
   const { chat } = fixture();
   chat.rpc = async () => ({thread:{cwd:'/unrelated',id:'other'}});
-  await assert.rejects(chat.handle({type:'resume',threadId:'other'}),/created in Office/);
+  await assert.rejects(chat.handle({type:'resume',threadId:'other'}),/selected project/);
   assert.equal(chat.threadId, undefined);
 });
 test('new thread does not query unmaterialized history and binds the selected document', async () => {
   const { chat, sent } = fixture();
   const calls=[];chat.rpc=async (method,params)=>{calls.push({method,params});return method === 'thread/list' ? {data:[],nextCursor:null} : {thread:{id:'new'}};};
   await chat.handle({type:'new'});
-  assert.deepEqual(calls.map(c=>c.method),['thread/start','thread/list']);
+  assert.deepEqual(calls.map(c=>c.method),['thread/start']);
   assert.equal(calls[0].params.config['mcp_servers.office_document'].env.OFFICE_CHAT_DOCUMENT_ID,'selected-document');
   assert.equal(calls[0].params.approvalPolicy,'never');
   assert.equal(sent.find(m=>m.type==='history').turns.length,0);

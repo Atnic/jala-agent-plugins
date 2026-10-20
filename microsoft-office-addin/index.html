@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Microsoft Office for Codex</title>
+  <title>Codex for Microsoft Office</title>
   <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
   <link rel="stylesheet" href="./chat.css">
 </head>
@@ -30,29 +30,16 @@
   <section id="approvals" aria-label="Requests from Codex"></section>
   <div class="composer-dock">
     <details class="connection" id="connection-details"><summary>Connection details</summary><dl><dt>Office app</dt><dd id="host">Detecting</dd><dt>Platform</dt><dd id="platform">Detecting</dd><dt>Document ID</dt><dd id="document"></dd></dl><h2>Last Office action</h2><pre id="result">No actions yet.</pre></details>
-    <div class="composer-context">
+    <div class="composer-context" id="composer-context">
       <button id="project-toggle" type="button" class="context-document project-toggle" aria-label="Choose project" aria-controls="project-panel" aria-expanded="false" disabled><i data-lucide="folder-closed"></i><span id="project-label">Choose project</span><i data-lucide="chevron-down"></i></button>
       <span class="context-computer"><i data-lucide="laptop"></i><span>This computer</span></span>
       <button id="details-toggle" class="icon-button" aria-label="Connection details" aria-controls="connection-details" aria-expanded="false"><i data-lucide="settings"></i></button>
     </div>
     <section id="project-panel" class="project-panel" aria-label="Choose project" hidden>
-      <h2>Choose project</h2>
-      <p>Choosing a project starts a new chat. Your current chat stays saved.</p>
+      <label class="project-search" for="project-search"><i data-lucide="search"></i><input id="project-search" type="search" placeholder="Search projects" autocomplete="off" aria-label="Search projects"></label>
       <p id="project-status" role="status"></p>
-      <div id="project-list" aria-label="Recent project folders"></div>
-      <div class="folder-toolbar">
-        <button id="project-home" type="button" class="text-button">Home</button>
-        <button id="project-up" type="button" class="text-button">Up</button>
-        <button id="project-default" type="button" class="text-button">No project</button>
-      </div>
-      <form id="folder-form">
-        <label class="sr-only" for="folder-path">Folder path</label>
-        <input id="folder-path" type="text" placeholder="Folder path" spellcheck="false" autocomplete="off" maxlength="4096">
-        <button id="folder-go" type="submit" class="text-button">Go</button>
-      </form>
-      <div id="folder-list" aria-label="Folders"></div>
-      <button id="folder-more" type="button" class="text-button" hidden>Show more folders</button>
-      <button id="project-use" type="button" class="project-use" disabled>Use this folder</button>
+      <div id="project-list" aria-label="Codex projects"></div>
+
     </section>
     <section id="model-panel" class="model-panel" aria-label="Model and reasoning" hidden>
       <h2>Model and reasoning</h2>

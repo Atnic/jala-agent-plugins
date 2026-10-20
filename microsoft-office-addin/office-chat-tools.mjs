@@ -17,7 +17,7 @@ mcp.registerTool('office_run_script', {
   try {
     const payload = JSON.stringify({ documentId, script });
     const body = await new Promise((resolveBody, reject) => {
-      const req = request(`https://localhost:${process.env.OFFICE_BRIDGE_PORT || 3000}/bridge/execute`, { method: 'POST', ca, headers: { 'content-type': 'application/json', 'content-length': Buffer.byteLength(payload) } }, res => {
+      const req = request(`https://localhost:${process.env.OFFICE_BRIDGE_PORT || 43187}/bridge/execute`, { method: 'POST', ca, headers: { 'content-type': 'application/json', 'content-length': Buffer.byteLength(payload) } }, res => {
         let text = ''; res.on('data', chunk => text += chunk); res.on('end', () => { try { resolveBody(JSON.parse(text)); } catch (error) { reject(error); } });
       });
       req.on('error', reject); req.setTimeout(125000, () => req.destroy(new Error('Office did not respond.'))); req.end(payload);

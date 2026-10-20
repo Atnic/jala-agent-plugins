@@ -1,9 +1,9 @@
-import { mkdir, readFile, writeFile, rename, unlink, realpath, stat, readdir } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, rename, unlink, realpath, stat } from 'node:fs/promises';
 import { homedir } from 'node:os';
-import { resolve, isAbsolute, basename, dirname } from 'node:path';
+import { resolve, isAbsolute } from 'node:path';
 import { randomUUID } from 'node:crypto';
 
-// Store folder choices and Office-owned thread IDs, never chat transcripts.
+// Store Office-owned thread IDs and read the catalog synced by Codex.
 export class OfficeProjects {
   constructor(directory = resolve(homedir(), '.codex', 'office-chats')) {
     this.directory = directory;
@@ -34,14 +34,14 @@ export class OfficeProjects {
   async initial() {
     await mkdir(this.directory, { recursive: true, mode: 0o700 });
     const state = await this.read();
-    return this.folder(state.lastProject || this.directory).catch(() => this.folder(this.directory));
+    return this.select(state.lastProject).catch(() => this.folder(this.directory));
   }
-  async remember(cwd, threadId) {
+  async remember(cwd, threadId, recordOwnership = true) {
     const task = this.writes.then(async () => {
       const state = await this.read();
       state.lastProject = cwd;
       state.recent = [cwd, ...state.recent.filter(path => path !== cwd)].slice(0, 12);
-      state.threads[threadId] = cwd;
+      if (recordOwnership) state.threads[threadId] = cwd;
       await mkdir(this.directory, { recursive: true, mode: 0o700 });
       const temporary = `${this.file}.${randomUUID()}.tmp`;
       try {
@@ -57,23 +57,20 @@ export class OfficeProjects {
     // Older Office chats lived exclusively in the dedicated working folder.
     return Object.hasOwn(state.threads, thread.id) || resolve(thread.cwd) === resolve(this.directory);
   }
-  async choices(suggestions = []) {
-    const state = await this.read();
-    const candidates = [...new Set([state.lastProject, ...state.recent, ...suggestions])].filter(path => typeof path === 'string' && isAbsolute(path));
-    const results = await Promise.allSettled(candidates.slice(0, 100).map(path => this.folder(path)));
-    return [...new Set(results.filter(r => r.status === 'fulfilled').map(r => r.value))]
-      .filter(path => path !== resolve(this.directory)).slice(0, 20).map(path => ({ path, name: basename(path) || path }));
+  async choices() {
+    let catalog;
+    try { catalog = JSON.parse(await readFile(resolve(this.directory, 'codex-projects.json'), 'utf8')); }
+    catch (error) { if (error.code === 'ENOENT') return []; throw new Error('Refresh the project list by asking Codex to start the Microsoft Office bridge.'); }
+    if (catalog.version !== 1 || !Array.isArray(catalog.projects)) throw new Error('Invalid Codex project catalog. Refresh it from Codex.');
+    const results = await Promise.allSettled(catalog.projects.map(async project => ({
+      id: project.projectId, name: project.label, path: await this.folder(project.path)
+    })));
+    return results.filter(result => result.status === 'fulfilled').map(result => result.value);
   }
-  async browse(path, offset = 0) {
-    const cwd = await this.folder(path);
-    const entries = await readdir(cwd, { withFileTypes: true });
-    const directories = entries.filter(entry => entry.isDirectory());
-    // Include directory symlinks; resolving a link happens when navigating into it.
-    const links = await Promise.allSettled(entries.filter(entry => entry.isSymbolicLink()).map(async entry => (await stat(resolve(cwd, entry.name))).isDirectory() ? entry : null));
-    directories.push(...links.filter(r => r.status === 'fulfilled' && r.value).map(r => r.value));
-    directories.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
-    offset = Number.isSafeInteger(offset) && offset >= 0 ? offset : 0;
-    return { path: cwd, parent: dirname(cwd), folders: directories.slice(offset, offset + 100).map(entry => ({ name: entry.name, path: resolve(cwd, entry.name) })), offset, nextOffset: offset + 100 < directories.length ? offset + 100 : null };
+  async select(path) {
+    const canonical = await this.folder(path);
+    if (!(await this.choices()).some(project => project.path === canonical)) throw new Error('Choose an existing Codex project. Refresh the list from Codex if it is missing.');
+    return canonical;
   }
 }
 
