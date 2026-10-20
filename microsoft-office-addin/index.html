@@ -5,69 +5,79 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Microsoft Office for Codex</title>
   <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
-  <style>
-    :root {
-      color-scheme: light dark;
-      font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: #252525;
-      background: #fff;
-      --muted: #6b7280;
-      --line: #e5e7eb;
-      --result-bg: #f8f9fb;
-      --result-text: #374151;
-    }
-    * { box-sizing: border-box; }
-    body { margin: 0; }
-    main { width: min(100%, 420px); margin: 0 auto; padding: 18px 16px 24px; }
-    header { display: flex; align-items: center; gap: 11px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
-    header img { width: 38px; height: 38px; object-fit: contain; }
-    h1 { margin: 0; font-size: 16px; line-height: 1.25; font-weight: 650; }
-    .subtitle { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
-    .status { display: flex; align-items: center; gap: 8px; min-height: 42px; margin: 14px 0 10px; font-weight: 600; }
-    .dot { flex: 0 0 8px; width: 8px; height: 8px; border-radius: 50%; background: #9ca3af; }
-    .connected .dot { background: #15803d; }
-    .error .dot { background: #dc2626; }
-    .connecting .dot { background: #d97706; }
-    dl { margin: 0; padding: 2px 0 14px; border-bottom: 1px solid var(--line); }
-    .detail { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; }
-    dt { color: var(--muted); }
-    dd { max-width: 68%; margin: 0; text-align: right; overflow-wrap: anywhere; font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
-    h2 { margin: 16px 0 7px; font-size: 12px; font-weight: 650; }
-    pre { min-height: 36px; max-height: 220px; overflow: auto; margin: 0; padding: 11px 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--result-bg); color: var(--result-text); font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        color-scheme: dark;
-        color: #f3f4f6;
-        background: #1f1f1f;
-        --muted: #a1a1aa;
-        --line: #3f3f46;
-        --result-bg: #27272a;
-        --result-text: #e4e4e7;
-      }
-      .connected .dot { background: #4ade80; }
-      .error .dot { background: #f87171; }
-      .connecting .dot { background: #fbbf24; }
-    }
-    @media (max-width: 300px) { main { padding-right: 12px; padding-left: 12px; } }
-  </style>
+  <link rel="stylesheet" href="./chat.css">
 </head>
 <body>
 <main>
-  <header>
-    <img src="./assets/icon-64.png" alt="">
-    <div>
-      <h1>Microsoft Office for Codex</h1>
-      <p class="subtitle">Connected document and activity</p>
-    </div>
+  <header class="topbar">
+    <button id="history-toggle" class="icon-button" aria-label="Show chats" aria-expanded="false" aria-controls="history-panel"><i data-lucide="panel-left"></i></button>
+    <h1>Codex</h1>
+    <div id="status" class="status" role="status"><span class="dot"></span><span class="sr-only">Connecting document…</span></div>
+    <button id="new-chat" class="icon-button" title="New chat" aria-label="New conversation" disabled><i data-lucide="square-pen"></i></button>
   </header>
-  <div id="status" class="status connecting" role="status" aria-live="polite"><span class="dot"></span><span>Waiting for Office.js…</span></div>
-  <dl>
-    <div class="detail"><dt>Office app</dt><dd id="host">Detecting</dd></div>
-    <div class="detail"><dt>Platform</dt><dd id="platform">Detecting</dd></div>
-    <div class="detail"><dt>Document ID</dt><dd id="document">Starting</dd></div>
-  </dl>
-  <h2>LAST RESULT</h2>
-  <pre id="result">Waiting for Codex.</pre>
+  <nav id="history-panel" class="history-panel" aria-label="Conversations" hidden>
+    <h2>Recent chats</h2>
+    <select id="threads" aria-label="Choose a conversation" hidden disabled><option value="">New conversation</option></select>
+    <div id="thread-list"></div>
+    <button id="more-threads" class="text-button" hidden>Show more</button>
+  </nav>
+  <div class="connection-state"><span id="chat-status" role="status" aria-live="polite">Connecting to Codex…</span><button id="reconnect" class="text-button" hidden>Reconnect</button></div>
+  <div id="error" role="alert" hidden></div>
+  <button id="older" class="text-button" hidden>Load earlier messages</button>
+  <section id="messages" aria-label="Conversation" aria-live="polite">
+    <div id="empty"><img class="welcome-mark" src="./assets/codex-mark.svg" alt="Codex"><h2>What should we do in <span>this document?</span></h2></div>
+  </section>
+  <section id="approvals" aria-label="Requests from Codex"></section>
+  <div class="composer-dock">
+    <details class="connection" id="connection-details"><summary>Connection details</summary><dl><dt>Office app</dt><dd id="host">Detecting</dd><dt>Platform</dt><dd id="platform">Detecting</dd><dt>Document ID</dt><dd id="document"></dd></dl><h2>Last Office action</h2><pre id="result">No actions yet.</pre></details>
+    <div class="composer-context">
+      <button id="project-toggle" type="button" class="context-document project-toggle" aria-label="Choose project" aria-controls="project-panel" aria-expanded="false" disabled><i data-lucide="folder-closed"></i><span id="project-label">Choose project</span><i data-lucide="chevron-down"></i></button>
+      <span class="context-computer"><i data-lucide="laptop"></i><span>This computer</span></span>
+      <button id="details-toggle" class="icon-button" aria-label="Connection details" aria-controls="connection-details" aria-expanded="false"><i data-lucide="settings"></i></button>
+    </div>
+    <section id="project-panel" class="project-panel" aria-label="Choose project" hidden>
+      <h2>Choose project</h2>
+      <p>Choosing a project starts a new chat. Your current chat stays saved.</p>
+      <p id="project-status" role="status"></p>
+      <div id="project-list" aria-label="Recent project folders"></div>
+      <div class="folder-toolbar">
+        <button id="project-home" type="button" class="text-button">Home</button>
+        <button id="project-up" type="button" class="text-button">Up</button>
+        <button id="project-default" type="button" class="text-button">No project</button>
+      </div>
+      <form id="folder-form">
+        <label class="sr-only" for="folder-path">Folder path</label>
+        <input id="folder-path" type="text" placeholder="Folder path" spellcheck="false" autocomplete="off" maxlength="4096">
+        <button id="folder-go" type="submit" class="text-button">Go</button>
+      </form>
+      <div id="folder-list" aria-label="Folders"></div>
+      <button id="folder-more" type="button" class="text-button" hidden>Show more folders</button>
+      <button id="project-use" type="button" class="project-use" disabled>Use this folder</button>
+    </section>
+    <section id="model-panel" class="model-panel" aria-label="Model and reasoning" hidden>
+      <h2>Model and reasoning</h2>
+      <p id="model-status" role="status">Loading models…</p>
+      <label for="model-choice">Model</label>
+      <select id="model-choice" disabled></select>
+      <p id="model-description"></p>
+      <label for="effort-choice">Reasoning effort</label>
+      <select id="effort-choice" disabled></select>
+      <p>Applies to your next message.</p>
+      <button id="refresh-models" type="button" class="text-button">Refresh models</button>
+    </section>
+    <form id="composer">
+      <div id="attachments" class="attachments" aria-label="Attached files" aria-live="polite" hidden></div>
+      <input id="file-input" type="file" multiple hidden>
+      <label class="sr-only" for="prompt">Message Codex</label>
+      <textarea id="prompt" rows="2" maxlength="32000" placeholder="Do anything" disabled></textarea>
+      <div class="composer-actions">
+        <button id="upload" type="button" class="icon-button" aria-label="Upload files" title="Upload files" disabled><i data-lucide="paperclip"></i></button>
+        <button id="model-toggle" type="button" class="icon-button model-toggle" aria-label="Choose model and reasoning effort" title="Choose model and reasoning effort" aria-controls="model-panel" aria-expanded="false" disabled><i data-lucide="brain"></i></button>
+        <button id="stop" type="button" class="round-button" aria-label="Stop response" title="Stop response" hidden><i data-lucide="square" fill="currentColor"></i></button>
+        <button id="send" type="submit" class="round-button" aria-label="Send message" title="Send message" disabled><i data-lucide="arrow-up"></i></button>
+      </div>
+    </form>
+  </div>
 </main>
 <script>
   const documentId = crypto.randomUUID();
@@ -75,6 +85,7 @@
   const state = { ready: false, socket: null, retry: null };
   const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
   $("document").textContent = documentId;
+  document.body.dataset.documentId = documentId;
 
   function status(kind, label) {
     const el = $("status");
@@ -116,7 +127,7 @@
     socket.onopen = () => status("connecting", "Connecting to Codex bridge…");
     socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
-      if (message.type === "connected") status("connected", "Connected to Codex. Ready for requests.");
+      if (message.type === "connected") { status("connected", "Document connected"); window.dispatchEvent(new Event("office-bridge-ready")); }
       if (message.type === "execute" && message.documentId === documentId) execute(message);
     };
     socket.onerror = () => status("error", "Codex bridge unavailable. Reconnecting…");
@@ -133,5 +144,8 @@
     connect(info);
   });
 </script>
+<script src="./node_modules/markdown-it/dist/browser/markdown-it.umd.min.js" defer></script>
+<script src="./node_modules/lucide/dist/umd/lucide.min.js" defer></script>
+<script src="./chat.js" defer></script>
 </body>
 </html>

@@ -8,6 +8,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import { CodexChat } from "./codex-chat.mjs";
 
 const root = resolve(fileURLToPath(new URL(".", import.meta.url)));
 const host = process.env.OFFICE_BRIDGE_HOST ?? "localhost";
@@ -17,6 +18,8 @@ const maxScriptChars = 32_000;
 const requestTimeoutMs = 120_000;
 const panes = new Map();
 const pending = new Map();
+const chats = new Map();
+const chatOwners = new Map();
 
 const certDirectory = process.env.OFFICE_BRIDGE_CERT_DIR ?? resolve(homedir(), ".office-addin-dev-certs");
 let httpsOptions;
@@ -69,6 +72,8 @@ function createBridgeServer() {
     const content = await readFile(absolutePath);
     const contentType = extname(absolutePath) === ".html" ? "text/html; charset=utf-8"
       : extname(absolutePath) === ".js" ? "text/javascript; charset=utf-8"
+        : extname(absolutePath) === ".css" ? "text/css; charset=utf-8"
+        : extname(absolutePath) === ".svg" ? "image/svg+xml"
         : extname(absolutePath) === ".png" ? "image/png" : "application/octet-stream";
     res.writeHead(200, { "content-type": contentType, "cache-control": "no-store", "x-content-type-options": "nosniff" });
     res.end(content);
@@ -78,8 +83,26 @@ function createBridgeServer() {
   });
 
   const createdWsServer = new WebSocketServer({ noServer: true, maxPayload: 64 * 1024 });
+  const chatServer = new WebSocketServer({ noServer: true, maxPayload: 15 * 1024 * 1024 });
   createdServer.on("upgrade", (req, socket, head) => {
   const url = new URL(req.url ?? "/", origin);
+  if (url.pathname === "/chat/ws" && req.headers.origin === origin && panes.has(url.searchParams.get("documentId"))) {
+    chatServer.handleUpgrade(req, socket, head, (ws) => {
+      const chat = new CodexChat({ root, port, certDirectory, owners: chatOwners, documentId: url.searchParams.get("documentId"), send: (message) => { if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(message)); } });
+      chats.set(chat, ws);
+      let ready = false;
+      ws.on("message", async (data) => {
+        try {
+          if (!ready) throw new Error("Codex is still connecting.");
+          await chat.handle(JSON.parse(data.toString()));
+        } catch (error) { if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: "error", message: error.message })); }
+      });
+      ws.on("close", () => { chat.close(); chats.delete(chat); });
+      ws.on("error", () => { chat.close(); chats.delete(chat); });
+      chat.start().then(() => { ready = true; }).catch(error => { if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: "fatal", message: error.message })); chat.close(); });
+    });
+    return;
+  }
   if (url.pathname !== "/bridge/ws" || req.headers.origin !== origin) {
     socket.write("HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n");
     socket.destroy();
@@ -111,7 +134,7 @@ wsServer.on("connection", (socket, _req, metadata) => {
 });
 }
 
-const mcp = new McpServer({ name: "microsoft-office-addin", version: "0.1.1" }, {
+const mcp = new McpServer({ name: "microsoft-office-addin", version: "0.2.0" }, {
   instructions: "Use office_list_documents first. It lists open task panes, not all files on disk. Select the target documentId explicitly before calling office_run_script. Scripts execute in that Office task pane with Office.js and unrestricted ambient JavaScript capabilities. Read the document before changing it when the request is ambiguous, and return a concise summary of what changed.",
 });
 
@@ -254,6 +277,7 @@ function sendText(res, status, value) {
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 async function shutdown() {
+  for (const [chat, ws] of chats) { chat.close(); ws.close(1001, "Codex bridge stopping."); }
   for (const pane of panes.values()) pane.socket.close(1001, "Codex bridge stopping.");
   await mcp.close().catch(() => {});
   if (!server) process.exit(0);

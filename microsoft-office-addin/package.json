@@ -1,16 +1,21 @@
 {
   "name": "microsoft-office-addin-codex-bridge",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "description": "Local MCP server and Office task pane bridge for Codex.",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "scripts": {
     "start": "node bootstrap.mjs",
+    "test": "node --test chat.test.mjs",
     "validate:manifest": "npx office-addin-manifest validate manifest.xml"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.2",
+    "lucide": "^1.59.0",
+    "markdown-it": "^15.0.3",
     "ws": "^8.18.3",
     "zod": "^3.25.76"
   }

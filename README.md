@@ -65,6 +65,9 @@ authentication, and installation.
 
 ### `microsoft-office-addin`
 
+Includes chat inside the Office pane with a project folder picker, saved conversations, streamed replies,
+activity, and approvals through a local Codex CLI.
+
 Connects Codex to open Excel, Word, and PowerPoint documents through a local
 Office.js task pane. The package includes a local HTTPS bridge and stdio MCP
 tools for listing connected panes and running a requested JavaScript body in a
@@ -217,7 +220,7 @@ Complete the selected plugin's requirements:
 | `figma-ui` | Figma Desktop and the local bridge; see [setup](figma-ui/README.md). |
 | `gog` | Local `gog` CLI and Google account authorization; see [setup](gog/README.md). |
 | `mattermost-jala` | Mattermost OAuth sign-in and server prerequisites; see [setup](mattermost-jala/README.md). |
-| `microsoft-office-addin` | Local Codex session and Node.js 20+; ask Codex to set up the localhost certificate and Office add-in pane on macOS, Windows, or Office on the web on Linux. See [setup](microsoft-office-addin/README.md). |
+| `microsoft-office-addin` | Local Codex session and Node.js 20.19.0+; ask Codex to set up the localhost certificate and Office add-in pane on macOS, Windows, or Office on the web on Linux. See [setup](microsoft-office-addin/README.md). |
 | `mattpocock-skills-engineering` | Set up the target repository and issue tracker; see the [skill inventory and setup](mattpocock-skills-engineering/README.md). |
 | `mattpocock-skills-productivity` | See the [skill inventory and usage](mattpocock-skills-productivity/README.md). |
 | `odoo-jala-web` | An available browser capability and Odoo sign-in; see [setup](odoo-jala-web/README.md). The plugin does not install Browser itself. |
