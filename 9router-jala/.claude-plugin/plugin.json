@@ -1,6 +1,6 @@
 {
   "name": "9router-jala",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Configure Codex for the JALA 9Router provider and use its chat, images, audio, embeddings, web search, and web fetch workflows.",
   "author": {
     "name": "JALA"

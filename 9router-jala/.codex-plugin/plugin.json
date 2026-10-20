@@ -1,6 +1,6 @@
 {
   "name": "9router-jala",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Configure Codex for the JALA 9Router provider and use its chat, images, audio, embeddings, web search, and web fetch workflows.",
   "author": {
     "name": "JALA"
@@ -17,6 +17,11 @@
     "capabilities": [],
     "brandColor": "#F97815",
     "composerIcon": "./assets/9router-icon.svg",
-    "logo": "./assets/9router-icon.svg"
+    "logo": "./assets/9router-icon.svg",
+    "defaultPrompt": [
+      "Setup Codex",
+      "Revert Setup",
+      "Generate an image with 9Router JALA"
+    ]
   }
 }

@@ -1,6 +1,6 @@
 # 9Router JALA
 
-Version: `0.2.4`. A skills package for Codex and Claude Code that uses a
+Version: `0.2.5`. A skills package for Codex and Claude Code that uses a
 hosted [JALA 9Router gateway](https://9router.jala.tech) for chat, images, audio, embeddings, and web tools.
 
 ## Requirements and API key setup
