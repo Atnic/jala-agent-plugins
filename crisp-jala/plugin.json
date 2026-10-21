@@ -1,0 +1,34 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "crisp-jala",
+  "version": "0.1.0",
+  "description": "Operate JALA Crisp conversations, messages, people profiles, and workspace data through REST API skills.",
+  "author": {
+    "name": "JALA"
+  },
+  "repository": "https://github.com/Atnic/jala-agent-plugins",
+  "keywords": [
+    "crisp",
+    "jala",
+    "customer-support",
+    "rest-api"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Crisp JALA",
+        "shortDescription": "Work with JALA Crisp conversations and customer profiles.",
+        "longDescription": "Work with JALA Crisp using a user session captured after browser login and saved in the OS secret store. Requires Python 3.9+, shell execution, and browser network inspection.",
+        "developerName": "JALA",
+        "category": "Productivity",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "brandColor": "#1972F5",
+        "composerIcon": "./assets/crisp-icon.png",
+        "logo": "./assets/crisp-icon.png"
+      }
+    }
+  }
+}

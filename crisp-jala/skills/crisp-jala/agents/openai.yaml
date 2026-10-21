@@ -1,0 +1,4 @@
+interface:
+  display_name: "Crisp Jala"
+  short_description: "Operate Jala Crisp conversation APIs"
+  default_prompt: "Use $crisp-jala to operate Crisp for the Jala workspace with Jala-only credentials."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Crisp"
+  short_description: "Operate Crisp conversation APIs"
+  default_prompt: "Use $crisp to inspect Crisp conversations, send messages, manage people profiles, or export workspace data."

@@ -3,12 +3,13 @@
 A collection of portable Agent Plugins for JALA workflows.
 
 - [9Router JALA](9router-jala/README.md)
+- [Crisp JALA](crisp-jala/README.md)
 - [Figma UI](figma-ui/README.md)
 - [Gog](gog/README.md)
 - [Mattermost JALA](mattermost-jala/README.md)
-- [Microsoft Office](microsoft-office-addin/README.md)
 - [Matt Pocock Skills: Engineering](mattpocock-skills-engineering/README.md)
 - [Matt Pocock Skills: Productivity](mattpocock-skills-productivity/README.md)
+- [Microsoft Office](microsoft-office-addin/README.md)
 - [Odoo JALA Web](odoo-jala-web/README.md)
 - [Odoo JALA XML-RPC](odoo-jala-xmlrpc/README.md)
 
@@ -27,6 +28,16 @@ The optional `9router-setup` skill also writes provider settings to Codex
 
 See [`9router-jala/README.md`](9router-jala/README.md) for setup, attribution,
 and installation of the local unpublished package.
+
+### `crisp-jala`
+
+REST API skills for JALA Crisp conversations, messages, people profiles, visitors,
+workspace settings, campaign templates, and analytics. Bundles the base Crisp
+skill and JALA credential overlay for Codex and Claude Code. Setup opens Crisp for user login, captures the session credential from an inbox
+request, and saves it in the OS secret store. Requires Python 3.9+ and browser
+network inspection. Credentials load automatically for subsequent requests.
+
+See [`crisp-jala/README.md`](crisp-jala/README.md) for setup and local installation.
 
 ### `figma-ui`
 
@@ -63,19 +74,6 @@ server's tool definitions.
 See [`mattermost-jala/README.md`](mattermost-jala/README.md) for requirements,
 authentication, and installation.
 
-### `microsoft-office-addin`
-
-Includes chat inside the Office pane with a project folder picker, saved conversations, streamed replies,
-activity, and approvals through a local Codex CLI.
-
-Connects Codex to open Excel, Word, and PowerPoint documents through a local
-Office.js task pane. The package includes a local HTTPS bridge and stdio MCP
-tools for listing connected panes and running a requested JavaScript body in a
-selected document.
-
-See [`microsoft-office-addin/README.md`](microsoft-office-addin/README.md) for local setup,
-sideloading, supported hosts, and script execution limits.
-
 ### `mattpocock-skills-engineering`
 
 A Codex plugin packaging 20 engineering skills from Matt Pocock's collection,
@@ -92,6 +90,19 @@ questionnaires, plain-language explanations, and agent-facing writing.
 
 See [`mattpocock-skills-productivity/README.md`](mattpocock-skills-productivity/README.md)
 for the included skills, upstream attribution, and installation.
+
+### `microsoft-office-addin`
+
+Includes chat inside the Office pane with a project folder picker, saved conversations, streamed replies,
+activity, and approvals through a local Codex CLI.
+
+Connects Codex to open Excel, Word, and PowerPoint documents through a local
+Office.js task pane. The package includes a local HTTPS bridge and stdio MCP
+tools for listing connected panes and running a requested JavaScript body in a
+selected document.
+
+See [`microsoft-office-addin/README.md`](microsoft-office-addin/README.md) for local setup,
+sideloading, supported hosts, and script execution limits.
 
 ### `odoo-jala-web`
 
@@ -120,6 +131,7 @@ This repository also has a Claude Code marketplace at
 ```bash
 claude plugin marketplace add Atnic/jala-agent-plugins
 claude plugin install 9router-jala@jala-agent-plugins
+claude plugin install crisp-jala@jala-agent-plugins
 claude plugin install figma-ui@jala-agent-plugins
 claude plugin install gog@jala-agent-plugins
 claude plugin install mattermost-jala@jala-agent-plugins
@@ -167,12 +179,13 @@ Install the plugins you want; each command below installs one plugin:
 
 ```bash
 codex plugin add 9router-jala@jala-agent-plugins
+codex plugin add crisp-jala@jala-agent-plugins
 codex plugin add figma-ui@jala-agent-plugins
 codex plugin add gog@jala-agent-plugins
 codex plugin add mattermost-jala@jala-agent-plugins
-codex plugin add microsoft-office-addin@jala-agent-plugins
 codex plugin add mattpocock-skills-engineering@jala-agent-plugins
 codex plugin add mattpocock-skills-productivity@jala-agent-plugins
+codex plugin add microsoft-office-addin@jala-agent-plugins
 codex plugin add odoo-jala-web@jala-agent-plugins
 codex plugin add odoo-jala-xmlrpc@jala-agent-plugins
 ```
@@ -217,12 +230,13 @@ Complete the selected plugin's requirements:
 | Plugin | Requirements |
 | --- | --- |
 | `9router-jala` | Python 3.9+, `keyring`, and a per-user API key; native saved-key support on macOS/Windows/Linux; see [setup](9router-jala/README.md). |
+| `crisp-jala` | Python 3.9+, native OS secret store, and browser network inspection for login-session capture; see [setup](crisp-jala/README.md). |
 | `figma-ui` | Figma Desktop and the local bridge; see [setup](figma-ui/README.md). |
 | `gog` | Local `gog` CLI and Google account authorization; see [setup](gog/README.md). |
 | `mattermost-jala` | Mattermost OAuth sign-in and server prerequisites; see [setup](mattermost-jala/README.md). |
-| `microsoft-office-addin` | Local Codex session and Node.js 20.19.0+; ask Codex to set up the localhost certificate and Office add-in pane on macOS, Windows, or Office on the web on Linux. See [setup](microsoft-office-addin/README.md). |
 | `mattpocock-skills-engineering` | Set up the target repository and issue tracker; see the [skill inventory and setup](mattpocock-skills-engineering/README.md). |
 | `mattpocock-skills-productivity` | See the [skill inventory and usage](mattpocock-skills-productivity/README.md). |
+| `microsoft-office-addin` | Local Codex session and Node.js 20.19.0+; ask Codex to set up the localhost certificate and Office add-in pane on macOS, Windows, or Office on the web on Linux. See [setup](microsoft-office-addin/README.md). |
 | `odoo-jala-web` | An available browser capability and Odoo sign-in; see [setup](odoo-jala-web/README.md). The plugin does not install Browser itself. |
 | `odoo-jala-xmlrpc` | Python 3.9+, shell execution, and a connection saved through its local setup page; native credential storage uses `keyring`, with private-file fallback. See [setup](odoo-jala-xmlrpc/README.md). No MCP server. |
 
@@ -272,6 +286,7 @@ jala-agent-plugins/
 ├── .agents/plugins/marketplace.json
 ├── .claude-plugin/marketplace.json
 ├── 9router-jala/
+├── crisp-jala/
 ├── figma-ui/
 ├── gog/
 ├── mattermost-jala/

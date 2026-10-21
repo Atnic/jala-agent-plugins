@@ -11,6 +11,11 @@
       "description": "Use a configured 9Router gateway for JALA chat, images, audio, embeddings, web search, and web fetch workflows."
     },
     {
+      "name": "crisp-jala",
+      "source": "./crisp-jala",
+      "description": "Operate JALA Crisp conversations, messages, people profiles, and workspace data through REST API skills."
+    },
+    {
       "name": "figma-ui",
       "source": "./figma-ui",
       "description": "Create and refine Figma screens, components, diagrams, and prototypes."

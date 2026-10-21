@@ -1,0 +1,9 @@
+{
+  "name": "crisp-jala",
+  "version": "0.1.0",
+  "description": "Operate JALA Crisp conversations, messages, people profiles, and workspace data through REST API skills.",
+  "author": {
+    "name": "JALA"
+  },
+  "repository": "https://github.com/Atnic/jala-agent-plugins"
+}
