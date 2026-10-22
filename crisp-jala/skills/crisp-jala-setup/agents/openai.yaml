@@ -1,0 +1,4 @@
+interface:
+  display_name: "Crisp JALA Setup"
+  short_description: "Connect Crisp JALA securely"
+  default_prompt: "Use $crisp-jala-setup to set up or repair my Crisp JALA connection."

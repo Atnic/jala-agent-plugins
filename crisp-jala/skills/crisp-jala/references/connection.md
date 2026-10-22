@@ -5,6 +5,10 @@ Setup uses the Crisp user session observed in an authenticated browser request.
 The user logs in themselves, including password, SSO, and MFA. No workspace-token
 creation, token-entry form, or manual environment variables are required.
 
+Honor the user's browser preference and exclusions. If no preference is given,
+prefer the in-app browser when it supports network inspection. If the user rules
+out the available browser, report that blocker instead of switching silently.
+
 Requires Python 3.9+, browser automation with network-request inspection, and
 native OS secret storage: macOS Keychain, Windows Credential Manager, or Linux
 Secret Service. This plugin supplies the helper and workflow, not a browser or a
@@ -15,13 +19,15 @@ do not expose the credential in tool output to bridge tools.
 ## Runtime and existing connection
 
 Resolve `<SKILL_DIR>` from this installed skill, and reuse its runtime if present.
-Otherwise run:
+If it is missing, run `install-runtime` with the host's Python 3.9+ before running
+`status`; do not run `status` with the system Python. Bootstrap using the host's
+Python command (`python3` on macOS/Linux, `python` on Windows):
 
 ```bash
-python3 <SKILL_DIR>/scripts/crisp_api.py install-runtime
+<HOST_PYTHON> <SKILL_DIR>/scripts/crisp_api.py install-runtime
 ```
 
-Use the Python path returned by that command for subsequent helper commands.
+Use the Python path returned by that command for all subsequent helper commands.
 It lives at `~/.config/crisp-jala/runtime/bin/python` on macOS/Linux or
 `~/.config/crisp-jala/runtime/Scripts/python.exe` on Windows. Runtime and saved
 secrets remain outside the plugin cache and survive plugin updates.
@@ -46,7 +52,10 @@ access, silently retry writes, or change the credential type to bypass an error.
    Select a **GET** request to the exact HTTPS host `app.crisp.chat` with path
    `/api/v1/website/bca9165d-d26a-4a8f-a8d5-5625fb1a3f2b/conversations/{page}`
    or `/api/v1/website/.../conversation/{session}/messages` for that workspace.
-   The inbox list is sufficient; opening a conversation can mark messages read.
+   Prefer the inbox list. If it emits no list request, use a message-list request
+   only after the inbox clearly marks that conversation as already read. Do not
+   open an unread or uncertain conversation to create a request; stop and report
+   the blocker if no safe request is available.
 4. Keep the selected request in browser-runtime memory. Read its `Authorization`
    header case-insensitively and require `Basic`. Print only route, method, header
    names, or authentication scheme when debugging. Never print header values,

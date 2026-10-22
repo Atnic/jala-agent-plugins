@@ -18,6 +18,30 @@ Inspect a single conversation:
 GET /v1/website/{website_id}/conversation/{session_id}
 ```
 
+## Count conversations assigned to an operator
+
+Resolve the operator's `user_id` from `GET /v1/website/{website_id}/operators/list`
+using the current user's email or another unique identity field. Do not use the
+display name alone when it could match multiple operators.
+
+List pages with the exact operator ID:
+
+```text
+GET /v1/website/{website_id}/conversations/{page_number}
+  ?per_page=50
+  &filter_assigned={user_id}
+```
+
+Read the response `data` array, add its length to the running count, and continue
+to the next page until a page contains fewer than 50 conversations. If a page has
+exactly 50, fetch the next page even when it may be empty. For open chats only,
+add `filter_not_resolved=1` and state that resolved conversations are excluded.
+Report the operator identity, filter, pages read, and count; conversation message
+history is not needed to count assignments.
+
+The [official conversation reference](https://docs.crisp.chat/references/rest-api/v1/index.html)
+defines `filter_assigned` as an operator user identifier and `per_page` as 20–50.
+
 Create a conversation only when the user has supplied the intended workspace and creation purpose:
 
 ```text

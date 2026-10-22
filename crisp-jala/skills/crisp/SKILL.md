@@ -22,7 +22,7 @@ Use for Crisp conversations, messages, people profiles, visitor inspection, oper
 
 ## Use Cases
 
-- **Inspect or operate conversations** — resolve the exact workspace and session, then load [conversations](references/conversations.md).
+- **Inspect, operate, or count assigned conversations** — resolve the exact workspace and target/operator, then load [conversations](references/conversations.md).
 - **Manage people or inspect visitors** — resolve the exact `people_id` or workspace, then load [people-and-visitors](references/people-and-visitors.md).
 - **Inspect workspace operations** — load [workspace-and-analytics](references/workspace-and-analytics.md) for operators, availability, inboxes, campaigns, and analytics.
 - **Authenticate or troubleshoot limits** — load [authentication](references/authentication.md).
