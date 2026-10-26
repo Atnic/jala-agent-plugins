@@ -43,3 +43,14 @@ _Avoid_: active document, when several documents can be connected
 **Codex bridge**:
 A local service connecting an Office Add-in to a Codex conversation so Codex can work with the active Office document.
 _Avoid_: Office plugin, when referring to the service between Office and Codex
+
+## Scheduler
+
+**Scheduled continuation**:
+A saved prompt and recurring schedule for continuing an existing agent session.
+
+**Target session**:
+The existing Codex or Claude conversation that a scheduled continuation resumes, identified by its agent type and session ID.
+
+**Scheduled occurrence**:
+A time at which a scheduled continuation is due.
