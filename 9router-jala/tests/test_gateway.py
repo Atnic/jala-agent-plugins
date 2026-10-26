@@ -629,12 +629,13 @@ class UpstreamCopiesTests(unittest.TestCase):
         root = Path(__file__).parents[1]
         manifest = json.loads((root / "upstream.json").read_text())
         original = 'Requires `NINEROUTER_URL` (and `NINEROUTER_KEY` if auth enabled). See https://raw.githubusercontent.com/decolua/9router/refs/heads/master/skills/9router/SKILL.md for setup.'
-        setup = 'Requires `NINEROUTER_URL` (and `NINEROUTER_KEY` if auth enabled). See ../9router/SKILL.md for setup.'
+        setup_template = 'Before execution, including direct invocation, read [JALA instructions](../9router/SKILL.md)\nand its required references for credentials, model defaults, and retry rules.\nUse `gateway.py run SKILL_NAME --body request.json` with the helper resolved as\ninstructed there; omit `model` to use the configured default. The JALA instructions\nand allowed models take precedence over the generic examples below.'
         capabilities = [name for name in manifest["adapted_files"] if name != "skills/9router/SKILL.md"]
         self.assertEqual(len(capabilities), 7)
         for name in capabilities:
             with self.subTest(file=name):
                 text = (root / name).read_text()
+                setup = setup_template.replace("SKILL_NAME", Path(name).parent.name)
                 self.assertEqual(text.count(setup), 1)
                 self.assertTrue((root / name).parent.joinpath("../9router/SKILL.md").is_file())
                 restored = text.replace(setup, original).encode()

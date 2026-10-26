@@ -1,6 +1,6 @@
 # 9Router JALA
 
-Version: `0.2.5`. A skills package for Codex and Claude Code that uses a
+Version: `0.2.6`. A skills package for Codex and Claude Code that uses a
 hosted [JALA 9Router gateway](https://9router.jala.tech) for chat, images, audio, embeddings, and web tools.
 
 ## Requirements and API key setup
@@ -227,8 +227,9 @@ The seven capability `SKILL.md` files are minimally adapted from
 [decolua/9router at `a99cf57239ff`](https://github.com/decolua/9router/tree/a99cf57239ff778b61e434c2786009d5ed1c412c/skills).
 The `9router` entry point has minimal JALA changes: setup/helper guidance,
 model-default references, bundled capability links, and API-key recovery.
-Each capability preserves its generic environment setup wording with a local
-link to the local entry point; its remaining upstream content is preserved.
+Each capability replaces its setup paragraph with mandatory JALA instructions,
+required references, and helper/default-model guidance; its remaining upstream
+content is preserved.
 There is no separate wrapper skill.
 
 [upstream.json](upstream.json) records the commit, hashes for unchanged files,

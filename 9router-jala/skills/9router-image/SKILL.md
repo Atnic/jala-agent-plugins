@@ -5,7 +5,11 @@ description: Generate images via 9Router /v1/images/generations using OpenAI / G
 
 # 9Router — Image Generation
 
-Requires `NINEROUTER_URL` (and `NINEROUTER_KEY` if auth enabled). See ../9router/SKILL.md for setup.
+Before execution, including direct invocation, read [JALA instructions](../9router/SKILL.md)
+and its required references for credentials, model defaults, and retry rules.
+Use `gateway.py run 9router-image --body request.json` with the helper resolved as
+instructed there; omit `model` to use the configured default. The JALA instructions
+and allowed models take precedence over the generic examples below.
 
 ## Discover
 
