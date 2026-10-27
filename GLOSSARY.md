@@ -54,3 +54,17 @@ The existing Codex or Claude conversation that a scheduled continuation resumes,
 
 **Scheduled occurrence**:
 A time at which a scheduled continuation is due.
+
+## Felix Agent
+
+**Felix Owner**:
+The person who controls a Felix installation and its protected capabilities.
+
+**API Contact**:
+A contact represented by an API-channel identity; it is distinct from the Felix Owner.
+
+**Built-in Felix skill**:
+A skill supplied with Felix that the Owner cannot change.
+
+**Custom Felix skill**:
+A separately authored skill added to a Felix installation.

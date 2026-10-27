@@ -4,6 +4,7 @@ A collection of portable Agent Plugins for JALA workflows.
 
 - [9Router JALA](9router-jala/README.md)
 - [Crisp JALA](crisp-jala/README.md)
+- [Felix Agent](felix-agent/README.md)
 - [Figma UI](figma-ui/README.md)
 - [Gog](gog/README.md)
 - [Mattermost JALA](mattermost-jala/README.md)
@@ -14,6 +15,10 @@ A collection of portable Agent Plugins for JALA workflows.
 - [Odoo JALA XML-RPC](odoo-jala-xmlrpc/README.md)
 
 ## Plugins
+
+### `felix-agent`
+
+Set up and manage a local Felix Agent deployment, connections, and custom skills. Requires Git, Docker Compose v2, Python 3 for backups, and interactive setup. See [setup](felix-agent/README.md).
 
 ### `scheduler`
 
@@ -138,6 +143,7 @@ This repository also has a Claude Code marketplace at
 
 ```bash
 claude plugin marketplace add Atnic/jala-agent-plugins
+claude plugin install felix-agent@jala-agent-plugins
 claude plugin install scheduler@jala-agent-plugins
 claude plugin install 9router-jala@jala-agent-plugins
 claude plugin install crisp-jala@jala-agent-plugins
@@ -187,6 +193,7 @@ codex plugin list --marketplace jala-agent-plugins --available --json
 Install the plugins you want; each command below installs one plugin:
 
 ```bash
+codex plugin add felix-agent@jala-agent-plugins
 codex plugin add scheduler@jala-agent-plugins
 codex plugin add 9router-jala@jala-agent-plugins
 codex plugin add crisp-jala@jala-agent-plugins
@@ -239,6 +246,7 @@ Complete the selected plugin's requirements:
 
 | Plugin | Requirements |
 | --- | --- |
+| `felix-agent` | Docker Engine or Desktop with Compose v2, Git, Python 3 for backups, and interactive Felix setup. See [setup](felix-agent/README.md). |
 | `scheduler` | Desktop: same-chat automation tool. Claude: native CLI/CronCreate, Python 3.11+ runtime and live hooks. See [backend requirements](scheduler/README.md). |
 | `9router-jala` | Python 3.9+, `keyring`, and a per-user API key; native saved-key support on macOS/Windows/Linux; see [setup](9router-jala/README.md). |
 | `crisp-jala` | Python 3.9+, native OS secret store, and browser network inspection for login-session capture; see [setup](crisp-jala/README.md). |
@@ -298,6 +306,7 @@ jala-agent-plugins/
 ├── .claude-plugin/marketplace.json
 ├── 9router-jala/
 ├── crisp-jala/
+├── felix-agent/
 ├── figma-ui/
 ├── gog/
 ├── mattermost-jala/

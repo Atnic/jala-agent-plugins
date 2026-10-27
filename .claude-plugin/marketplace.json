@@ -44,6 +44,11 @@
       "name": "scheduler",
       "source": "./scheduler",
       "description": "Schedule prompts in existing ChatGPT/Codex desktop and Claude sessions with capability-aware setup."
+    },
+    {
+      "name": "felix-agent",
+      "source": "./felix-agent",
+      "description": "Set up, manage, troubleshoot, and configure a local Felix Agent deployment and its custom skills."
     }
   ]
 }

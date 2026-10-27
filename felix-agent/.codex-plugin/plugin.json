@@ -1,0 +1,10 @@
+{
+  "name": "felix-agent",
+  "version": "0.1.0",
+  "description": "Set up, manage, troubleshoot, and configure a local Felix Agent deployment and its custom skills.",
+  "author": {
+    "name": "JALA"
+  },
+  "repository": "https://github.com/Atnic/jala-agent-plugins",
+  "skills": "./skills/"
+}
