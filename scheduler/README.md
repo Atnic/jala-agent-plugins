@@ -100,3 +100,11 @@ native desktop branch. These checks do not certify host UI compatibility.
 See [integration evidence](../docs/verification/scheduled-continuation.md) for
 which installed-package and real-host flows were exercised. Claims about one
 host or isolated hook fixture do not certify another host's setup path.
+
+## Artwork
+
+The clock-in-a-chat-bubble mark in `assets/scheduler-icon.svg` is original vector
+artwork created for Session Scheduler. Its padded violet tile uses the same
+asset on light and dark backgrounds. The 512 px PNG is exported from that SVG
+for the composer icon. Light/dark previews were inspected at 24, 32, 64, 128
+and 256 px; this verifies the assets, not the live host rendering.

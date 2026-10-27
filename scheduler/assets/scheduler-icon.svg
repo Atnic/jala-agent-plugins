@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Session Scheduler</title>
+  <desc id="desc">A white chat bubble containing a violet clock on a rounded violet tile.</desc>
+  <defs>
+    <linearGradient id="tile" x1="32" y1="16" x2="220" y2="244" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7865F4"/>
+      <stop offset="1" stop-color="#4C36BF"/>
+    </linearGradient>
+  </defs>
+  <rect x="12" y="12" width="232" height="232" rx="58" fill="url(#tile)"/>
+  <path d="M86 56H170C192.1 56 210 73.9 210 96V144C210 166.1 192.1 184 170 184H114L77 210V180C58.5 175.7 46 160.9 46 141V96C46 73.9 63.9 56 86 56Z" fill="#FFFFFF"/>
+  <circle cx="128" cy="120" r="38" stroke="#5B46CC" stroke-width="10"/>
+  <path d="M128 97V121L148 133" stroke="#5B46CC" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,6 +1,6 @@
 {
   "name": "scheduler",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Schedule prompts in existing ChatGPT/Codex desktop and Claude sessions with capability-aware setup.",
   "author": {
     "name": "JALA"
@@ -14,6 +14,10 @@
     "shortDescription": "Continue this session on a schedule.",
     "developerName": "JALA",
     "category": "Productivity",
-    "capabilities": []
+    "capabilities": [],
+    "brandColor": "#5B46CC",
+    "composerIcon": "./assets/scheduler-icon.png",
+    "logo": "./assets/scheduler-icon.svg",
+    "logoDark": "./assets/scheduler-icon.svg"
   }
 }
