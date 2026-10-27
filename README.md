@@ -15,6 +15,15 @@ A collection of portable Agent Plugins for JALA workflows.
 
 ## Plugins
 
+### `scheduler`
+
+Schedule a confirmed prompt in an existing Codex desktop or Claude session.
+The plugin keeps one schedule per session and runs only the latest missed
+occurrence after startup or wake. It uses native session clocks, lifecycle
+hooks, and a small private occurrence store; it has no provider dependency.
+Python 3.11+ on PATH as `python3` and trusted/active hooks are required.
+Startup catch-up uses one per-user OS timer. See [setup and runtime coverage](scheduler/README.md).
+
 ### `9router-jala`
 
 Use the hosted JALA 9Router gateway for chat, image generation, speech,
@@ -130,6 +139,7 @@ This repository also has a Claude Code marketplace at
 
 ```bash
 claude plugin marketplace add Atnic/jala-agent-plugins
+claude plugin install scheduler@jala-agent-plugins
 claude plugin install 9router-jala@jala-agent-plugins
 claude plugin install crisp-jala@jala-agent-plugins
 claude plugin install figma-ui@jala-agent-plugins
@@ -178,6 +188,7 @@ codex plugin list --marketplace jala-agent-plugins --available --json
 Install the plugins you want; each command below installs one plugin:
 
 ```bash
+codex plugin add scheduler@jala-agent-plugins
 codex plugin add 9router-jala@jala-agent-plugins
 codex plugin add crisp-jala@jala-agent-plugins
 codex plugin add figma-ui@jala-agent-plugins
@@ -229,6 +240,7 @@ Complete the selected plugin's requirements:
 
 | Plugin | Requirements |
 | --- | --- |
+| `scheduler` | Python 3.11+ as `python3`, active/trusted hooks, and Codex desktop heartbeat tools or native Claude Code. See [setup](scheduler/README.md). |
 | `9router-jala` | Python 3.9+, `keyring`, and a per-user API key; native saved-key support on macOS/Windows/Linux; see [setup](9router-jala/README.md). |
 | `crisp-jala` | Python 3.9+, native OS secret store, and browser network inspection for login-session capture; see [setup](crisp-jala/README.md). |
 | `figma-ui` | Figma Desktop and the local bridge; see [setup](figma-ui/README.md). |
@@ -292,6 +304,7 @@ jala-agent-plugins/
 ├── mattermost-jala/
 ├── mattpocock-skills-engineering/
 ├── mattpocock-skills-productivity/
+├── scheduler/
 ├── odoo-jala-web/
 └── odoo-jala-xmlrpc/
 ```

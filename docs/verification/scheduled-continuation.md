@@ -252,3 +252,139 @@ No global provider or hook configuration was modified.
 
 References: [Claude scheduling behavior and limitations](https://code.claude.com/docs/en/scheduled-tasks),
 [Claude hook contracts](https://code.claude.com/docs/en/hooks).
+
+
+## Package implementation checks — 2026-10-27
+
+The `scheduler/` package now implements durable latest-only occurrence state,
+native-clock hooks, the skill setup flow, and a per-user startup helper. The
+investigation-only limitations above describe the earlier probes, not the
+current code. These checks used disposable stores and the existing local agent
+authentication; provider configuration was not changed.
+
+### Codex helper and native delivery boundary
+
+The packaged helper was exercised through Codex CLI 0.162.1 lifecycle hooks in
+session `01a17adf-6510-7931-935b-95767c9141c8`. A seed turn was followed by an exact-ID
+resume carrying the native heartbeat envelope and a due saved definition. The
+helper supplied the confirmed task, the response was `PACKAGE_CODEX_FOUR`, and
+Stop recorded completion. A repeated tick returned a completed turn with all
+usage counters zero. Both resumes retained the seed session ID.
+
+This fixture loaded only its own reviewed inline hook commands, with
+`--ignore-user-config` and the invocation-only hook-trust override. These flags
+are test isolation, never plugin setup instructions. It verifies the packaged
+helper against a real host; the earlier app-native heartbeat probes verify busy
+serialization. A complete installed desktop-plugin trust/setup smoke test is
+still separate from those checks. Standalone CLI delivery remains unsupported.
+
+### Claude cold continuation
+
+The actual package was loaded with `--plugin-dir` for seed session
+`0f79e0b8-812c-4657-827c-6169cb81e908` using Claude Code 2.1.258. After that client
+exited, the public scheduler API saved an hourly definition with its baseline
+two hours in the past. The runner resumed the exact original ID. Its answer was
+`2+2 = 4. COLD_SEED marker recalled: confirmed.` The worker checked a matching
+child PID, dispatch token, terminal hook acknowledgement, session ID, and CLI
+result before recording completion. A second tick delivered nothing. The saved
+definition was removed afterward.
+
+A separate subprocess regression test returns successful CLI JSON without any
+hook acknowledgement. That result records failure, consumes its occurrence,
+and is not retried. Terminal Stop alone also cannot override a later CLI
+permission failure. A completed delivery means the agent received and finished
+its turn; the conversation contains its task outcome, including any refusal.
+
+### Claude live native clock and setup
+
+A clean private runtime was installed through `install-runtime`. In persistent
+session `9194bcdc-b9ae-434f-acb0-cdc08cbb2267`, the actual `scheduler:scheduler`
+skill was loaded through the host Skill tool. The agent checked its live receipt,
+saved a confirmed minutely UTC arithmetic prompt using the CLI, and created its
+native clock. PostToolUse supplied the actual response shape
+`{"id":"110dc94e","humanSchedule":"Every minute","recurring":true,"durable":false}`;
+the plugin bound it automatically and reported `ready`.
+
+The native timer then submitted the controller directly, without an extra
+wrapper in UserPromptSubmit. The hook supplied the task, the answer was
+`2+2 = 4. PACKAGE_FOUR`, the session ID was unchanged, and status became
+`completed`. The native task and saved definition were removed afterward. The
+login helper was intentionally omitted from that setup fixture because its
+actual installation was exercised separately below.
+
+Early fixture attempts supplied controller strings without the genuine skill
+setup flow, or used a symlinked development runtime. The model refused those
+setups. The successful check used host skill substitution, the helper's own
+context/set output, and a real private runtime. Claude's skill session-ID
+substitution is not a guaranteed shell environment variable.
+
+### Claude idle restoration after resume
+
+A second genuine skill setup in session `0f1d0e6c-bffb-4a14-b0bf-36f5a53c7115`
+created native task `233aad2c` and delivered `PACKAGE_FOUR`. The client then exited
+without cancelling its saved definition. A new process resumed that same ID with
+the same plugin and tool set, with stdin kept open but no manual prompt. The
+SessionStart asynchronous lifecycle check woke it; Stop requested clock repair.
+CronCreate produced `76fd391c`, and PostToolUse bound it to the new owner's PID
+and birth time. The fixture observed that binding before cancelling its saved
+record and terminating the session-only clock. This verifies restoration after
+native clock loss without inventing a replacement conversation.
+
+An earlier restoration fixture recreated an already-cancelled definition and
+changed the available tools; the model refused it. That was not a valid resume
+of an existing confirmed schedule. The successful check retained the actual
+confirmed record and conversation context across process exit.
+
+### Startup installation
+
+On macOS, a disposable state directory was installed using the actual
+LaunchAgent adapter. `launchctl print` showed one run and `last exit code = 0`.
+The worker used the copied private package, and the LaunchAgent was then removed.
+No test timer or automation was left installed. Linux user-unit and Windows
+interactive-token task definitions are parsed in tests; actual login/wake on
+those systems has not been exercised.
+
+The timer re-registers on every explicit install, allowing recovery after an
+installation failure leaves its files behind. Reconfiguration first disables
+new cold reservations and refuses to stop an active cold attempt. Dead desktop
+claims are marked interrupted without rolling back their handled occurrence;
+subsequent due work can start the app again.
+
+### Reproducible local checks
+
+Install `scheduler/requirements-dev.txt` in an isolated Python 3.11+ environment.
+Run individual files during development, then the complete package suite:
+
+```sh
+python -m unittest discover -s scheduler/tests
+mypy --strict scheduler/scripts
+python3 .agents/skills/create-plugin/scripts/validate_plugin.py scheduler
+claude plugin validate scheduler
+```
+
+The suite exercises injected clocks and real isolated SQLite stores at the public
+scheduling/delivery boundaries: long-off catch-up, concurrent claims, live leases,
+explicit busy deferral, failure/no-retry, edits/cancellation, stale native keys,
+DST transitions, dead-claim recovery, hook acknowledgement, and OS definitions.
+Skill YAML is checked separately with the skill-creator validator.
+
+
+Final package suite: **24 tests passed**. Strict mypy, repository structural
+validation, Claude manifest validation, skill YAML validation, and whitespace
+checks passed. No generated bytecode is included in the package.
+
+## Standards
+
+The review found generated Python bytecode in the working tree; package ignore
+rules now exclude it. No documented-standard violations remain. The review's
+optional suggestion to replace generic document dictionaries with TypedDicts is
+deferred as a maintainability improvement, not a release requirement.
+
+## Spec
+
+The review found two correctness problems: stale Codex claims could prevent app
+startup, and cold Claude results lacked a correlated hook acknowledgement. Both
+were fixed and received regression tests. Follow-up review reported no additional
+concrete findings. Real Linux/Windows login and installed Codex desktop hook-trust
+setup remain manual validation coverage, as distinguished from the tested native
+mechanisms and packaged helper above.

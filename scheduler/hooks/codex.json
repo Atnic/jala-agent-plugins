@@ -1,0 +1,64 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/scheduler.py\" hook --engine codex",
+            "timeout": 15,
+            "commandWindows": "python3 \"%CLAUDE_PLUGIN_ROOT%/scripts/scheduler.py\" hook --engine codex"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/scheduler.py\" hook --engine codex",
+            "timeout": 15,
+            "commandWindows": "python3 \"%CLAUDE_PLUGIN_ROOT%/scripts/scheduler.py\" hook --engine codex"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/scheduler.py\" hook --engine codex",
+            "timeout": 15,
+            "commandWindows": "python3 \"%CLAUDE_PLUGIN_ROOT%/scripts/scheduler.py\" hook --engine codex"
+          }
+        ]
+      }
+    ],
+    "Interrupt": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/scheduler.py\" hook --engine codex",
+            "timeout": 3,
+            "commandWindows": "python3 \"%CLAUDE_PLUGIN_ROOT%/scripts/scheduler.py\" hook --engine codex"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/scheduler.py\" hook --engine codex",
+            "timeout": 3,
+            "commandWindows": "python3 \"%CLAUDE_PLUGIN_ROOT%/scripts/scheduler.py\" hook --engine codex"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -39,6 +39,11 @@
       "name": "odoo-jala-xmlrpc",
       "source": "./odoo-jala-xmlrpc",
       "description": "Read JALA Odoo records and discover schemas through a read-only XML-RPC client and workflow guidance."
+    },
+    {
+      "name": "scheduler",
+      "source": "./scheduler",
+      "description": "Schedule prompts in existing Codex desktop and Claude sessions with latest-only catch-up."
     }
   ]
 }

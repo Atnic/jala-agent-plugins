@@ -1,0 +1,118 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "timeout": 15,
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/scheduler.py",
+              "hook",
+              "--engine",
+              "claude"
+            ]
+          },
+          {
+            "type": "command",
+            "command": "python3",
+            "asyncRewake": true,
+            "timeout": 15,
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/scheduler.py",
+              "nudge",
+              "--engine",
+              "claude"
+            ]
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "timeout": 15,
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/scheduler.py",
+              "hook",
+              "--engine",
+              "claude"
+            ]
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "timeout": 15,
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/scheduler.py",
+              "hook",
+              "--engine",
+              "claude"
+            ]
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "timeout": 15,
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/scheduler.py",
+              "hook",
+              "--engine",
+              "claude"
+            ]
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "timeout": 15,
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/scheduler.py",
+              "hook",
+              "--engine",
+              "claude"
+            ]
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3",
+            "timeout": 15,
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/scheduler.py",
+              "hook",
+              "--engine",
+              "claude"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
