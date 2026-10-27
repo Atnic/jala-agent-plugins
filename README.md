@@ -17,12 +17,11 @@ A collection of portable Agent Plugins for JALA workflows.
 
 ### `scheduler`
 
-Schedule a confirmed prompt in an existing Codex desktop or Claude session.
-The plugin keeps one schedule per session and runs only the latest missed
-occurrence after startup or wake. It uses native session clocks, lifecycle
-hooks, and a small private occurrence store; it has no provider dependency.
-Python 3.11+ on PATH as `python3` and trusted/active hooks are required.
-Startup catch-up uses one per-user OS timer. See [setup and runtime coverage](scheduler/README.md).
+Schedule, list, edit, or stop a prompt in an existing ChatGPT/Codex desktop or
+Claude session. Desktop uses the available same-chat automation tool directly;
+Claude uses guarded hooks and a latest-only catch-up runner. No provider setup
+is required. Prerequisites and catch-up guarantees depend on the backend; see
+[setup and verified coverage](scheduler/README.md).
 
 ### `9router-jala`
 
@@ -240,7 +239,7 @@ Complete the selected plugin's requirements:
 
 | Plugin | Requirements |
 | --- | --- |
-| `scheduler` | Python 3.11+ as `python3`, active/trusted hooks, and Codex desktop heartbeat tools or native Claude Code. See [setup](scheduler/README.md). |
+| `scheduler` | Desktop: same-chat automation tool. Claude: native CLI/CronCreate, Python 3.11+ runtime and live hooks. See [backend requirements](scheduler/README.md). |
 | `9router-jala` | Python 3.9+, `keyring`, and a per-user API key; native saved-key support on macOS/Windows/Linux; see [setup](9router-jala/README.md). |
 | `crisp-jala` | Python 3.9+, native OS secret store, and browser network inspection for login-session capture; see [setup](crisp-jala/README.md). |
 | `figma-ui` | Figma Desktop and the local bridge; see [setup](figma-ui/README.md). |

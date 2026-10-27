@@ -1,111 +1,102 @@
 # Session Scheduler
 
-Schedule a prompt to continue the session you are already using. One prompt and
-recurring schedule per session; list, edit, or cancel it with the `scheduler`
-skill. Missed occurrences coalesce into the latest one, without an age cutoff.
-There is no dependency on a particular model provider.
+One `scheduler` skill schedules, lists, edits, and stops a prompt in the existing
+conversation. It chooses the backend from the tools available in that session.
+It does not change model providers or authentication.
 
-## Setup
-
-Install from the local marketplace while these changes are unpublished:
+## Install and use
 
 ```sh
-codex plugin marketplace add /absolute/path/to/jala-agent-plugins
+codex plugin marketplace add Atnic/jala-agent-plugins
 codex plugin add scheduler@jala-agent-plugins
 
-claude plugin marketplace add /absolute/path/to/jala-agent-plugins
+claude plugin marketplace add Atnic/jala-agent-plugins
 claude plugin install scheduler@jala-agent-plugins
 ```
 
-Use the commands for your host. Python 3.11+ must be available as `python3`,
-including on Windows. Install the helper's private runtime:
+Use the commands for your host. For unpublished local changes, pass this
+repository's absolute path to `plugin marketplace add` instead of its GitHub name.
+After updating, start or resume a session that loads the new skill version.
 
-```sh
-python3 /absolute/path/to/scheduler/scripts/scheduler.py install-runtime
-```
+Invoke `scheduler`, then ask:
 
-Start or resume the target session with the plugin enabled. Codex also requires
-reviewing and trusting the hook definitions in `/hooks`. Ask:
+> Say hello in this chat every five minutes.
 
-> Schedule this session to summarize the repository every weekday at 8 AM in
-> Asia/Jakarta.
+A clear request supplies confirmation. The skill asks only for missing choices
+or material changes, then verifies the saved destination, prompt and cadence.
+No separate setup skill is needed. Ask `scheduler list`, `scheduler edit`, or
+`scheduler stop` to manage it later.
 
-The skill confirms the prompt and cadence, saves them, and creates a native
-clock in the same session. A live hook receipt is required. If runtime installation
-happened during the setup turn, submit setup again after activating the hooks.
+## Backends and prerequisites
 
-## Delivery and catch-up
+| Backend | Requirements | Timing and limits |
+| --- | --- | --- |
+| ChatGPT/Codex desktop native | Same-chat automation tool; existing app records | Uses the requested cadence directly. No hook receipt, private runtime, or login helper. Computer/app availability governs execution. Powered-off latest-only catch-up is not certified. |
+| Claude guarded continuation | Native Claude executable, CronCreate, Python 3.11+ private runtime, live plugin hooks | Native clock serializes live turns. Per-user login runner resumes inactive sessions and coalesces missed occurrences into the latest one, without an age cutoff. |
+| Host without either capability | Unsupported | Explains the missing capability before installing anything. |
 
-- **Codex desktop:** a persistent app-native heartbeat wakes the existing chat.
-  Its pre-model hook checks the saved cron and timezone. Non-due ticks consume
-  no model tokens. The login helper starts the recorded desktop app when work is
-  due, and its native clock delivers it. Generic standalone Codex
-  CLI sessions are not a live-session backend.
-- **Claude:** a native minute clock handles a live session. Hooks hold a
-  process-identity lease shared with the cold runner, preventing concurrent
-  clients and stale transcript snapshots. Other clients of a scheduled session
-  must load the plugin. Exit a rejected competing client and resume the original
-  session after its owner finishes; do not bypass the hooks.
-- **After login or wake:** one per-user LaunchAgent, `systemd --user` timer, or
-  logged-on-only Windows task checks each minute. It starts the recorded desktop
-  app for pending Codex work. For Claude it resumes the exact original
-  ID with existing authentication, never a fork. The skill installs this timer
-  after confirmation. No root/system service is used.
+Native schedules store their IDs and settings in the app's own durable records.
+The helper can mirror verified native metadata for unified local listing using
+existing Python 3.9+ and its standard library; it needs no dependency installation.
+If Python is unavailable, the skill still uses host tools and persisted native
+records. The app remains authoritative for edits, status, and deletion.
 
-The durable record contains the prompt, session context, cron/timezone, native
-timer reference, latest handled occurrence, and minimal delivery status. The
-conversation remains the work history. State is private under:
+Claude alone needs the private runtime and startup helper; the skill follows
+[Claude setup](skills/scheduler/references/setup.md) for that branch. The desktop
+branch follows [native scheduling](skills/scheduler/references/native.md).
+Neither path substitutes an unguarded standalone Codex CLI resume.
+
+## Tracking, migration and cancellation
+
+Native metadata records the backend, exact target chat, native ID, prompt,
+recurrence/timezone intent, and last observed host status. A successful delivery
+is visible in the conversation; tracking status alone does not prove a run.
+The skill reconciles records with the native view tool before listing or editing.
+If a native API call has an unknown outcome, inspect existing records before
+creating another task. If deletion fails, keep its ID for a later stop request.
+
+The helper's store is private under:
 
 - macOS: `~/Library/Application Support/SessionScheduler`
 - Linux: `${XDG_DATA_HOME:-~/.local/share}/session-scheduler`
 - Windows: `%LOCALAPPDATA%\SessionScheduler`
 
-`SESSION_SCHEDULER_HOME` selects an alternative private directory for tests or
-explicit local configuration. Never share a store between different users.
-
-The first available tick claims only the latest due occurrence after the saved
-definition's baseline. The claim is persisted before delivery, so an interrupted
-or uncertain attempt is not replayed. Failed work waits for the next occurrence.
-Editing resets the timing baseline; cancelling prevents new work while an active
-attempt finishes. DST gaps are skipped and repeated local minutes run once.
-
-Claude's native clocks may be session-only and expire after seven days. The
-plugin restores them on resume and renews them before expiry. Native task IDs are
-captured by a PostToolUse hook, without granting the agent additional shell
-permissions. The cold runner uses restrictive unattended permissions; approval-
-gated tools fail instead of widening access.
-
-## Inspect or remove
+`SESSION_SCHEDULER_HOME` selects an isolated store for tests. Native app records
+remain in the app's own automation store. The helper supports:
 
 ```sh
 python3 /path/to/scheduler/scripts/scheduler.py list
 python3 /path/to/scheduler/scripts/scheduler.py doctor
-python3 /path/to/scheduler/scripts/scheduler.py install --dry-run
-python3 /path/to/scheduler/scripts/scheduler.py uninstall
 ```
 
-Cancellation should use the skill so it also deletes the host-native timer.
-Removing the saved definition prevents execution even if native cleanup fails.
-Uninstalling the catch-up timer does not cancel native live-session clocks.
-Timer reconfiguration pauses future cold starts and waits for an active cold
-attempt to finish; repeat the command afterward. Reinstall after updating the
-plugin to refresh the private worker copy. Runtime/provider credentials are not
-copied into the package or changed by setup.
+For native schedules, `cancel` returns `requires_native_delete` and retains the
+record. The skill deletes through the app first, then calls `native-forget` after
+confirmed deletion/absence. Removing tracking alone cannot stop an app schedule.
 
-## Development and verification
+Existing v0.1.0 Codex hook-backed records remain readable. Cancel the local
+legacy definition and delete its old controller heartbeat before replacing it
+with one direct native schedule. New desktop setup does not activate those hooks.
+Existing Claude schedules keep their occurrence claims and lease protocol.
+
+For Claude, failed/interrupted occurrences are not automatically retried; later
+occurrences remain eligible. Its native clocks may be session-only and expire
+in seven days; lifecycle hooks restore/renew them. The cold runner uses existing
+authentication with restrictive unattended permissions. Its login timer is
+user-level on macOS, Linux, and Windows. Actual Linux/Windows login/wake remains
+unverified even though definitions and unit behavior run in CI.
+
+## Checks and evidence
 
 ```sh
-python3 -m venv /tmp/session-scheduler-dev
-/tmp/session-scheduler-dev/bin/pip install -r scheduler/requirements-dev.txt
-/tmp/session-scheduler-dev/bin/python -m unittest discover -s scheduler/tests
-/tmp/session-scheduler-dev/bin/mypy --strict scheduler/scripts
-python3 .agents/skills/create-plugin/scripts/validate_plugin.py scheduler
+python3 -m pip install -r scheduler/requirements-dev.txt
+python3 scheduler/scripts/check.py
 ```
 
-See [the integration evidence](../docs/verification/scheduled-continuation.md).
-The native delivery mechanisms were exercised on macOS with Codex CLI 0.162.1,
-Codex desktop runtime 0.164.0-alpha.11.1, and Claude Code 2.1.258. Unit tests use
-an injected clock, isolated stores, and delivery boundaries. Linux and Windows
-timer definitions are checked structurally; real login/wake installation on
-those systems is not certified by macOS tests. Complete package/host integration
-coverage is recorded in that report, rather than inferred from structural checks.
+This is also the CI entry point on Linux, macOS and Windows with Python 3.11 and
+3.13. It runs the package tests, strict mypy, structural package validation,
+skill YAML validation, and a check against CLI-only setup instructions in the
+native desktop branch. These checks do not certify host UI compatibility.
+
+See [integration evidence](../docs/verification/scheduled-continuation.md) for
+which installed-package and real-host flows were exercised. Claims about one
+host or isolated hook fixture do not certify another host's setup path.

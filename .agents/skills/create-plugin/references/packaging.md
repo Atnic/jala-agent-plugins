@@ -23,3 +23,13 @@ Author/display metadata comes from the request and repository conventions. Optio
 The validator supports conventional `skills/`, a declared `skills` path, root `.mcp.json`, and explicit `mcpServers` paths or inline server maps. Local paths stay within the plugin; catalog sources stay within the repository. Remote catalog sources are outside this local creation workflow. Unsupported declarations should be resolved against official host documentation rather than worked around merely to pass validation.
 
 A pass establishes local consistency only. Run available skill YAML validators and host schema checks separately, and report any unavailable checks.
+
+## Host workflow evidence
+
+When a change affects setup or lifecycle instructions, review the installed
+package's entry flow in each host claimed as verified. Check that the required
+tools and UI controls actually exist there, and that create/list/edit/stop use
+the same durable native IDs. A CLI hook fixture plus a separate native scheduler
+probe does not establish that the installed desktop setup works. Describe
+unexercised hosts and restart/catch-up guarantees explicitly; structural tests
+and CI do not substitute for those observations.

@@ -1,7 +1,7 @@
 {
   "name": "scheduler",
-  "version": "0.1.0",
-  "description": "Schedule prompts to continue existing Codex desktop and Claude sessions, with latest-only catch-up.",
+  "version": "0.1.1",
+  "description": "Schedule prompts in existing ChatGPT/Codex desktop and Claude sessions with capability-aware setup.",
   "author": {
     "name": "JALA"
   },

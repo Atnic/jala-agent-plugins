@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import importlib.util
 import os
 import re
 import shutil
@@ -53,6 +54,11 @@ def bootstrap() -> None:
         subprocess.run([str(runtime_python(home)), "-m", "pip", "install", "-r", str(ROOT / "requirements.txt")], check=True)
         print(json.dumps({"runtime": str(runtime_python(home))}))
         raise SystemExit(0)
+    command = invoked_command()
+    if command in ("native-record", "native-forget", "list", "cancel"):
+        return
+    if command == "preflight" and parser().parse_args().engine == "codex":
+        return
     python = runtime_python(home)
     if python.is_file() and Path(sys.prefix).resolve() != (home / "runtime").resolve():
         os.execv(str(python), [str(python), str(Path(__file__).resolve()), *sys.argv[1:]])
@@ -147,6 +153,8 @@ def hook(store: Any, engine: str, payload: dict[str, Any], owner: tuple[int, flo
             return {**quiet, "stopReason": "SESSION_SCHEDULER_BUSY"}
     jobs = [j for j in store.list(engine) if j["session_id"] == session]
     job = jobs[0] if jobs else None
+    if job and job.get("backend") == "app-native":
+        return {}
     if engine == "claude" and job and event not in ("SessionStart", "UserPromptSubmit") and not store.owns(engine, session, owner):
         return {}
     if (engine == "claude" and event == "PostToolUse" and job and payload.get("tool_name") == "CronCreate"
@@ -276,10 +284,22 @@ def parser() -> argparse.ArgumentParser:
     commands.add_parser("list")
     commands.add_parser("tick")
     commands.add_parser("doctor")
-    for name in ("context", "set", "bind", "cancel", "hook", "nudge"):
+    preflight = commands.add_parser("preflight")
+    preflight.add_argument("--engine", choices=("codex", "claude"), required=True)
+    preflight.add_argument("--session-id", required=True)
+    preflight.add_argument("--native-automation", action="store_true")
+    preflight.add_argument("--native-clock", action="store_true")
+    for name in ("context", "set", "bind", "cancel", "hook", "nudge", "native-record", "native-forget"):
         command = commands.add_parser(name)
-        command.add_argument("--engine", choices=("codex", "claude"), required=True)
+        command.add_argument("--engine", choices=("codex",) if name.startswith("native-") else ("codex", "claude"), required=True)
         command.add_argument("--session-id", required=name not in ("context", "hook", "nudge"))
+        if name in ("native-record", "native-forget"):
+            command.add_argument("--native-id", required=True)
+        if name == "native-record":
+            for option in ("cwd", "name", "rrule", "timezone", "prompt-file"):
+                command.add_argument("--" + option, required=True)
+            command.add_argument("--status", choices=("ACTIVE", "PAUSED"), default="ACTIVE")
+            command.add_argument("--expected-native-id")
         if name == "set":
             command.add_argument("--cwd", required=True)
             command.add_argument("--cron", required=True)
@@ -295,8 +315,29 @@ def parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
-    from scheduler_core import Scheduler, alive
     args = parser().parse_args()
+    if args.command == "preflight":
+        if args.engine == "codex":
+            available = args.native_automation
+            print(json.dumps({"backend": "app-native" if available else "unsupported", "ready": available,
+                              "session_id": args.session_id, "requirements": [] if available else ["same-chat automation tool"],
+                              "catch_up_verified": False,
+                              "catch_up": "Host-managed; powered-off latest-only catch-up is not certified"}))
+        else:
+            requirements = []
+            if not args.native_clock:
+                requirements.append("Claude CronCreate tool")
+            if not all(importlib.util.find_spec(name) for name in ("croniter", "psutil")):
+                requirements.extend(["private-runtime", "live-claude-hook-receipt"])
+            else:
+                from scheduler_core import Scheduler, alive
+                receipt = Scheduler(home_path()).receipt("claude", args.session_id)
+                if not receipt or not alive(receipt["pid"], receipt["born"]):
+                    requirements.append("live-claude-hook-receipt")
+            print(json.dumps({"backend": "claude-hooks", "ready": not requirements,
+                              "session_id": args.session_id, "requirements": requirements}))
+        return
+    from scheduler_core import Scheduler, alive
     store = Scheduler(home_path())
     if args.command == "nudge":
         session = str(HOOK_INPUT.get("session_id", ""))
@@ -319,7 +360,8 @@ def main() -> None:
         print(json.dumps(store.list(), ensure_ascii=False))
     elif args.command == "doctor":
         print(json.dumps({"home": str(store.home), "python": sys.executable, "claude": shutil.which("claude"),
-                          "schedules": len(store.list()), "standalone_codex": False}))
+                          "schedules": len(store.list()), "native_requires_runtime": False,
+                          "hook_dependencies_ready": all(importlib.util.find_spec(name) for name in ("croniter", "psutil"))}))
     elif args.command == "tick":
         store.wake_pending_apps(lambda job: wake_codex(store, job))
         store.run_pending(lambda job, dispatch, lease: claude_delivery(store, job, dispatch, lease))
@@ -338,6 +380,14 @@ def main() -> None:
         if not session_value:
             raise ValueError("Pass the exact current session ID")
         session = str(session_value)
+        if args.command == "native-record":
+            job = store.record_native(session, args.cwd, Path(args.prompt_file).read_text(encoding="utf-8"),
+                                      args.name, args.rrule, args.timezone, args.native_id, args.status, args.expected_native_id)
+            print(json.dumps({"schedule": job}, ensure_ascii=False))
+            return
+        if args.command == "native-forget":
+            print(json.dumps({"forgotten": store.forget_native(session, args.native_id)}))
+            return
         if args.command in ("context", "set"):
             receipt = store.receipt(engine, session)
             if not receipt or not alive(receipt["pid"], receipt["born"]):
@@ -366,7 +416,11 @@ def main() -> None:
             store.bind(engine, session, args.native_id, args.key, host_identity(engine))
             print(json.dumps({"status": "ready"}))
         elif args.command == "cancel":
-            print(json.dumps({"cancelled": store.cancel(engine, session)}))
+            job = next((j for j in store.list(engine) if j["session_id"] == session), None)
+            if job and job.get("backend") == "app-native":
+                print(json.dumps({"cancelled": None, "requires_native_delete": job["native_id"]}))
+            else:
+                print(json.dumps({"cancelled": store.cancel(engine, session)}))
 
 
 if __name__ == "__main__":

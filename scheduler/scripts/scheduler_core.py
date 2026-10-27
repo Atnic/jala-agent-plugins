@@ -13,8 +13,6 @@ from pathlib import Path
 from typing import Any, cast
 from zoneinfo import ZoneInfo
 
-import psutil
-from croniter import croniter
 
 Document = dict[str, Any]
 
@@ -24,11 +22,13 @@ class DeliveryDeferred(Exception):
 
 
 def process_identity(pid: int | None = None) -> tuple[int, float]:
+    import psutil
     process = psutil.Process(pid)
     return process.pid, process.create_time()
 
 
 def alive(pid: int, born: float) -> bool:
+    import psutil
     try:
         process = psutil.Process(pid)
         return process.is_running() and process.status() != psutil.STATUS_ZOMBIE and process.create_time() == born
@@ -40,6 +40,7 @@ def alive(pid: int, born: float) -> bool:
 
 def latest_occurrence(expression: str, zone: str, now: float) -> float:
     """Use wall-clock cron arithmetic, validating gaps and collapsing repeated minutes."""
+    from croniter import croniter
     tz = ZoneInfo(zone)
     local = datetime.fromtimestamp(now, tz)
     wall = local.replace(tzinfo=None)
@@ -101,6 +102,7 @@ class Scheduler:
 
     def save(self, engine: str, session: str, cwd: str, cron: str, zone: str, prompt: str,
              cli_path: str | None = None, owner: tuple[int, float] | None = None) -> Document:
+        from croniter import croniter
         if engine not in ("codex", "claude") or not session.strip() or not prompt.strip():
             raise ValueError("Agent type, exact session ID, and a nonempty prompt are required")
         if len(cron.split()) != 5 or not croniter.is_valid(cron, strict=True):
@@ -112,6 +114,8 @@ class Scheduler:
             raise ValueError("Working directory must exist")
         with self._transaction() as db:
             old = self._read(db, engine, session)
+            if old and old.get("backend") == "app-native":
+                raise ValueError("Use the native automation tool to edit or delete this schedule")
             if old and old.get("running") and alive(old["running"]["pid"], old["running"]["born"]):
                 raise ValueError("Wait for the active continuation before editing its schedule")
             job: Document = {"engine": engine, "session_id": session, "cwd": str(work), "cron": cron,
@@ -123,6 +127,44 @@ class Scheduler:
             pid, born = owner or process_identity()
             db.execute("INSERT OR REPLACE INTO history VALUES (?,?,?,?,?)", (engine, session, self.clock(), pid, born))
             return job
+
+    def record_native(self, session: str, cwd: str, prompt: str, name: str, rrule: str,
+                      zone: str, native_id: str, status: str = "ACTIVE", expected_id: str | None = None) -> Document:
+        """Remember a host-verified native automation without importing hook dependencies."""
+        if not all(value.strip() for value in (session, prompt, name, rrule, zone, native_id)):
+            raise ValueError("Exact session ID, confirmed prompt/cadence/timezone and native ID are required")
+        if status not in ("ACTIVE", "PAUSED"):
+            raise ValueError("Native status must be ACTIVE or PAUSED")
+        work = Path(cwd).expanduser().resolve(strict=True)
+        if not work.is_dir():
+            raise ValueError("Working directory must exist")
+        with self._transaction() as db:
+            old = self._read(db, "codex", session)
+            if old and old.get("backend") != "app-native":
+                raise ValueError("Cancel the existing hook-backed schedule before changing its backend")
+            if (old["native_id"] if old else None) != expected_id:
+                raise ValueError("Schedule changed; inspect its native ID before recording this result")
+            if old and native_id != old["native_id"]:
+                raise ValueError("Edit the existing native automation instead of creating a duplicate")
+            job: Document = {"engine": "codex", "backend": "app-native", "session_id": session,
+                             "cwd": str(work), "prompt": prompt, "name": name, "rrule": rrule,
+                             "timezone": zone, "native_id": native_id, "native_status": status,
+                             "status": status.lower(), "running": None, "last_error": None,
+                             "created_at": old["created_at"] if old else self.clock(), "updated_at": self.clock(),
+                             "catch_up_verified": False}
+            self._write(db, job)
+            return job
+
+    def forget_native(self, session: str, native_id: str) -> bool:
+        """Call only after the host acknowledged deletion, or confirmed absence."""
+        with self._transaction() as db:
+            job = self._read(db, "codex", session)
+            if not job:
+                return False
+            if job.get("backend") != "app-native" or job["native_id"] != native_id:
+                raise ValueError("Native schedule changed; its tracking record was retained")
+            db.execute("DELETE FROM schedules WHERE engine='codex' AND session=?", (session,))
+            return True
 
     def list(self, engine: str | None = None) -> list[Document]:
         with self._transaction() as db:
@@ -137,6 +179,8 @@ class Scheduler:
             job = self._read(db, engine, session)
             if not job:
                 raise ValueError("Schedule not found")
+            if job.get("backend") == "app-native":
+                raise ValueError("Use the native automation tool to edit or delete this schedule")
             if key is not None and job["key"] != key:
                 raise ValueError("Schedule changed while creating its native timer")
             job.update(native_id=native_id, renew_at=self.clock() + 6 * 86400 if engine == "claude" else None,
@@ -161,6 +205,8 @@ class Scheduler:
     def cancel(self, engine: str, session: str) -> Document | None:
         with self._transaction() as db:
             job = self._read(db, engine, session)
+            if job and job.get("backend") == "app-native":
+                raise ValueError("Delete the native automation first, then forget its tracking record")
             db.execute("DELETE FROM schedules WHERE engine=? AND session=?", (engine, session))
             return job
 
@@ -168,7 +214,7 @@ class Scheduler:
               owner: tuple[int, float] | None = None, maintenance: bool = False) -> Document | None:
         with self._transaction() as db:
             job = self._read(db, engine, session)
-            if not job or not job["native_id"] or (key is not None and key != job["key"]):
+            if not job or job.get("backend") == "app-native" or not job["native_id"] or (key is not None and key != job["key"]):
                 return None
             if running := job["running"]:
                 if alive(running["pid"], running["born"]):
@@ -322,7 +368,7 @@ class Scheduler:
     def wake_pending_apps(self, wake: Callable[[Document], None]) -> None:
         """Starting a desktop app is not delivery; its native hook claims the work."""
         for job in self.list("codex"):
-            if not job["native_id"]:
+            if job.get("backend") == "app-native" or not job["native_id"]:
                 continue
             if running := job["running"]:
                 if alive(running["pid"], running["born"]):

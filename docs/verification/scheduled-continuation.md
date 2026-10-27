@@ -388,3 +388,70 @@ were fixed and received regression tests. Follow-up review reported no additiona
 concrete findings. Real Linux/Windows login and installed Codex desktop hook-trust
 setup remain manual validation coverage, as distinguished from the tested native
 mechanisms and packaged helper above.
+
+
+## Desktop setup correction — v0.1.1, 2026-10-27
+
+The first installed v0.1.0 desktop setup failed: its skill required `/hooks`,
+which was unavailable in this ChatGPT interface, and no live helper hook receipt
+was produced. Earlier CLI hook fixtures did not verify that installed entry flow.
+A direct app-native hello heartbeat subsequently delivered twice in this same
+chat (01:28 and 01:33 UTC) and was deleted on the user's stop request. That proved
+native same-chat delivery, not a working v0.1.0 plugin setup.
+
+The user approved the retrospective fixes: capability-first native setup,
+durable schedule identification across later conversations, installed-package
+lifecycle coverage, and wired automated checks. v0.1.1 uses direct native
+heartbeats when that tool exists, and keeps the guarded runtime for Claude.
+Native setup neither installs a private runtime nor requires hook activation.
+The app's own automation records remain authoritative; an optional standard-
+library helper mirror supports unified local listing and explicit backend IDs.
+Deletion is acknowledged by the host before tracking is forgotten. Failed or
+stale edits retain the existing record; legacy operations cannot erase it.
+
+### Installed candidate lifecycle test
+
+The real `codex plugin marketplace add` and `codex plugin add` commands installed
+the unpublished v0.1.1 candidate from the local repository into an isolated
+`CODEX_HOME`. The installed helper ran with the system Python 3.9 and `-S`, a fresh
+state directory and no private runtime. Preflight selected `app-native` with no
+hook/runtime requirements. Dependency-free subprocess tests also cover missing
+tools, unavailable Claude prerequisites and an unusable optional runtime.
+
+A paused disposable native heartbeat, `session-scheduler-installation-test`,
+was created in the actual current chat. Its persisted host record verified
+`kind=heartbeat`, the exact `target_thread_id`, direct prompt, five-minute
+recurrence, and `PAUSED` status. The native view tool rendered a card without
+returning those fields, so verification read the host's automation record as data.
+The installed helper recorded its ID and a later fresh process listed it.
+
+The native update tool changed its prompt/name and cadence to seven minutes,
+retaining that same ID, chat and paused status. The installed helper mirrored
+the verified edit using its expected-ID guard. Its cancel command retained the
+record and returned `requires_native_delete`; after the native delete tool
+acknowledged deletion, `native-forget` removed the mirror. A fresh list was empty
+and the native record was absent. The disposable test was never activated, and
+the user's previously stopped hello task was not recreated.
+
+### Coverage boundaries and checks
+
+This exercise verifies installed artifact packaging and the actual native
+create/view/list/edit/delete path. Native delivery itself was observed in the
+user's two hello runs above; the candidate lifecycle fixture was paused.
+Powered-off latest-only catch-up, native restart/failure semantics, and actual
+Linux/Windows desktop clients remain unverified. The skill reports those limits
+instead of borrowing guarantees from the Claude occurrence store. Official
+[scheduled-task documentation](https://learn.chatgpt.com/docs/automations) says
+local desktop work requires the machine and app to be available.
+
+The local/CI entry point is `python scheduler/scripts/check.py`. The workflow
+runs existing scheduling/hook/platform tests, new dependency-free CLI regressions,
+strict mypy, skill YAML validation, native setup instruction checks and the repo
+package validator on Linux/macOS/Windows with Python 3.11/3.13. CI verifies these
+commands and definitions; it does not certify actual agent UI or wake behavior.
+
+Final v0.1.1 local check: all 30 tests passed, strict mypy passed for four
+script modules, skill YAML and native setup instruction checks passed, and
+repository package validation plus Claude manifest validation passed. Both
+required review axes reported no new findings. The pre-existing optional typed
+record suggestion is unchanged. The stopped hello task remains stopped.

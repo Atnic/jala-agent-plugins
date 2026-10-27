@@ -1,22 +1,23 @@
-# Setup and host delivery
+# Claude guarded continuation
 
 ## Prerequisites
 
-The installed plugin's hooks must run in the target session. Install Python 3.11+
+First confirm that Claude CronCreate is available. With existing Python, run
+`python3 <helper> preflight --engine claude --session-id <exact-id> --native-clock`.
+Only this backend needs the runtime and a live hook receipt. Install Python 3.11+
 as `python3` on PATH, then run:
 
 ```sh
 python3 <plugin-root>/scripts/scheduler.py install-runtime
 ```
 
-Start or resume the target session after installation. In Codex, review and trust
-the plugin hooks with `/hooks`; installing the plugin alone does not trust them.
+Start or resume the target session after installation. Use Claude's supported hook/plugin settings for that client; installing a plugin
+alone does not prove that its hooks executed.
 If the runtime was installed during the current turn, submit setup again so the
 next prompt can produce a live hook receipt. This check prevents an unguarded
 session from being scheduled.
 
 ```sh
-python3 <helper> context --engine codex --session-id <CODEX_THREAD_ID>
 python3 <helper> context --engine claude --session-id <CLAUDE_SESSION_ID>
 ```
 
@@ -32,7 +33,7 @@ Write the exact confirmed prompt to a private UTF-8 temporary file using a file
 tool, not shell interpolation. Then invoke:
 
 ```sh
-python3 <helper> set --engine <codex-or-claude> --session-id <exact-id> \
+python3 <helper> set --engine claude --session-id <exact-id> \
   --cwd <receipt-working-directory> --cron '0 8 * * *' \
   --timezone Asia/Jakarta --prompt-file <private-prompt-file>
 ```
@@ -50,31 +51,7 @@ cutoff: the first available tick executes only the latest occurrence after the
 definition's baseline. Repeated daylight-saving minutes run once; nonexistent
 local minutes are skipped.
 
-## Codex desktop
-
-Use the app's native automation capability, discovered by name
-`automation_update`. Create a **heartbeat** targeting the exact existing session,
-with the returned `controller_prompt`, status `ACTIVE`, and a one-minute
-recurrence. On edits update `previous_native_id` with the full heartbeat fields;
-do not create duplicates. Respect any notification preference already chosen by
-the user. This is an existing-chat heartbeat, not a standalone cron chat.
-
-Bind the returned automation ID and install the login/startup helper:
-
-```sh
-python3 <helper> bind --engine codex --session-id <exact-id> \
-  --key <schedule-key> --native-id <automation-id>
-python3 <helper> install
-```
-
-If the app-native scheduling tools are absent, stop setup and explain that this
-host is unsupported. The login helper starts the recorded desktop app when
-Codex work is due and the app is not running; it does not submit prompts or use
-CLI resume. The persistent native heartbeat and local occurrence state then
-perform catch-up without replaying a backlog. Tell the user before confirmation
-that due work can start the desktop app. No provider profile is installed.
-
-## Claude
+## Native clock and cold catch-up
 
 Use `CronCreate` in the exact target session with cron `* * * * *`,
 `recurring: true`, and the returned `controller_prompt`. The plugin's PostToolUse
