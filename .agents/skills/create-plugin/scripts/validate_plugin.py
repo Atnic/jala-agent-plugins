@@ -18,7 +18,7 @@ def validate(plugin, repo):
 
     def read(path):
         try:
-            obj = json.loads(path.read_text())
+            obj = json.loads(path.read_text(encoding="utf-8"))
             if not isinstance(obj, dict):
                 raise ValueError('expected a JSON object')
             return obj
@@ -151,9 +151,9 @@ def validate(plugin, repo):
     if not (plugin / 'README.md').is_file():
         fail(plugin, 'missing plugin README.md')
     try:
-        if f'{plugin.relative_to(repo).as_posix()}/README.md' not in (repo / 'README.md').read_text():
+        if f'{plugin.relative_to(repo).as_posix()}/README.md' not in (repo / 'README.md').read_text(encoding='utf-8'):
             fail(repo / 'README.md', 'missing plugin README reference')
-    except OSError as exc:
+    except (OSError, UnicodeError) as exc:
         fail(repo / 'README.md', str(exc))
     return errors
 

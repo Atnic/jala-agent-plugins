@@ -27,7 +27,7 @@ class ValidationTests(unittest.TestCase):
     def write(self, path, content):
         p = self.repo / path
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(content)
+        p.write_text(content, encoding="utf-8")
 
     def put(self, path, obj):
         self.write(path, json.dumps(obj))
@@ -124,6 +124,17 @@ class ValidationTests(unittest.TestCase):
         self.assertEqual(self.errors(), [])
         after = {p.relative_to(self.repo): p.read_bytes() for p in self.repo.rglob('*') if p.is_file()}
         self.assertEqual(before, after)
+
+    def test_utf8_files_do_not_depend_on_the_platform_default_encoding(self):
+        (self.repo / 'README.md').write_text('文書 — [Sample](sample/README.md)', encoding='utf-8')
+        (self.plugin / 'plugin.json').write_text(json.dumps({**self.manifest, 'description': '文書'}, ensure_ascii=False), encoding='utf-8')
+        result = subprocess.run([sys.executable, '-X', 'warn_default_encoding', '-W', 'error::EncodingWarning',
+                                 str(SCRIPT), str(self.plugin), '--repo-root', str(self.repo)], capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr.decode('utf-8', errors='replace'))
+
+    def test_invalid_utf8_readme_is_a_validation_error(self):
+        (self.repo / 'README.md').write_bytes(b'\xff')
+        self.assertTrue(any('README.md' in error for error in self.errors()))
 
     def test_cli_exit_codes(self):
         def run(*args):

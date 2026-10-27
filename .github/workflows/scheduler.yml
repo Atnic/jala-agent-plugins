@@ -6,14 +6,14 @@ on:
       - 'scheduler/**'
       - '.agents/plugins/marketplace.json'
       - '.claude-plugin/marketplace.json'
-      - '.agents/skills/create-plugin/scripts/**'
+      - '.agents/skills/create-plugin/**'
       - '.github/workflows/scheduler.yml'
   pull_request:
     paths:
       - 'scheduler/**'
       - '.agents/plugins/marketplace.json'
       - '.claude-plugin/marketplace.json'
-      - '.agents/skills/create-plugin/scripts/**'
+      - '.agents/skills/create-plugin/**'
       - '.github/workflows/scheduler.yml'
   workflow_dispatch:
 

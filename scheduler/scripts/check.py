@@ -23,6 +23,7 @@ def main() -> None:
             raise ValueError(f'{path.relative_to(ROOT)}: native setup must not require the CLI hook menu')
     checks = [
         [sys.executable, '-m', 'unittest', 'discover', '-s', 'scheduler/tests', '-v'],
+        [sys.executable, '-m', 'unittest', 'discover', '-s', '.agents/skills/create-plugin/tests', '-v'],
         [sys.executable, '-m', 'mypy', '--strict', 'scheduler/scripts'],
         [sys.executable, '.agents/skills/create-plugin/scripts/validate_plugin.py', 'scheduler'],
     ]

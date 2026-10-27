@@ -455,3 +455,11 @@ script modules, skill YAML and native setup instruction checks passed, and
 repository package validation plus Claude manifest validation passed. Both
 required review axes reported no new findings. The pre-existing optional typed
 record suggestion is unchanged. The stopped hello task remains stopped.
+
+The first hosted matrix run passed scheduling tests and mypy on all six jobs,
+but exposed a Windows locale bug in the shared packaging validator: its default
+text encoding could not read the repository's UTF-8 README. The validator now
+reads UTF-8 explicitly and reports invalid UTF-8 as a validation error. Two
+regressions cover this through its public API and a CLI with missing-encoding
+warnings promoted to errors. The existing 16-test validator suite is now also
+wired into the shared CI entry point. Python bytecode is ignored repository-wide.
