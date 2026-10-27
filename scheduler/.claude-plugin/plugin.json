@@ -1,6 +1,6 @@
 {
   "name": "scheduler",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Schedule prompts in existing ChatGPT/Codex desktop and Claude sessions with capability-aware setup.",
   "author": {
     "name": "JALA"
