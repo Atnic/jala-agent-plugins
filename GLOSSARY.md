@@ -68,3 +68,20 @@ A skill supplied with Felix that the Owner cannot change.
 
 **Custom Felix skill**:
 A separately authored skill added to a Felix installation.
+
+## App Store Connect
+
+**App Store Connect API key**:
+A key pair issued by App Store Connect to authorize REST API requests. The key type and assigned role determine which API resources and actions it can access.
+
+**Individual API key**:
+An API key associated with one App Store Connect user; it follows that user's roles and app access, but cannot access Sales and Finance reports.
+
+**Team API key**:
+An API key with an assigned role that can access all apps in its App Store Connect team.
+
+**Named API action**:
+An operation-specific typed MCP tool generated from one operation in Apple's published OpenAPI specification.
+
+**High-impact write**:
+An App Store Connect API operation that deletes or revokes a resource, changes submission or release state, changes pricing or availability, or changes user access. It requires confirmation before execution.

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "app-store-connect",
+  "version": "0.1.0",
+  "description": "Manage App Store Connect through individually named, typed actions for every operation in Apple's published OpenAPI specification.",
+  "author": {
+    "name": "JALA"
+  },
+  "repository": "https://github.com/Atnic/jala-agent-plugins",
+  "keywords": [
+    "app-store-connect",
+    "apple-developer",
+    "sales-reports",
+    "testflight",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "App Store Connect",
+        "shortDescription": "Manage App Store Connect with typed API actions.",
+        "longDescription": "Expose every operation in Apple's published App Store Connect OpenAPI specification as a named, typed MCP action. Read sales and finance reports, manage apps and metadata, TestFlight, reviews, subscriptions, provisioning, users, and other API-supported resources. Permissions come from the imported team or individual API key. High-impact deletes, submissions, releases, pricing, availability, and access changes require a local browser approval.",
+        "developerName": "JALA",
+        "websiteURL": "https://github.com/Atnic/jala-agent-plugins/tree/main/app-store-connect",
+        "category": "Productivity",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "brandColor": "#1D1D1F",
+        "logo": "./assets/app-store-connect-icon.png",
+        "composerIcon": "./assets/app-store-connect-icon.png",
+        "defaultPrompt": "Use App Store Connect to manage my apps and reports."
+      }
+    }
+  }
+}

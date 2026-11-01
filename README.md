@@ -2,6 +2,7 @@
 
 A collection of portable Agent Plugins for JALA workflows.
 
+- [App Store Connect](app-store-connect/README.md)
 - [9Router JALA](9router-jala/README.md)
 - [Crisp JALA](crisp-jala/README.md)
 - [Felix Agent](felix-agent/README.md)
@@ -15,6 +16,12 @@ A collection of portable Agent Plugins for JALA workflows.
 - [Odoo JALA XML-RPC](odoo-jala-xmlrpc/README.md)
 
 ## Plugins
+
+### `app-store-connect`
+
+Access every operation in Apple's published App Store Connect OpenAPI specification as its own named, typed MCP action, with guided workflows for reporting, reviews, TestFlight, metadata, and submissions. The plugin supports team and individual API keys, stores credentials only in the OS secret store, and requires local browser approval for high-impact production changes.
+
+See [`app-store-connect/README.md`](app-store-connect/README.md) for setup, key permissions, report downloads, and the generated action catalog.
 
 ### `felix-agent`
 
@@ -146,6 +153,7 @@ claude plugin marketplace add Atnic/jala-agent-plugins
 claude plugin install felix-agent@jala-agent-plugins
 claude plugin install scheduler@jala-agent-plugins
 claude plugin install 9router-jala@jala-agent-plugins
+claude plugin install app-store-connect@jala-agent-plugins
 claude plugin install crisp-jala@jala-agent-plugins
 claude plugin install figma-ui@jala-agent-plugins
 claude plugin install gog@jala-agent-plugins
@@ -196,6 +204,7 @@ Install the plugins you want; each command below installs one plugin:
 codex plugin add felix-agent@jala-agent-plugins
 codex plugin add scheduler@jala-agent-plugins
 codex plugin add 9router-jala@jala-agent-plugins
+codex plugin add app-store-connect@jala-agent-plugins
 codex plugin add crisp-jala@jala-agent-plugins
 codex plugin add figma-ui@jala-agent-plugins
 codex plugin add gog@jala-agent-plugins
@@ -246,6 +255,7 @@ Complete the selected plugin's requirements:
 
 | Plugin | Requirements |
 | --- | --- |
+| `app-store-connect` | Python 3.9+, `pip` and network access for the first runtime install, App Store Connect API access and a team or individual `.p8` key, plus Keychain, Windows Credential Manager, or Linux Secret Service; see [setup](app-store-connect/README.md). |
 | `felix-agent` | Docker Engine or Desktop with Compose v2, Git, Python 3 for backups, and interactive Felix setup. See [setup](felix-agent/README.md). |
 | `scheduler` | Desktop: same-chat automation tool. Claude: native CLI/CronCreate, Python 3.11+ runtime and live hooks. See [backend requirements](scheduler/README.md). |
 | `9router-jala` | Python 3.9+, `keyring`, and a per-user API key; native saved-key support on macOS/Windows/Linux; see [setup](9router-jala/README.md). |
@@ -304,6 +314,7 @@ skills or MCP configuration.
 jala-agent-plugins/
 ├── .agents/plugins/marketplace.json
 ├── .claude-plugin/marketplace.json
+├── app-store-connect/
 ├── 9router-jala/
 ├── crisp-jala/
 ├── felix-agent/

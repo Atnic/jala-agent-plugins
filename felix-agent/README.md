@@ -8,6 +8,10 @@ New installations use `~/felix-agent` on macOS/Linux and `%USERPROFILE%\felix-ag
 
 The API channel uses contact identities that do not confer Owner permissions. Owner-only operations use the Owner Console where supported. A2A and task delegation are outside this plugin's scope. Supported operations depend on the deployed Felix release and host tools; the skill reports limitations instead of claiming unavailable functionality.
 
+## Icon
+
+The manifest uses `assets/felix-icon.png`, which centers the original square artwork on a transparent canvas with 51 pixels of padding on each side and rounded-square background corners. The unpadded source is preserved at `assets/felix-icon-original.png`.
+
 Register this repository as a local marketplace using the [root instructions](../README.md#from-a-local-checkout), then install `felix-agent@jala-agent-plugins` in Codex. For Claude Code, use the [Claude installation instructions](../README.md#install-in-claude-code) and install the same identifier. Local registration is required until this package is published to the GitHub branch. Start a new session and ask “Set up Felix Agent locally” or invoke `felix-agent-setup`.
 
 Structural and skill validation do not establish host or Felix runtime compatibility. Browser setup, migration, upgrades, and Windows/Claude Code flows have not been verified end to end.

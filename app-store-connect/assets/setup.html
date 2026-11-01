@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Connect App Store Connect</title>
+  <style>
+    :root { color-scheme: light dark; font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { max-width: 720px; margin: 48px auto; padding: 0 22px; color: CanvasText; background: Canvas; }
+    h1 { font-size: 28px; margin-bottom: 8px; } p { color: color-mix(in srgb, CanvasText 75%, Canvas); }
+    .card { border: 1px solid color-mix(in srgb, CanvasText 20%, Canvas); border-radius: 14px; padding: 24px; }
+    label { display: block; font-weight: 600; margin: 16px 0 6px; }
+    input, select { box-sizing: border-box; width: 100%; padding: 11px 12px; border-radius: 8px; border: 1px solid color-mix(in srgb, CanvasText 28%, Canvas); background: Canvas; color: CanvasText; }
+    input[type=file] { padding: 9px; } button { margin-top: 22px; border: 0; border-radius: 8px; padding: 11px 18px; font-weight: 650; color: white; background: #0878d1; cursor: pointer; }
+    button:disabled { opacity: .55; cursor: wait; } .hint { font-size: 13px; } #status { min-height: 24px; margin-top: 18px; white-space: pre-wrap; }
+    .warning { border-left: 3px solid #d58b00; padding-left: 12px; }
+  </style>
+</head>
+<body>
+  <h1>Connect App Store Connect</h1>
+  <p>Import a key you generated in App Store Connect. This form sends the selected <code>.p8</code> only to this computer’s loopback helper. The plugin verifies the key with Apple, then stores it in the operating system’s secret store.</p>
+  <div class="card">
+    <form id="setup">
+      <label for="keyType">API key type</label>
+      <select id="keyType" required>
+        <option value="team">Team key — can span all team apps; role permissions still apply</option>
+        <option value="individual">Individual key — follows the user’s app access; no Sales or Finance reports</option>
+      </select>
+      <label for="keyId">Key ID</label>
+      <input id="keyId" autocomplete="off" autocapitalize="characters" required maxlength="10" placeholder="10-character key ID">
+      <div id="issuerField">
+        <label for="issuerId">Team Issuer ID</label>
+        <input id="issuerId" autocomplete="off" placeholder="UUID shown on the Integrations page">
+      </div>
+      <label for="privateKey">Downloaded .p8 private key</label>
+      <input id="privateKey" type="file" accept=".p8,text/plain" required>
+      <p class="hint warning">The private key cannot be downloaded again from Apple. This plugin stores it only in Keychain, Credential Manager, or Secret Service. Setup stops if native secure storage is unavailable.</p>
+      <button id="submit" type="submit">Verify and save locally</button>
+      <div id="status" role="status" aria-live="polite"></div>
+    </form>
+  </div>
+  <script nonce="__NONCE__">
+    const form = document.querySelector('#setup');
+    const type = document.querySelector('#keyType');
+    const issuer = document.querySelector('#issuerId');
+    const issuerField = document.querySelector('#issuerField');
+    const file = document.querySelector('#privateKey');
+    const button = document.querySelector('#submit');
+    const status = document.querySelector('#status');
+    const session = new URLSearchParams(location.hash.slice(1)).get('session') || '';
+    history.replaceState(null, '', location.pathname);
+    function syncType() {
+      const team = type.value === 'team';
+      issuerField.hidden = !team;
+      issuer.required = team;
+      issuer.disabled = !team;
+      issuer.value = team ? issuer.value : '';
+    }
+    type.addEventListener('change', syncType);
+    syncType();
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!session || !file.files?.[0]) return;
+      button.disabled = true;
+      status.textContent = 'Verifying with Apple and saving in the OS secret store…';
+      try {
+        const privateKey = await file.files[0].text();
+        const response = await fetch('/api/setup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Setup-Token': session },
+          body: JSON.stringify({
+            keyType: type.value,
+            keyId: document.querySelector('#keyId').value,
+            issuerId: type.value === 'team' ? issuer.value : '',
+            privateKey
+          })
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Setup failed.');
+        status.textContent = `Connected using a ${result.keyType} key (${result.keyId}). Stored in the OS secret store.`;
+        file.value = '';
+        document.querySelector('#keyId').value = '';
+        issuer.value = '';
+        setTimeout(() => window.close(), 900);
+      } catch (error) {
+        file.value = '';
+        status.textContent = error.message || 'Setup failed. Choose the .p8 file again and retry.';
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

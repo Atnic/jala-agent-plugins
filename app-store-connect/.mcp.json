@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "app-store-connect": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["${PLUGIN_ROOT}/scripts/entrypoint.py"],
+      "cwd": "${PLUGIN_ROOT}"
+    }
+  }
+}

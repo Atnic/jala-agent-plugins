@@ -1,6 +1,6 @@
 {
   "name": "jala-agent-plugins",
-  "description": "JALA plugins for Figma design and Google Workspace workflows.",
+  "description": "JALA agent plugins for App Store Connect, integrations, design, and productivity workflows.",
   "owner": {
     "name": "JALA"
   },
@@ -9,6 +9,11 @@
       "name": "9router-jala",
       "source": "./9router-jala",
       "description": "Use a configured 9Router gateway for JALA chat, images, audio, embeddings, web search, and web fetch workflows."
+    },
+    {
+      "name": "app-store-connect",
+      "source": "./app-store-connect",
+      "description": "Manage App Store Connect through individually named, typed actions for Apple's published API operations."
     },
     {
       "name": "crisp-jala",
