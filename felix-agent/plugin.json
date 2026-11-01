@@ -8,8 +8,30 @@
   },
   "repository": "https://github.com/Atnic/jala-agent-plugins",
   "keywords": [
-    "felix-agent",
+    "felix",
     "docker",
-    "setup"
-  ]
+    "setup",
+    "management",
+    "agent"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Felix Agent",
+        "shortDescription": "Set up and manage a local Felix Agent deployment.",
+        "longDescription": "Set up, configure, troubleshoot, upgrade, and migrate Felix Agent deployments with Docker Compose. Inspect built-in skills and create or update custom Felix skills.",
+        "developerName": "JALA",
+        "websiteURL": "https://felix-agent.farid-inawan.dev/",
+        "category": "Productivity",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "brandColor": "#F97316",
+        "composerIcon": "./assets/felix-icon.png",
+        "logo": "./assets/felix-icon.png",
+        "defaultPrompt": "Set up Felix Agent locally and help me manage it."
+      }
+    }
+  }
 }
