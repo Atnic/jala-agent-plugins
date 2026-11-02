@@ -1,6 +1,6 @@
 {
   "name": "metabase-jala",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "displayName": "Metabase JALA",
   "description": "Connect to JALA's shared Metabase instance through its built-in MCP server.",
   "icon": "./assets/metabase-jala-icon.svg",

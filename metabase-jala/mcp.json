@@ -3,17 +3,7 @@
   "mcpServers": {
     "metabase-jala": {
       "type": "streamable-http",
-      "url": "https://metabase.jala.tech/api/metabase-mcp",
-      "extensions": {
-        "com.openai": {
-          "auth": {
-            "type": "oauth",
-            "client": {
-              "mode": "dcr"
-            }
-          }
-        }
-      }
+      "url": "https://metabase.jala.tech/api/metabase-mcp"
     }
   }
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "metabase-jala",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Connect Codex and Claude Code to JALA's shared Metabase instance through its built-in MCP server.",
   "author": { "name": "JALA" },
   "repository": "https://github.com/Atnic/jala-agent-plugins",

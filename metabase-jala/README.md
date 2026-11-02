@@ -5,7 +5,7 @@ Connect Codex and Claude Code to the shared JALA Metabase instance at
 This connection-only package uses the built-in server and ships without
 additional JALA workflow instructions.
 
-**Version:** `0.1.0`
+**Version:** `0.1.1`
 
 ## What it can do
 
