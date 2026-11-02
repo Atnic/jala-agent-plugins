@@ -1,3 +1,2 @@
 cryptography>=42,<47
-jsonschema>=4.22,<5
 keyring>=25,<27

@@ -80,8 +80,8 @@ An API key associated with one App Store Connect user; it follows that user's ro
 **Team API key**:
 An API key with an assigned role that can access all apps in its App Store Connect team.
 
-**Named API action**:
-An operation-specific typed MCP tool generated from one operation in Apple's published OpenAPI specification.
+**App Store Connect API operation**:
+An operation identified by its HTTP method and endpoint in Apple's App Store Connect API documentation.
 
 **High-impact write**:
 An App Store Connect API operation that deletes or revokes a resource, changes submission or release state, changes pricing or availability, or changes user access. It requires confirmation before execution.

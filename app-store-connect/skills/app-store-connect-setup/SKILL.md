@@ -5,12 +5,19 @@ description: Connect or disconnect an App Store Connect API key, check the local
 
 # Connect App Store Connect
 
-Call `asc_connection_status` first. If it is not configured, call `asc_setup`. The tool opens a temporary local browser form. Use a team or individual key that has the Apple roles needed for the intended work. Team keys can cover every app in the team; individual keys follow the user's access and cannot access Sales or Finance reports.
+Resolve `<plugin-dir>` from this skill's installed location (two directories above this file). Run:
 
-An Account Holder must request App Store Connect API access. Generate and download the key in App Store Connect before importing it. See Apple's [API key instructions](https://developer.apple.com/help/app-store-connect/get-started/app-store-connect-api) and [JWT requirements](https://developer.apple.com/documentation/appstoreconnectapi/generating-tokens-for-api-requests).
+```sh
+python3 <plugin-dir>/scripts/manage.py status
+python3 <plugin-dir>/scripts/manage.py setup
+```
 
-In the local form, enter the Key ID, add the team Issuer ID only for a team key, and choose the `.p8` file downloaded from App Store Connect. The form sends the key material only to the loopback helper on this computer. The helper verifies it with a read request to Apple and stores it in Keychain, Windows Credential Manager, or Linux Secret Service. Setup fails if native secure storage is unavailable. The private key is never sent to chat or stored in the plugin directory.
+Run setup only when no key is configured or the user requests replacement. The first credential/API command installs a per-user Python runtime from the declared requirements. To repair it, run `python3 <plugin-dir>/scripts/manage.py install-runtime`.
 
-After setup, check status again. If the MCP server cannot start its runtime, run `python3 scripts/manage.py install-runtime` from the installed plugin directory, then reload the plugin. The first server start may also install its user-local Python runtime from the declared requirements.
+Setup opens a temporary loopback browser form and remains running until import succeeds or the form expires. The local link is printed to stderr; keep the command running while the person completes it. Check `status` after setup succeeds.
 
-To remove the saved local key, call `asc_forget_credentials` or run `python3 scripts/manage.py forget`. This removes only the local secret; it does not revoke the key in App Store Connect. To revoke a compromised key, use App Store Connect's Integrations page.
+Use a downloaded team or individual App Store Connect `.p8` key with the roles needed for the work. Enter the Key ID, team Issuer ID only for team keys, and choose the private-key file in the form. The form verifies access with a read request and stores credentials only in Keychain, Windows Credential Manager, or Linux Secret Service. Native storage must be available. Keep the private key out of chat, CLI arguments, and the plugin directory.
+
+An Account Holder must request API access. Generate the key in App Store Connect before importing it; see Apple's [API key instructions](https://developer.apple.com/help/app-store-connect/get-started/app-store-connect-api) and [JWT requirements](https://developer.apple.com/documentation/appstoreconnectapi/generating-tokens-for-api-requests). Team keys can cover all team apps; individual keys follow user access and cannot access Sales/Finance reports or provisioning endpoints.
+
+To disconnect, run `python3 <plugin-dir>/scripts/manage.py forget`. This removes the local credential only. Revocation happens in App Store Connect's Integrations page.

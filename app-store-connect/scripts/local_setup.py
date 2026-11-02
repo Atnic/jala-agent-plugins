@@ -188,7 +188,7 @@ def setup_server():
 
 def run_setup() -> dict:
     with setup_server() as server:
-        print("Local App Store Connect setup form: " + server.setup_url, flush=True)
+        print("Local App Store Connect setup form: " + server.setup_url, file=sys.stderr, flush=True)
         if not webbrowser.open(server.setup_url):
             raise ValueError("Could not open a browser. Open the local setup URL printed above, then retry setup.")
         while not server.completed and time.monotonic() < server.deadline:
@@ -196,24 +196,6 @@ def run_setup() -> dict:
         if not server.completed:
             raise ValueError("Setup expired without a verified API key. Run setup again.")
         return {"connected": True, "storage": "native", **server.connected_key}
-
-
-def start_background_setup() -> dict:
-    server = setup_server()
-    server.timeout = 0.5
-
-    def serve_until_done():
-        try:
-            while not server.completed and time.monotonic() < server.deadline:
-                server.handle_request()
-        finally:
-            server.server_close()
-
-    threading.Thread(target=serve_until_done, name="app-store-connect-setup", daemon=True).start()
-    if not webbrowser.open(server.setup_url):
-        server.server_close()
-        raise ValueError("Could not open a browser for setup. Run the app-store-connect-setup skill's local command instead.")
-    return {"started": True, "url": server.setup_url, "expiresInSeconds": 900, "storage": "OS secret store only"}
 
 
 def main() -> int:

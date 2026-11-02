@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""App Store Connect MCP server with one typed tool per published API operation."""
+"""App Store Connect REST client shared by the Python CLI."""
 
 from __future__ import annotations
 
-import base64
 import hashlib
 import hmac
 import http.client
@@ -14,7 +13,6 @@ import os
 from pathlib import Path
 import re
 import secrets
-import sys
 import ssl
 import tempfile
 import threading
@@ -25,21 +23,14 @@ import urllib.request
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from jsonschema import Draft202012Validator
-
 from asc_auth import make_jwt
-from local_setup import start_background_setup
-from runtime import StorageError, connection_status, forget_connection, load_connection
+from runtime import load_connection
 
 
 API_BASE = "https://api.appstoreconnect.apple.com"
-API_ORIGIN = urllib.parse.urlsplit(API_BASE).netloc
-API_VERSION = "0.1.0"
-TOOL_PAGE_SIZE = 200
 MAX_JSON_RESPONSE = 64 * 1024 * 1024
 MAX_BINARY_RESPONSE = 512 * 1024 * 1024
 APPROVAL_SECONDS = 300
-OPERATIONS_PATH = Path(__file__).parents[1] / "operations.json"
 UPLOAD_RESERVATIONS: dict[str, dict] = {}
 ANALYTICS_DOWNLOADS: dict[str, dict] = {}
 
@@ -49,128 +40,39 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
-def load_catalog() -> tuple[dict, dict[str, dict]]:
-    try:
-        catalog = json.loads(OPERATIONS_PATH.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        raise RuntimeError("The bundled Apple OpenAPI action catalog is missing or invalid. Reinstall the plugin.") from None
-    operations = catalog.get("operations")
-    if not isinstance(operations, list) or catalog.get("operationCount") != len(operations):
-        raise RuntimeError("The bundled Apple OpenAPI action catalog is incomplete. Reinstall the plugin.")
-    return catalog, {operation["name"]: operation for operation in operations}
-
-
-CATALOG, OPERATIONS = load_catalog()
-
-
-def _parameter_value(value, parameter: dict, location: str) -> str:
-    style = parameter.get("style") or ("simple" if location in {"path", "header"} else "form")
-    explode = parameter.get("explode")
-    if explode is None:
-        explode = style == "form"
-    if isinstance(value, list):
-        separator = {"spaceDelimited": " ", "pipeDelimited": "|", "label": "." if explode else ","}.get(style, ",")
-        rendered = separator.join(_scalar(item) for item in value)
-        if location == "path" and style == "label":
-            return "." + rendered
-        if location == "path" and style == "matrix":
-            name = urllib.parse.quote(parameter["name"], safe="-._~")
-            return "".join(f";{name}={urllib.parse.quote(_scalar(item), safe='-._~')}" for item in value) if explode else f";{name}={urllib.parse.quote(rendered, safe='-._~')}"
-        return rendered
-    if isinstance(value, dict):
-        if style == "deepObject":
-            return "&".join(
-                f"{urllib.parse.quote(parameter['name'], safe='-._~')}[{urllib.parse.quote(str(key), safe='-._~')}]={urllib.parse.quote(_scalar(item), safe='-._~')}"
-                for key, item in value.items()
-            )
-        if explode and style in {"form", "simple"}:
-            return ",".join(f"{key}={_scalar(item)}" for key, item in value.items())
-        return ",".join(part for key, item in value.items() for part in (str(key), _scalar(item)))
-    rendered = _scalar(value)
-    if location == "path":
-        if style == "label":
-            return "." + urllib.parse.quote(rendered, safe="-._~")
-        if style == "matrix":
-            name = urllib.parse.quote(parameter["name"], safe="-._~")
-            return f";{name}={urllib.parse.quote(rendered, safe='-._~')}"
-        return urllib.parse.quote(rendered, safe="-._~")
-    return rendered
-
-
-def _scalar(value) -> str:
-    if value is None:
-        return ""
-    if isinstance(value, bool):
-        return "true" if value else "false"
-    if isinstance(value, (str, int, float)):
-        return str(value)
-    return json.dumps(value, separators=(",", ":"), ensure_ascii=False)
-
-
-def build_url(operation: dict, arguments: dict) -> tuple[str, dict[str, str]]:
-    path_values = arguments.get("path", {})
-    endpoint = operation["path"]
-    parameters = operation["parameters"]
-    by_path_name = {p["name"]: p for p in parameters.get("path", [])}
-
-    def substitute(match):
-        name = match.group(1)
-        if name not in path_values:
-            raise ValueError(f"Missing path parameter: {name}")
-        parameter = by_path_name.get(name, {"name": name})
-        return _parameter_value(path_values[name], parameter, "path")
-
-    endpoint = re.sub(r"\{([^{}]+)\}", substitute, endpoint)
-    if "{" in endpoint or "}" in endpoint:
-        raise ValueError("The endpoint path could not be resolved from its required path parameters.")
-
-    query_values = arguments.get("query", {})
-    query_defs = {p["name"]: p for p in parameters.get("query", [])}
-    query_pairs = []
-    for name, value in query_values.items():
-        parameter = query_defs.get(name)
-        if parameter is None:
-            raise ValueError(f"Undocumented query parameter: {name}")
+def build_url(path: str, query: dict) -> str:
+    if not re.fullmatch(r"/v[0-9]+/[A-Za-z0-9_~.%/-]+", path):
+        raise ValueError("Use an API path such as /v1/apps; pass query parameters with --query.")
+    decoded = urllib.parse.unquote(path)
+    if any(part in {".", ".."} for part in decoded.split("/")) or "\\" in decoded:
+        raise ValueError("API paths cannot contain traversal segments.")
+    pairs = []
+    for key, value in query.items():
         if value is None:
             continue
-        style = parameter.get("style") or "form"
-        explode = parameter.get("explode")
-        if explode is None:
-            explode = style == "form"
-        if style == "deepObject" and isinstance(value, dict):
-            for key, item in value.items():
-                query_pairs.append((f"{name}[{key}]", _scalar(item)))
-        elif isinstance(value, list):
-            if explode:
-                query_pairs.extend((name, _scalar(item)) for item in value)
-            else:
-                delimiter = {"spaceDelimited": " ", "pipeDelimited": "|"}.get(style, ",")
-                query_pairs.append((name, delimiter.join(_scalar(item) for item in value)))
-        elif isinstance(value, dict):
-            if explode:
-                query_pairs.extend((str(key), _scalar(item)) for key, item in value.items())
-            else:
-                query_pairs.append((name, ",".join(part for key, item in value.items() for part in (str(key), _scalar(item)))))
-        else:
-            query_pairs.append((name, _scalar(value)))
-    query_string = urllib.parse.urlencode(query_pairs, doseq=False)
-    url = API_BASE + endpoint
-    if query_string:
-        url += "?" + query_string
+        values = value if isinstance(value, list) else [value]
+        if not all(isinstance(item, (str, int, float, bool)) for item in values):
+            raise ValueError("Query values must be scalars or arrays of scalars.")
+        pairs.append((key, ",".join(str(item).lower() if isinstance(item, bool) else str(item) for item in values)))
+    suffix = urllib.parse.urlencode(pairs)
+    return API_BASE + path + ("?" + suffix if suffix else "")
 
-    header_values = arguments.get("headers", {})
-    allowed_headers = {p["name"].casefold(): p for p in parameters.get("header", [])}
-    headers = {}
-    for name, value in header_values.items():
-        lowered = name.casefold()
-        if lowered not in allowed_headers:
-            raise ValueError(f"Undocumented header parameter: {name}")
-        if lowered in {"authorization", "host", "content-length", "connection"}:
-            raise ValueError(f"The {name} header is managed by the plugin and cannot be overridden.")
-        headers[name] = _parameter_value(value, allowed_headers[lowered], "header")
-    if urllib.parse.urlsplit(url).netloc != API_ORIGIN:
-        raise ValueError("The App Store Connect API host is fixed by the plugin.")
-    return url, headers
+
+def risk_for(method: str, path: str) -> str | None:
+    if method == "DELETE":
+        return "delete-or-revoke"
+    if method == "GET":
+        return None
+    text = path.casefold()
+    if re.search(r"revoke|revocation", text):
+        return "delete-or-revoke"
+    if re.search(r"submission|submit|release", text):
+        return "submission-or-release"
+    if re.search(r"price|pricing|availabilit|pre.?orders?|territory", text):
+        return "pricing-or-availability"
+    if re.search(r"/users?(?:/|$)|userinvitations|userroles|useraccess|userprovisioning|accesscontrol", text):
+        return "user-or-access"
+    return None
 
 
 def _redact(value):
@@ -187,7 +89,7 @@ def _redact(value):
 def request_approval(operation: dict, url: str, arguments: dict) -> bool:
     details = {
         "Action": operation["title"],
-        "API operation": operation["operationId"],
+        "API operation": operation["path"],
         "Request": f"{operation['method']} {urllib.parse.urlsplit(url).path}",
         "Query": arguments.get("query", {}),
         "Body": _redact(arguments.get("body")) if "body" in arguments else None,
@@ -388,7 +290,7 @@ def _hide_analytics_urls(value):
         result = {key: _hide_analytics_urls(child) for key, child in value.items()}
         attributes = result.get("attributes")
         if result.get("type") == "analyticsReportSegments" and isinstance(attributes, dict) and "url" in attributes:
-            attributes["url"] = "[stored locally for asc_download_analytics_segment; valid for about five minutes]"
+            attributes["url"] = "[hidden; use download-segment with this segment ID]"
         return result
     if isinstance(value, list):
         return [_hide_analytics_urls(child) for child in value]
@@ -452,7 +354,7 @@ def _upload_part(file_path: Path, upload: dict, index: int) -> None:
 def transfer_reserved_asset(asset_id: str, file_path_value: str) -> dict:
     reservation = UPLOAD_RESERVATIONS.get(asset_id)
     if reservation is None:
-        raise ValueError("No live upload reservation with that asset ID is in this MCP session. Create a new reservation and try again.")
+        raise ValueError("No live upload reservation with that asset ID is in this command. Create a new reservation and try again.")
     file_path = Path(file_path_value).expanduser()
     if not file_path.is_absolute() or not file_path.is_file():
         raise ValueError("filePath must be an absolute path to an existing local file.")
@@ -496,11 +398,6 @@ def transfer_reserved_asset(asset_id: str, file_path_value: str) -> dict:
             or not hmac.compare_digest(checksum, initial_checksum)):
         UPLOAD_RESERVATIONS.pop(asset_id, None)
         raise ValueError("The local file changed during upload. No commit checksum was returned; create a new reservation and upload the original file again.")
-    commit_path = f"/v1/{reservation['assetType']}/{{id}}"
-    commit_action = next((
-        operation["name"] for operation in CATALOG["operations"]
-        if operation["method"] == "PATCH" and operation["path"] == commit_path
-    ), None)
     result = {
         "uploaded": True,
         "assetType": reservation["assetType"],
@@ -509,8 +406,8 @@ def transfer_reserved_asset(asset_id: str, file_path_value: str) -> dict:
         "bytesUploaded": size,
         "partsUploaded": len(upload_operations),
         "sourceFileChecksum": checksum,
-        "commitAction": commit_action,
-        "nextStep": "Call the commitAction with Apple's uploaded=true and this sourceFileChecksum, then fetch the asset until its delivery state is COMPLETE.",
+        "commitPath": f"/v1/{reservation['assetType']}/{asset_id}",
+        "nextStep": "Use request PATCH on commitPath with Apple's uploaded=true and this sourceFileChecksum, then fetch the asset until its delivery state is COMPLETE.",
     }
     del UPLOAD_RESERVATIONS[asset_id]
     return result
@@ -525,7 +422,7 @@ def download_analytics_segment(segment_id: str, output_file: str | None) -> dict
     host_ok = bool(re.fullmatch(r"asp-[A-Za-z0-9-]+\.s3(?:[.-][A-Za-z0-9-]+)?\.amazonaws\.com", parsed.hostname or ""))
     if parsed.scheme != "https" or not host_ok or parsed.port not in {None, 443} or parsed.username or parsed.password:
         raise ValueError("Apple returned an unexpected analytics download host. No file was downloaded.")
-    request = urllib.request.Request(download["url"], headers={"Accept": "*/*", "User-Agent": "jala-app-store-connect-mcp/0.1.0"}, method="GET")
+    request = urllib.request.Request(download["url"], headers={"Accept": "*/*", "User-Agent": "jala-app-store-connect-cli/0.2.0"}, method="GET")
     try:
         with urllib.request.build_opener(NoRedirect).open(request, timeout=90) as response:
             default_filename = f"analytics-{re.sub(r'[^A-Za-z0-9._-]', '_', segment_id)}.csv.gz"
@@ -587,29 +484,30 @@ def api_error(error: urllib.error.HTTPError) -> dict:
     return {"status": error.code, "error": payload or {"message": "Apple returned a non-JSON error response."}}
 
 
-def call_operation(operation: dict, arguments: dict) -> dict:
-    errors = sorted(Draft202012Validator(operation["inputSchema"]).iter_errors(arguments), key=lambda item: list(map(str, item.absolute_path)))
-    if errors:
-        location = ".".join(str(part) for part in errors[0].absolute_path) or "input"
-        raise ValueError(f"Input does not match Apple's typed action schema at {location}. Check required values and documented types.")
-
-    url, parameter_headers = build_url(operation, arguments)
+def request(method: str, path: str, query: dict | None = None,
+            body: dict | None = None, output_file: str | None = None) -> dict:
+    if method not in {"GET", "POST", "PATCH", "PUT", "DELETE"}:
+        raise ValueError("Unsupported HTTP method.")
+    if method == "GET" and body is not None:
+        raise ValueError("GET requests cannot have a body.")
+    query = query or {}
+    url = build_url(path, query)
     connection = load_connection()
-    if operation["riskCategory"]:
-        if not request_approval(operation, url, arguments):
-            return {"cancelled": True, "message": "The high-impact App Store Connect request was cancelled or not approved. No request was sent."}
+    risk = risk_for(method, urllib.parse.unquote(path))
+    operation = {"title": f"{method} {path}", "method": method, "path": path, "riskCategory": risk}
+    if risk and not request_approval(operation, url, {"query": query, "body": body}):
+        return {"cancelled": True, "message": "The high-impact request was not approved. No request was sent."}
 
     request_headers = {
         "Authorization": f"Bearer {make_jwt(connection)}",
         "Accept": "application/json, application/vnd.api+json, application/octet-stream, application/gzip, application/a-gzip, application/zip",
-        "User-Agent": "jala-app-store-connect-mcp/0.1.0",
-        **parameter_headers,
+        "User-Agent": "jala-app-store-connect-cli/0.2.0",
     }
-    body = None
-    if operation.get("hasRequestBody"):
-        body = json.dumps(arguments.get("body"), ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    encoded_body = None
+    if body is not None:
+        encoded_body = json.dumps(body, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
         request_headers["Content-Type"] = "application/json"
-    request = urllib.request.Request(url, data=body, headers=request_headers, method=operation["method"])
+    request = urllib.request.Request(url, data=encoded_body, headers=request_headers, method=method)
     opener = urllib.request.build_opener(NoRedirect)
     try:
         with opener.open(request, timeout=90) as response:
@@ -618,11 +516,11 @@ def call_operation(operation: dict, arguments: dict) -> dict:
                 result = parse_json_response(response)
                 _capture_asset_reservations(result)
                 return _hide_analytics_urls(_hide_upload_urls(result))
-            if operation["method"] == "GET":
-                resource = re.sub(r"[^A-Za-z0-9._-]+", "_", operation["path"].rstrip("/").split("/")[-1])
+            if method == "GET":
+                resource = re.sub(r"[^A-Za-z0-9._-]+", "_", path.rstrip("/").split("/")[-1])
                 extension = ".gz" if "gzip" in content_type else ".zip" if "zip" in content_type else ".bin"
                 default_name = f"{resource}-{int(time.time())}{extension}"
-                return save_download(response, arguments.get("outputFile"), default_name)
+                return save_download(response, output_file, default_name)
             return parse_json_response(response)
     except urllib.error.HTTPError as error:
         return {"error": api_error(error)}
@@ -632,264 +530,3 @@ def call_operation(operation: dict, arguments: dict) -> dict:
         raise ValueError("The App Store Connect API request timed out. Writes are not retried; check the current state before trying again.") from None
     except OSError:
         raise ValueError("The local API operation or download failed. Writes are not retried; check the current state before trying again.") from None
-
-
-def _tool_descriptor(operation: dict) -> dict:
-    method = operation["method"]
-    return {
-        "name": operation["name"],
-        "title": operation["title"],
-        "description": operation["description"],
-        "inputSchema": operation["inputSchema"],
-        "annotations": {
-            "readOnlyHint": method == "GET",
-            "destructiveHint": method != "GET",
-            "idempotentHint": method in {"GET", "PUT"},
-            "openWorldHint": True,
-        },
-    }
-
-
-def _control_tools() -> list[dict]:
-    return [
-        {
-            "name": "asc_setup",
-            "title": "Connect App Store Connect",
-            "description": "Open a local browser form to import and verify a team or individual .p8 key. The key is saved only in the OS secret store.",
-            "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False},
-            "annotations": {"readOnlyHint": False, "destructiveHint": False, "openWorldHint": False},
-        },
-        {
-            "name": "asc_connection_status",
-            "title": "Check App Store Connect connection",
-            "description": "Check whether an API key is stored in the OS secret store. Shows only key type and Key ID, never the private key.",
-            "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False},
-            "annotations": {"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
-        },
-        {
-            "name": "asc_forget_credentials",
-            "title": "Remove saved App Store Connect credentials",
-            "description": "Remove the local API key from the OS secret store. This does not revoke the key in App Store Connect.",
-            "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False},
-            "annotations": {"readOnlyHint": False, "destructiveHint": True, "openWorldHint": False},
-        },
-        {
-            "name": "asc_find_actions",
-            "title": "Find App Store Connect API actions",
-            "description": "Search the bundled named and typed Apple API actions by resource, operation, endpoint, tag, or description. This only searches the action catalog and makes no API request.",
-            "inputSchema": {
-                "type": "object",
-                "properties": {
-                    "query": {"type": "string", "minLength": 1, "maxLength": 120},
-                    "limit": {"type": "integer", "minimum": 1, "maximum": 50, "default": 20},
-                },
-                "required": ["query"],
-                "additionalProperties": False,
-            },
-            "annotations": {"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
-        },
-        {
-            "name": "asc_transfer_reserved_asset",
-            "title": "Upload a reserved App Store Connect asset",
-            "description": "Upload a local image, video, or other file using the signed upload operations from a reservation created in this MCP process. The short-lived signed URLs remain in local memory and are never returned to the model or stored as credentials. Does not send the App Store Connect JWT to Apple's blob storage.",
-            "inputSchema": {
-                "type": "object",
-                "properties": {
-                    "assetId": {"type": "string", "minLength": 1, "maxLength": 128},
-                    "filePath": {"type": "string", "minLength": 1, "maxLength": 4096, "description": "Absolute path to the local file matching the reservation's filename and byte size."},
-                },
-                "required": ["assetId", "filePath"],
-                "additionalProperties": False,
-            },
-            "annotations": {"readOnlyHint": False, "destructiveHint": False, "openWorldHint": True},
-        },
-        {
-            "name": "asc_download_analytics_segment",
-            "title": "Download an App Store Connect analytics segment",
-            "description": "Download a report segment using a current signed URL cached from Apple's analyticsReportSegments response. The signed URL is held only in local memory, never shown to the model or stored, and the App Store Connect JWT is not sent to report storage. Verifies Apple's size and checksum when returned.",
-            "inputSchema": {
-                "type": "object",
-                "properties": {
-                    "segmentId": {"type": "string", "minLength": 1, "maxLength": 128},
-                    "outputFile": {"type": "string", "minLength": 1, "maxLength": 4096, "description": "Optional absolute destination. Existing files are never overwritten."},
-                },
-                "required": ["segmentId"],
-                "additionalProperties": False,
-            },
-            "annotations": {"readOnlyHint": True, "destructiveHint": False, "openWorldHint": True},
-        },
-    ]
-
-
-CONTROL_TOOLS = {tool["name"]: tool for tool in _control_tools()}
-
-
-def _text_result(value: dict, *, is_error: bool = False) -> dict:
-    return {
-        "isError": is_error,
-        "structuredContent": value,
-        "content": [{"type": "text", "text": json.dumps(value, ensure_ascii=False, indent=2)}],
-    }
-
-
-def call_tool(name: str, arguments: dict) -> dict:
-    _purge_ephemeral_urls()
-    if name in CONTROL_TOOLS:
-        if name == "asc_find_actions":
-            try:
-                Draft202012Validator(CONTROL_TOOLS[name]["inputSchema"]).validate(arguments)
-            except Exception:
-                return _text_result({"error": "Provide a search query and a result limit from 1 to 50."}, is_error=True)
-            query = arguments["query"].casefold()
-            limit = arguments.get("limit", 20)
-            matches = []
-            for operation in CATALOG["operations"]:
-                searchable = " ".join([
-                    operation["name"], operation["operationId"], operation["title"],
-                    operation["path"], " ".join(operation.get("tags", [])), operation["description"],
-                ]).casefold()
-                if query in searchable:
-                    matches.append({
-                        "tool": operation["name"],
-                        "operationId": operation["operationId"],
-                        "method": operation["method"],
-                        "path": operation["path"],
-                        "title": operation["title"],
-                        "riskCategory": operation["riskCategory"],
-                    })
-                    if len(matches) >= limit:
-                        break
-            return _text_result({"apiVersion": CATALOG["apiVersion"], "matches": matches, "truncated": len(matches) == limit})
-        if name == "asc_transfer_reserved_asset":
-            try:
-                Draft202012Validator(CONTROL_TOOLS[name]["inputSchema"]).validate(arguments)
-                return _text_result(transfer_reserved_asset(arguments["assetId"], arguments["filePath"]))
-            except (ValueError, OSError) as error:
-                return _text_result({"error": str(error)}, is_error=True)
-        if name == "asc_download_analytics_segment":
-            try:
-                Draft202012Validator(CONTROL_TOOLS[name]["inputSchema"]).validate(arguments)
-                return _text_result(download_analytics_segment(arguments["segmentId"], arguments.get("outputFile")))
-            except (ValueError, OSError) as error:
-                return _text_result({"error": str(error)}, is_error=True)
-        if arguments:
-            return _text_result({"error": "This control action takes no arguments."}, is_error=True)
-        if name == "asc_setup":
-            try:
-                return _text_result(start_background_setup())
-            except Exception as error:
-                message = str(error) if isinstance(error, (ValueError, StorageError)) else "Could not start local setup."
-                return _text_result({"error": message}, is_error=True)
-        if name == "asc_connection_status":
-            try:
-                return _text_result(connection_status())
-            except StorageError as error:
-                return _text_result({"error": str(error)}, is_error=True)
-        try:
-            return _text_result(forget_connection())
-        except StorageError as error:
-            return _text_result({"error": str(error)}, is_error=True)
-
-    operation = OPERATIONS.get(name)
-    if operation is None:
-        return _text_result({"error": f"Unknown App Store Connect action: {name}"}, is_error=True)
-    try:
-        result = call_operation(operation, arguments)
-        return _text_result(result, is_error="error" in result)
-    except (ValueError, StorageError) as error:
-        return _text_result({"error": str(error)}, is_error=True)
-    except Exception:
-        return _text_result({"error": "App Store Connect operation failed. No automatic retry was made; check the current state before repeating a write."}, is_error=True)
-
-
-def _cursor_offset(cursor: str | None) -> int:
-    if not cursor:
-        return 0
-    try:
-        if not isinstance(cursor, str) or len(cursor) > 128:
-            raise ValueError
-        padded = cursor + "=" * (-len(cursor) % 4)
-        decoded = base64.urlsafe_b64decode(padded.encode("ascii")).decode("ascii")
-        prefix, value = decoded.split(":", 1)
-        offset = int(value)
-        if prefix != "asc-tools-v1" or offset < 0:
-            raise ValueError
-        return offset
-    except (ValueError, UnicodeError, base64.binascii.Error):
-        raise ValueError("Invalid tools/list cursor.") from None
-
-
-def tools_list(params: dict) -> dict:
-    offset = _cursor_offset(params.get("cursor"))
-    all_tools = [*CONTROL_TOOLS.values(), *(_tool_descriptor(operation) for operation in CATALOG["operations"])]
-    page = all_tools[offset:offset + TOOL_PAGE_SIZE]
-    result = {"tools": page}
-    next_offset = offset + len(page)
-    if next_offset < len(all_tools):
-        result["nextCursor"] = base64.urlsafe_b64encode(f"asc-tools-v1:{next_offset}".encode()).decode("ascii").rstrip("=")
-    return result
-
-
-def handle(message: dict) -> dict | None:
-    method = message.get("method")
-    request_id = message.get("id")
-    params = message.get("params") or {}
-    if method == "notifications/initialized" or method == "notifications/cancelled":
-        return None
-    if method == "initialize":
-        return {
-            "jsonrpc": "2.0",
-            "id": request_id,
-            "result": {
-                "protocolVersion": params.get("protocolVersion", "2025-06-18"),
-                "capabilities": {"tools": {"listChanged": False}},
-                "serverInfo": {"name": "app-store-connect", "version": API_VERSION},
-                "instructions": (
-                    f"This server exposes {CATALOG['operationCount']} individually named, typed tools from Apple's App Store Connect API {CATALOG['apiVersion']}. "
-                    "Each action maps to one published OpenAPI operation; use its path/query/body schema. High-impact deletes/revocations, submission/release changes, pricing/availability changes, and user/access changes open a local approval page; the Apple request is sent only after a person approves it there. The API key role remains authoritative."
-                ),
-            },
-        }
-    if method == "ping":
-        return {"jsonrpc": "2.0", "id": request_id, "result": {}}
-    if method == "tools/list":
-        try:
-            return {"jsonrpc": "2.0", "id": request_id, "result": tools_list(params)}
-        except ValueError as error:
-            return {"jsonrpc": "2.0", "id": request_id, "error": {"code": -32602, "message": str(error)}}
-    if method == "tools/call":
-        name = params.get("name")
-        arguments = params.get("arguments") or {}
-        if not isinstance(name, str) or not isinstance(arguments, dict):
-            return {"jsonrpc": "2.0", "id": request_id, "error": {"code": -32602, "message": "tools/call requires a tool name and object arguments."}}
-        return {"jsonrpc": "2.0", "id": request_id, "result": call_tool(name, arguments)}
-    if request_id is None:
-        return None
-    return {"jsonrpc": "2.0", "id": request_id, "error": {"code": -32601, "message": f"Method not found: {method}"}}
-
-
-def main() -> int:
-    for line in sys.stdin:
-        message = None
-        try:
-            message = json.loads(line)
-            if not isinstance(message, dict) or message.get("jsonrpc") != "2.0":
-                response = {"jsonrpc": "2.0", "id": message.get("id") if isinstance(message, dict) else None, "error": {"code": -32600, "message": "Invalid JSON-RPC request."}}
-            else:
-                response = handle(message)
-            if response is not None:
-                sys.stdout.write(json.dumps(response, ensure_ascii=False, separators=(",", ":")) + "\n")
-                sys.stdout.flush()
-        except (json.JSONDecodeError, UnicodeError):
-            sys.stdout.write(json.dumps({"jsonrpc": "2.0", "id": None, "error": {"code": -32700, "message": "Parse error."}}) + "\n")
-            sys.stdout.flush()
-        except Exception:
-            request_id = message.get("id") if isinstance(message, dict) else None
-            response = {"jsonrpc": "2.0", "id": request_id, "error": {"code": -32603, "message": "Internal App Store Connect MCP error."}}
-            sys.stdout.write(json.dumps(response) + "\n")
-            sys.stdout.flush()
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())

@@ -36,9 +36,9 @@ and installation of the local unpublished package.
 
 ### `app-store-connect`
 
-Access every operation in Apple's published App Store Connect OpenAPI specification as its own named, typed MCP action, with guided workflows for reporting, reviews, TestFlight, metadata, and submissions. The plugin supports team and individual API keys, stores credentials only in the OS secret store, and requires local browser approval for high-impact production changes.
+Use agent instructions and a Python REST CLI for App Store Connect. The agent looks up current endpoint details in Apple's documentation. The plugin supports team and individual API keys, stores credentials only in the OS secret store, and requires local browser approval for high-impact production changes.
 
-See [`app-store-connect/README.md`](app-store-connect/README.md) for setup, key permissions, report downloads, and the generated action catalog.
+See [`app-store-connect/README.md`](app-store-connect/README.md) for setup, key permissions, report downloads, and CLI usage.
 
 ### `crisp-jala`
 
@@ -307,7 +307,6 @@ remain the same. The affected server identifiers are:
 
 | Previous server key | Current server key |
 | --- | --- |
-| `app-store-connect` | `app_store_connect` |
 | `figma-ui-mcp` | `figma_ui_mcp` |
 | `google-play-console` | `google_play_console` |
 | `mattermost-jala` | `mattermost_jala` |

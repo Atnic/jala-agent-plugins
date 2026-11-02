@@ -1,19 +1,23 @@
 {
   "name": "app-store-connect",
-  "version": "0.1.1",
-  "description": "Manage App Store Connect through individually named, typed actions for Apple's published API operations.",
-  "author": { "name": "JALA" },
+  "version": "0.2.0",
+  "description": "Use App Store Connect through agent documentation and an authenticated Python REST CLI.",
+  "author": {
+    "name": "JALA"
+  },
   "repository": "https://github.com/Atnic/jala-agent-plugins",
   "skills": "./skills/",
-  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "App Store Connect",
-    "shortDescription": "Manage App Store Connect with typed API actions.",
-    "longDescription": "Read reports and manage apps, metadata, TestFlight, reviews, subscriptions, provisioning, and other resources exposed by Apple's App Store Connect API. Every published OpenAPI operation has its own typed action; permissions come from the imported API key. High-impact changes require local browser approval.",
+    "shortDescription": "Manage App Store Connect with a Python CLI.",
+    "longDescription": "Find endpoint details in Apple's documentation and use a local Python CLI to read reports and manage App Store Connect resources. Credentials stay in the OS secret store; high-impact requests require local browser approval.",
     "developerName": "JALA",
     "websiteURL": "https://github.com/Atnic/jala-agent-plugins/tree/main/app-store-connect",
     "category": "Productivity",
-    "capabilities": ["Read", "Write"],
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
     "brandColor": "#1D1D1F",
     "logo": "./assets/app-store-connect-icon.png",
     "composerIcon": "./assets/app-store-connect-icon.png",

@@ -10,6 +10,7 @@ import sys
 import venv
 
 
+# Preserve the original runtime location for existing installations.
 APP_NAME = "app-store-connect-mcp"
 SERVICE = "tech.jala.app-store-connect"
 ACCOUNT = "api-key"
@@ -42,7 +43,7 @@ def _runtime_has_dependencies(python: Path) -> bool:
     if not python.is_file():
         return False
     result = subprocess.run(
-        [str(python), "-c", "import cryptography, jsonschema, keyring"],
+        [str(python), "-c", "import cryptography, keyring"],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         check=False,

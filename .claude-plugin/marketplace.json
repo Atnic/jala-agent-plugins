@@ -13,7 +13,7 @@
     {
       "name": "app-store-connect",
       "source": "./app-store-connect",
-      "description": "Manage App Store Connect through individually named, typed actions for Apple's published API operations."
+      "description": "Use App Store Connect through agent documentation and an authenticated Python REST CLI."
     },
     {
       "name": "crisp-jala",
