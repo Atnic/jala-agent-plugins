@@ -111,3 +111,14 @@ The action that applies a staged Play Console edit. It requires confirmation bef
 
 **Play Console high-impact write**:
 A direct operation that deletes a resource, changes user access or app signing, changes price or availability, refunds a purchase, or cancels a purchase or subscription. It requires confirmation before execution.
+
+## Metabase JALA
+
+**JALA Metabase instance**:
+The shared JALA Metabase deployment at `https://metabase.jala.tech`.
+
+**Metabase MCP connection**:
+An OAuth-authenticated client connection to the instance’s built-in MCP endpoint at `/api/metabase-mcp`. Tool calls run as the signed-in Metabase user and follow that user’s Metabase permissions and the instance’s MCP tool access settings.
+
+**Metabase content**:
+Saved questions, dashboards, and collections in Metabase.

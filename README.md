@@ -2,45 +2,23 @@
 
 A collection of portable Agent Plugins for JALA workflows.
 
-- [App Store Connect](app-store-connect/README.md)
-- [Google Play Console](google-play-console/README.md)
 - [9Router JALA](9router-jala/README.md)
+- [App Store Connect](app-store-connect/README.md)
 - [Crisp JALA](crisp-jala/README.md)
 - [Felix Agent](felix-agent/README.md)
 - [Figma UI](figma-ui/README.md)
 - [Gog](gog/README.md)
-- [Mattermost JALA](mattermost-jala/README.md)
+- [Google Play Console](google-play-console/README.md)
 - [Matt Pocock Skills: Engineering](mattpocock-skills-engineering/README.md)
 - [Matt Pocock Skills: Productivity](mattpocock-skills-productivity/README.md)
+- [Mattermost JALA](mattermost-jala/README.md)
+- [Metabase JALA](metabase-jala/README.md)
 - [Microsoft Office](microsoft-office-addin/README.md)
 - [Odoo JALA Web](odoo-jala-web/README.md)
 - [Odoo JALA XML-RPC](odoo-jala-xmlrpc/README.md)
+- [Scheduler](scheduler/README.md)
 
 ## Plugins
-
-### `app-store-connect`
-
-Access every operation in Apple's published App Store Connect OpenAPI specification as its own named, typed MCP action, with guided workflows for reporting, reviews, TestFlight, metadata, and submissions. The plugin supports team and individual API keys, stores credentials only in the OS secret store, and requires local browser approval for high-impact production changes.
-
-See [`app-store-connect/README.md`](app-store-connect/README.md) for setup, key permissions, report downloads, and the generated action catalog.
-
-### `google-play-console`
-
-Manage Play Console apps through one named, typed MCP action per published operation in Android Publisher v3 and Play Developer Reporting v1beta1/v1alpha1. The current catalog contains 195 actions. Use guided workflows for releases, listings, reviews, monetization, access, and analytics. The plugin supports Google user OAuth and optional service accounts, stores credentials only in the OS secret store, and marks edit commits and other high-impact writes for host approval.
-
-See [`google-play-console/README.md`](google-play-console/README.md) for setup, permissions, Codex approval configuration, and catalog updates.
-
-### `felix-agent`
-
-Set up and manage a local Felix Agent deployment, connections, and custom skills. Requires Git, Docker Compose v2, Python 3 for backups, and interactive setup. See [setup](felix-agent/README.md).
-
-### `scheduler`
-
-Schedule, list, edit, or stop a prompt in an existing ChatGPT/Codex desktop or
-Claude session. Desktop uses the available same-chat automation tool directly;
-Claude uses guarded hooks and a latest-only catch-up runner. No provider setup
-is required. Prerequisites and catch-up guarantees depend on the backend; see
-[setup and verified coverage](scheduler/README.md).
 
 ### `9router-jala`
 
@@ -56,6 +34,12 @@ The optional `9router-setup` skill also writes provider settings to Codex
 See [`9router-jala/README.md`](9router-jala/README.md) for setup, attribution,
 and installation of the local unpublished package.
 
+### `app-store-connect`
+
+Access every operation in Apple's published App Store Connect OpenAPI specification as its own named, typed MCP action, with guided workflows for reporting, reviews, TestFlight, metadata, and submissions. The plugin supports team and individual API keys, stores credentials only in the OS secret store, and requires local browser approval for high-impact production changes.
+
+See [`app-store-connect/README.md`](app-store-connect/README.md) for setup, key permissions, report downloads, and the generated action catalog.
+
 ### `crisp-jala`
 
 REST API skills for JALA Crisp conversations, messages, people profiles, visitors,
@@ -65,6 +49,10 @@ request, and saves it in the OS secret store. Requires Python 3.9+ and browser
 network inspection. Credentials load automatically for subsequent requests.
 
 See [`crisp-jala/README.md`](crisp-jala/README.md) for setup and local installation.
+
+### `felix-agent`
+
+Set up and manage a local Felix Agent deployment, connections, and custom skills. Requires Git, Docker Compose v2, Python 3 for backups, and interactive setup. See [setup](felix-agent/README.md).
 
 ### `figma-ui`
 
@@ -89,6 +77,12 @@ workflows. Accounts remain managed by `gog` locally; the plugin does not use
 MCP or Codex's Connected accounts UI.
 
 See [`gog/README.md`](gog/README.md) for setup and the skill inventory.
+
+### `google-play-console`
+
+Manage Play Console apps through one named, typed MCP action per published operation in Android Publisher v3 and Play Developer Reporting v1beta1/v1alpha1. The current catalog contains 195 actions. Use guided workflows for releases, listings, reviews, monetization, access, and analytics. The plugin supports Google user OAuth and optional service accounts, stores credentials only in the OS secret store, and marks edit commits and other high-impact writes for host approval.
+
+See [`google-play-console/README.md`](google-play-console/README.md) for setup, permissions, Codex approval configuration, and catalog updates.
 
 ### `mattermost-jala`
 
@@ -117,6 +111,17 @@ questionnaires, plain-language explanations, and agent-facing writing.
 
 See [`mattpocock-skills-productivity/README.md`](mattpocock-skills-productivity/README.md)
 for the included skills, upstream attribution, and installation.
+
+### `metabase-jala`
+
+Connect Codex and Claude Code to JALA’s shared Metabase instance through its
+built-in MCP server. OAuth calls run as the signed-in Metabase user and follow
+that account’s permissions. The plugin exposes content and query tools,
+including SQL where the account and database connection allow it; user, group,
+and permission administration are outside its scope.
+
+See [`metabase-jala/README.md`](metabase-jala/README.md) for installation,
+OAuth sign-in, and Metabase prerequisites.
 
 ### `microsoft-office-addin`
 
@@ -150,6 +155,14 @@ database defaults to `jala_production`. Saved connections load automatically; na
 See [`odoo-jala-xmlrpc/README.md`](odoo-jala-xmlrpc/README.md) for authentication,
 request examples, and installation.
 
+### `scheduler`
+
+Schedule, list, edit, or stop a prompt in an existing ChatGPT/Codex desktop or
+Claude session. Desktop uses the available same-chat automation tool directly;
+Claude uses guarded hooks and a latest-only catch-up runner. No provider setup
+is required. Prerequisites and catch-up guarantees depend on the backend; see
+[setup and verified coverage](scheduler/README.md).
+
 ## Install in Claude Code
 
 This repository also has a Claude Code marketplace at
@@ -157,17 +170,18 @@ This repository also has a Claude Code marketplace at
 
 ```bash
 claude plugin marketplace add Atnic/jala-agent-plugins
-claude plugin install felix-agent@jala-agent-plugins
-claude plugin install scheduler@jala-agent-plugins
 claude plugin install 9router-jala@jala-agent-plugins
 claude plugin install app-store-connect@jala-agent-plugins
-claude plugin install google-play-console@jala-agent-plugins
 claude plugin install crisp-jala@jala-agent-plugins
+claude plugin install felix-agent@jala-agent-plugins
 claude plugin install figma-ui@jala-agent-plugins
 claude plugin install gog@jala-agent-plugins
+claude plugin install google-play-console@jala-agent-plugins
 claude plugin install mattermost-jala@jala-agent-plugins
+claude plugin install metabase-jala@jala-agent-plugins
 claude plugin install odoo-jala-web@jala-agent-plugins
 claude plugin install odoo-jala-xmlrpc@jala-agent-plugins
+claude plugin install scheduler@jala-agent-plugins
 ```
 
 For a local checkout, use `claude plugin marketplace add /absolute/path/to/jala-agent-plugins`
@@ -209,20 +223,21 @@ codex plugin list --marketplace jala-agent-plugins --available --json
 Install the plugins you want; each command below installs one plugin:
 
 ```bash
-codex plugin add felix-agent@jala-agent-plugins
-codex plugin add scheduler@jala-agent-plugins
 codex plugin add 9router-jala@jala-agent-plugins
 codex plugin add app-store-connect@jala-agent-plugins
-codex plugin add google-play-console@jala-agent-plugins
 codex plugin add crisp-jala@jala-agent-plugins
+codex plugin add felix-agent@jala-agent-plugins
 codex plugin add figma-ui@jala-agent-plugins
 codex plugin add gog@jala-agent-plugins
+codex plugin add google-play-console@jala-agent-plugins
 codex plugin add mattermost-jala@jala-agent-plugins
 codex plugin add mattpocock-skills-engineering@jala-agent-plugins
 codex plugin add mattpocock-skills-productivity@jala-agent-plugins
+codex plugin add metabase-jala@jala-agent-plugins
 codex plugin add microsoft-office-addin@jala-agent-plugins
 codex plugin add odoo-jala-web@jala-agent-plugins
 codex plugin add odoo-jala-xmlrpc@jala-agent-plugins
+codex plugin add scheduler@jala-agent-plugins
 ```
 
 The repository URL must point to the repository itself. Do not use a GitHub
@@ -264,20 +279,21 @@ Complete the selected plugin's requirements:
 
 | Plugin | Requirements |
 | --- | --- |
-| `app-store-connect` | Python 3.9+, `pip` and network access for the first runtime install, App Store Connect API access and a team or individual `.p8` key, plus Keychain, Windows Credential Manager, or Linux Secret Service; see [setup](app-store-connect/README.md). |
-| `google-play-console` | Python 3.9+, `pip` and network access for the first runtime install, a Google Cloud Desktop OAuth client JSON file or optional service-account JSON, Play Console API permissions, and Keychain, Windows Credential Manager, or Linux Secret Service; see [setup](google-play-console/README.md). |
-| `felix-agent` | Docker Engine or Desktop with Compose v2, Git, Python 3 for backups, and interactive Felix setup. See [setup](felix-agent/README.md). |
-| `scheduler` | Desktop: same-chat automation tool. Claude: native CLI/CronCreate, Python 3.11+ runtime and live hooks. See [backend requirements](scheduler/README.md). |
 | `9router-jala` | Python 3.9+, `keyring`, and a per-user API key; native saved-key support on macOS/Windows/Linux; see [setup](9router-jala/README.md). |
+| `app-store-connect` | Python 3.9+, `pip` and network access for the first runtime install, App Store Connect API access and a team or individual `.p8` key, plus Keychain, Windows Credential Manager, or Linux Secret Service; see [setup](app-store-connect/README.md). |
 | `crisp-jala` | Python 3.9+, native OS secret store, and browser network inspection for login-session capture; see [setup](crisp-jala/README.md). |
+| `felix-agent` | Docker Engine or Desktop with Compose v2, Git, Python 3 for backups, and interactive Felix setup. See [setup](felix-agent/README.md). |
 | `figma-ui` | Figma Desktop and the local bridge; see [setup](figma-ui/README.md). |
 | `gog` | Local `gog` CLI and Google account authorization; see [setup](gog/README.md). |
+| `google-play-console` | Python 3.9+, `pip` and network access for the first runtime install, a Google Cloud Desktop OAuth client JSON file or optional service-account JSON, Play Console API permissions, and Keychain, Windows Credential Manager, or Linux Secret Service; see [setup](google-play-console/README.md). |
 | `mattermost-jala` | Mattermost OAuth sign-in and server prerequisites; see [setup](mattermost-jala/README.md). |
 | `mattpocock-skills-engineering` | Set up the target repository and issue tracker; see the [skill inventory and setup](mattpocock-skills-engineering/README.md). |
 | `mattpocock-skills-productivity` | See the [skill inventory and usage](mattpocock-skills-productivity/README.md). |
+| `metabase-jala` | Network access, a Metabase MCP-enabled JALA instance, and per-user Metabase OAuth sign-in; see [setup](metabase-jala/README.md). |
 | `microsoft-office-addin` | Local Codex session and Node.js 20.19.0+; ask Codex to set up the localhost certificate and Office add-in pane on macOS, Windows, or Office on the web on Linux. See [setup](microsoft-office-addin/README.md). |
 | `odoo-jala-web` | An available browser capability and Odoo sign-in; see [setup](odoo-jala-web/README.md). The plugin does not install Browser itself. |
 | `odoo-jala-xmlrpc` | Python 3.9+, shell execution, and a connection saved through its local setup page; native credential storage uses `keyring`, with private-file fallback. See [setup](odoo-jala-xmlrpc/README.md). No MCP server. |
+| `scheduler` | Desktop: same-chat automation tool. Claude: native CLI/CronCreate, Python 3.11+ runtime and live hooks. See [backend requirements](scheduler/README.md). |
 
 For Odoo JALA Web, start with “Learn this workflow” or invoke
 `$odoo-jala-web-learn-workflow`. Generated personal skills are stored separately
@@ -324,17 +340,19 @@ skills or MCP configuration.
 jala-agent-plugins/
 ├── .agents/plugins/marketplace.json
 ├── .claude-plugin/marketplace.json
-├── app-store-connect/
-├── google-play-console/
 ├── 9router-jala/
+├── app-store-connect/
 ├── crisp-jala/
 ├── felix-agent/
 ├── figma-ui/
 ├── gog/
+├── google-play-console/
 ├── mattermost-jala/
 ├── mattpocock-skills-engineering/
 ├── mattpocock-skills-productivity/
-├── scheduler/
+├── metabase-jala/
+├── microsoft-office-addin/
 ├── odoo-jala-web/
-└── odoo-jala-xmlrpc/
+├── odoo-jala-xmlrpc/
+└── scheduler/
 ```

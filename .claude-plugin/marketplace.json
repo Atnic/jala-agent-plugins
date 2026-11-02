@@ -16,14 +16,14 @@
       "description": "Manage App Store Connect through individually named, typed actions for Apple's published API operations."
     },
     {
-      "name": "google-play-console",
-      "source": "./google-play-console",
-      "description": "Manage Google Play Console through typed Android Publisher and Play Developer Reporting API actions."
-    },
-    {
       "name": "crisp-jala",
       "source": "./crisp-jala",
       "description": "Operate JALA Crisp conversations, messages, people profiles, and workspace data through REST API skills."
+    },
+    {
+      "name": "felix-agent",
+      "source": "./felix-agent",
+      "description": "Set up, manage, troubleshoot, and configure a local Felix Agent deployment and its custom skills."
     },
     {
       "name": "figma-ui",
@@ -36,9 +36,19 @@
       "description": "Search and manage Gmail, Calendar, Drive, Docs, Sheets, and more."
     },
     {
+      "name": "google-play-console",
+      "source": "./google-play-console",
+      "description": "Manage Google Play Console through typed Android Publisher and Play Developer Reporting API actions."
+    },
+    {
       "name": "mattermost-jala",
       "source": "./mattermost-jala",
       "description": "Search Mattermost, read channel threads, create channels, and post in JALA."
+    },
+    {
+      "name": "metabase-jala",
+      "source": "./metabase-jala",
+      "description": "Connect to JALA Metabase for permission-scoped content and query workflows."
     },
     {
       "name": "odoo-jala-web",
@@ -54,11 +64,6 @@
       "name": "scheduler",
       "source": "./scheduler",
       "description": "Schedule prompts in existing ChatGPT/Codex desktop and Claude sessions with capability-aware setup."
-    },
-    {
-      "name": "felix-agent",
-      "source": "./felix-agent",
-      "description": "Set up, manage, troubleshoot, and configure a local Felix Agent deployment and its custom skills."
     }
   ]
 }

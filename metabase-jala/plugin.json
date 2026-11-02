@@ -1,0 +1,29 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "metabase-jala",
+  "version": "0.1.0",
+  "description": "Connect Codex and Claude Code to JALA's shared Metabase instance through its built-in MCP server.",
+  "author": { "name": "JALA" },
+  "repository": "https://github.com/Atnic/jala-agent-plugins",
+  "keywords": ["metabase", "analytics", "business-intelligence", "mcp"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Metabase JALA",
+        "shortDescription": "Use JALA Metabase content and query tools.",
+        "longDescription": "Connect to JALA's shared Metabase instance through its built-in MCP server. OAuth calls run as the signed-in Metabase user and follow that user's permissions and the instance's MCP tool access settings. The plugin supports saved content and queries, including SQL where authorized; SQL may overwrite or delete data or content if the database role permits it. User, group, membership, and permission administration are outside its supported scope.",
+        "developerName": "JALA",
+        "websiteURL": "https://github.com/Atnic/jala-agent-plugins/tree/main/metabase-jala",
+        "category": "Productivity",
+        "capabilities": ["Read", "Write"],
+        "brandColor": "#509EE3",
+        "brandColorDark": "#509EE3",
+        "composerIcon": "./assets/metabase-jala-icon.svg",
+        "composerIconDark": "./assets/metabase-jala-icon-dark.svg",
+        "logo": "./assets/metabase-jala-icon.svg",
+        "logoDark": "./assets/metabase-jala-icon-dark.svg",
+        "defaultPrompt": "Use JALA Metabase to work with dashboards, questions, collections, and authorized queries."
+      }
+    }
+  }
+}
