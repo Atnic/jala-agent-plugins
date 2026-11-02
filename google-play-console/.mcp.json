@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "google-play-console": {
+    "google_play_console": {
       "type": "stdio",
       "command": "python3",
       "args": ["${PLUGIN_ROOT}/scripts/entrypoint.py"],

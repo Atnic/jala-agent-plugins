@@ -5,7 +5,7 @@ Connect Codex and Claude Code to the shared JALA Metabase instance at
 This connection-only package uses the built-in server and ships without
 additional JALA workflow instructions.
 
-**Version:** `0.1.1`
+**Version:** `0.1.2`
 
 ## What it can do
 
@@ -70,7 +70,7 @@ Metabase evaluates their permissions on tool calls.
 
 ## Verify the connection
 
-- In Claude Code, run `/mcp` and check that `metabase-jala` is connected.
+- In Claude Code, run `/mcp` and check that `metabase_jala` is connected.
 - In Codex, restart the app or start a new task after installation, then ask it
   to find a question or list accessible dashboards.
 - If the server connects but a tool is missing, ask the Metabase administrator

@@ -1,6 +1,6 @@
 {
   "name": "app-store-connect",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Manage App Store Connect through individually named, typed actions for Apple's published API operations.",
   "author": { "name": "JALA" },
   "repository": "https://github.com/Atnic/jala-agent-plugins",

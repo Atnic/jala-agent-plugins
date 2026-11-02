@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "metabase-jala": {
+    "metabase_jala": {
       "type": "http",
       "url": "https://metabase.jala.tech/api/metabase-mcp"
     }

@@ -25,7 +25,7 @@ def write_codex_approvals(catalog: dict) -> None:
     ]
     for name in high_impact:
         lines.extend([
-            f'[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."{name}"]',
+            f'[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."{name}"]',
             'approval_mode = "prompt"',
             "",
         ])

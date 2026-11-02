@@ -1,6 +1,6 @@
 {
   "name": "google-play-console",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Manage Google Play Console with named, typed API actions and guided workflows.",
   "author": { "name": "JALA" },
   "repository": "https://github.com/Atnic/jala-agent-plugins",

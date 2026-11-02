@@ -1,6 +1,6 @@
 {
   "name": "google-play-console",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "displayName": "Google Play Console",
   "description": "Manage Google Play Console through named, typed API actions and guided workflows.",
   "author": { "name": "JALA" },

@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "app-store-connect",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Manage App Store Connect through individually named, typed actions for every operation in Apple's published OpenAPI specification.",
   "author": {
     "name": "JALA"

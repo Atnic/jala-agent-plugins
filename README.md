@@ -302,6 +302,28 @@ available, with an export fallback otherwise.
 
 ### Update a plugin
 
+MCP server identifiers now use underscores. Plugin installation identifiers
+remain the same. The affected server identifiers are:
+
+| Previous server key | Current server key |
+| --- | --- |
+| `app-store-connect` | `app_store_connect` |
+| `figma-ui-mcp` | `figma_ui_mcp` |
+| `google-play-console` | `google_play_console` |
+| `mattermost-jala` | `mattermost_jala` |
+| `metabase-jala` | `metabase_jala` |
+| `microsoft-office-addin` | `microsoft_office_addin` |
+
+After updating or reinstalling an affected plugin, restart the host and start
+a fresh session to check tool availability. Update any server-specific config
+to use the new key, including Google Play's
+[per-tool approval entries](google-play-console/codex-high-impact-approvals.toml).
+Mattermost and Metabase OAuth connections are managed by the host; sign in
+again if prompted after the key change. App Store Connect and Google Play use
+their existing plugin-managed native credential stores, whose identifiers
+are unchanged. Tool availability after this rename still needs runtime
+verification in the host.
+
 For a GitHub marketplace, fetch its latest snapshot and reinstall the plugin:
 
 ```bash

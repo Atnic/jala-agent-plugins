@@ -1,6 +1,6 @@
 {
   "name": "metabase-jala",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Connect to JALA's shared Metabase instance through its built-in MCP server.",
   "author": { "name": "JALA" },
   "repository": "https://github.com/Atnic/jala-agent-plugins",

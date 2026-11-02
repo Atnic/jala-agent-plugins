@@ -1,167 +1,167 @@
 # Copy these tool entries into your Codex config.toml to require a prompt.
 # Refresh this file when operations.json is regenerated.
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_apprecovery_cancel"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_apprecovery_cancel"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_apprecovery_deploy"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_apprecovery_deploy"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_appsigning_enroll_app"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_appsigning_enroll_app"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_appsigning_rotate_app_signing_key"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_appsigning_rotate_app_signing_key"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_appstoreappsreview_updateappsto_67f2998b"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_appstoreappsreview_updateappsto_67f2998b"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_edits_commit"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_edits_commit"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_edits_delete"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_edits_delete"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_edits_images_delete"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_edits_images_delete"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_edits_images_deleteall"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_edits_images_deleteall"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_edits_listings_delete"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_edits_listings_delete"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_edits_listings_deleteall"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_edits_listings_deleteall"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_externaltransactions_createexte_2fe1da25"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_externaltransactions_createexte_2fe1da25"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_externaltransactions_refundexte_f8821801"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_externaltransactions_refundexte_f8821801"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_grants_create"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_grants_create"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_grants_delete"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_grants_delete"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_grants_patch"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_grants_patch"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_inappproducts_batch_delete"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_inappproducts_batch_delete"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_inappproducts_batch_update"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_inappproducts_batch_update"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_inappproducts_delete"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_inappproducts_delete"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_inappproducts_insert"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_inappproducts_insert"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_inappproducts_patch"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_inappproducts_patch"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_inappproducts_update"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_inappproducts_update"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_ba_940d6c61"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_ba_940d6c61"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_ba_d3e05b14"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_ba_d3e05b14"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_delete"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_delete"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_patch"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_patch"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_pu_114f02d6"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_pu_114f02d6"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_pu_1ae52681"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_pu_1ae52681"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_pu_58f39f39"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_pu_58f39f39"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_pu_5af77cea"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_pu_5af77cea"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_pu_a0b5ba38"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_pu_a0b5ba38"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_pu_ae55c2dd"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_pu_ae55c2dd"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_pu_db0ed224"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_onetimeproducts_pu_db0ed224"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_1c8225b1"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_1c8225b1"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_2c80212f"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_2c80212f"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_2cddfc2b"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_2cddfc2b"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_5575b10b"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_5575b10b"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_6af9e609"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_6af9e609"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_729ee368"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_729ee368"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_bcb3cd96"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_bcb3cd96"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_cb90ff3b"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_cb90ff3b"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_e0824adc"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_e0824adc"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_fecc1b56"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_subscriptions_base_fecc1b56"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_subscriptions_batch_update"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_subscriptions_batch_update"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_subscriptions_create"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_subscriptions_create"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_subscriptions_delete"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_subscriptions_delete"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_monetization_subscriptions_patch"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_monetization_subscriptions_patch"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_orders_refund"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_orders_refund"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_orders_reviewrefund"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_orders_reviewrefund"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_purchases_subscriptions_cancel"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_purchases_subscriptions_cancel"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_purchases_subscriptionsv2_cancel"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_purchases_subscriptionsv2_cancel"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_purchases_subscriptionsv2_revoke"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_purchases_subscriptionsv2_revoke"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_users_create"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_users_create"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_users_delete"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_users_delete"]
 approval_mode = "prompt"
 
-[plugins."google-play-console@jala-agent-plugins".mcp_servers.google-play-console.tools."gpc_androidpublisher_v3_users_patch"]
+[plugins."google-play-console@jala-agent-plugins".mcp_servers.google_play_console.tools."gpc_androidpublisher_v3_users_patch"]
 approval_mode = "prompt"
