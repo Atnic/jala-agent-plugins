@@ -3,6 +3,7 @@
 A collection of portable Agent Plugins for JALA workflows.
 
 - [App Store Connect](app-store-connect/README.md)
+- [Google Play Console](google-play-console/README.md)
 - [9Router JALA](9router-jala/README.md)
 - [Crisp JALA](crisp-jala/README.md)
 - [Felix Agent](felix-agent/README.md)
@@ -22,6 +23,12 @@ A collection of portable Agent Plugins for JALA workflows.
 Access every operation in Apple's published App Store Connect OpenAPI specification as its own named, typed MCP action, with guided workflows for reporting, reviews, TestFlight, metadata, and submissions. The plugin supports team and individual API keys, stores credentials only in the OS secret store, and requires local browser approval for high-impact production changes.
 
 See [`app-store-connect/README.md`](app-store-connect/README.md) for setup, key permissions, report downloads, and the generated action catalog.
+
+### `google-play-console`
+
+Manage Play Console apps through one named, typed MCP action per published operation in Android Publisher v3 and Play Developer Reporting v1beta1/v1alpha1. The current catalog contains 195 actions. Use guided workflows for releases, listings, reviews, monetization, access, and analytics. The plugin supports Google user OAuth and optional service accounts, stores credentials only in the OS secret store, and marks edit commits and other high-impact writes for host approval.
+
+See [`google-play-console/README.md`](google-play-console/README.md) for setup, permissions, Codex approval configuration, and catalog updates.
 
 ### `felix-agent`
 
@@ -154,6 +161,7 @@ claude plugin install felix-agent@jala-agent-plugins
 claude plugin install scheduler@jala-agent-plugins
 claude plugin install 9router-jala@jala-agent-plugins
 claude plugin install app-store-connect@jala-agent-plugins
+claude plugin install google-play-console@jala-agent-plugins
 claude plugin install crisp-jala@jala-agent-plugins
 claude plugin install figma-ui@jala-agent-plugins
 claude plugin install gog@jala-agent-plugins
@@ -205,6 +213,7 @@ codex plugin add felix-agent@jala-agent-plugins
 codex plugin add scheduler@jala-agent-plugins
 codex plugin add 9router-jala@jala-agent-plugins
 codex plugin add app-store-connect@jala-agent-plugins
+codex plugin add google-play-console@jala-agent-plugins
 codex plugin add crisp-jala@jala-agent-plugins
 codex plugin add figma-ui@jala-agent-plugins
 codex plugin add gog@jala-agent-plugins
@@ -256,6 +265,7 @@ Complete the selected plugin's requirements:
 | Plugin | Requirements |
 | --- | --- |
 | `app-store-connect` | Python 3.9+, `pip` and network access for the first runtime install, App Store Connect API access and a team or individual `.p8` key, plus Keychain, Windows Credential Manager, or Linux Secret Service; see [setup](app-store-connect/README.md). |
+| `google-play-console` | Python 3.9+, `pip` and network access for the first runtime install, a Google Cloud Desktop OAuth client JSON file or optional service-account JSON, Play Console API permissions, and Keychain, Windows Credential Manager, or Linux Secret Service; see [setup](google-play-console/README.md). |
 | `felix-agent` | Docker Engine or Desktop with Compose v2, Git, Python 3 for backups, and interactive Felix setup. See [setup](felix-agent/README.md). |
 | `scheduler` | Desktop: same-chat automation tool. Claude: native CLI/CronCreate, Python 3.11+ runtime and live hooks. See [backend requirements](scheduler/README.md). |
 | `9router-jala` | Python 3.9+, `keyring`, and a per-user API key; native saved-key support on macOS/Windows/Linux; see [setup](9router-jala/README.md). |
@@ -315,6 +325,7 @@ jala-agent-plugins/
 ├── .agents/plugins/marketplace.json
 ├── .claude-plugin/marketplace.json
 ├── app-store-connect/
+├── google-play-console/
 ├── 9router-jala/
 ├── crisp-jala/
 ├── felix-agent/

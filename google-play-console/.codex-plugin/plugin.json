@@ -1,0 +1,22 @@
+{
+  "name": "google-play-console",
+  "version": "0.1.0",
+  "description": "Manage Google Play Console with named, typed API actions and guided workflows.",
+  "author": { "name": "JALA" },
+  "repository": "https://github.com/Atnic/jala-agent-plugins",
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Google Play Console",
+    "shortDescription": "Manage Play apps, releases, and analytics.",
+    "longDescription": "Access every published Android Publisher v3 and Play Developer Reporting v1beta1/v1alpha1 API operation as a typed MCP action. High-impact writes require per-tool approval configuration in Codex.",
+    "developerName": "JALA",
+    "websiteURL": "https://github.com/Atnic/jala-agent-plugins/tree/main/google-play-console",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "brandColor": "#1A73E8",
+    "logo": "./assets/google-play-console-icon.png",
+    "composerIcon": "./assets/google-play-console-icon.png",
+    "defaultPrompt": "Use Google Play Console to manage my apps and analytics."
+  }
+}

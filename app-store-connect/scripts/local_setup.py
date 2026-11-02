@@ -90,7 +90,11 @@ def validate_payload(payload) -> dict:
 def setup_server():
     session = secrets.token_urlsafe(32)
     nonce = secrets.token_urlsafe(20)
-    html = FORM_PATH.read_text(encoding="utf-8").replace("__NONCE__", nonce).encode("utf-8")
+    html = (
+        FORM_PATH.read_text(encoding="utf-8")
+        .replace("__NONCE__", nonce)
+        .encode("utf-8")
+    )
     lock = threading.Lock()
 
     class Handler(BaseHTTPRequestHandler):
@@ -132,7 +136,7 @@ def setup_server():
             self.send_header("Cache-Control", "no-store")
             self.send_header("Referrer-Policy", "no-referrer")
             self.send_header("X-Content-Type-Options", "nosniff")
-            self.send_header("Content-Security-Policy", f"default-src 'none'; script-src 'nonce-{nonce}'; style-src 'unsafe-inline'; connect-src 'self'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'")
+            self.send_header("Content-Security-Policy", f"default-src 'none'; script-src 'nonce-{nonce}'; style-src 'unsafe-inline'; img-src data:; connect-src 'self'; form-action 'none'; frame-ancestors 'none'; base-uri 'none'")
             self.end_headers()
             self.wfile.write(html)
 

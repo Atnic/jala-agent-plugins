@@ -29,6 +29,18 @@
       "category": "Productivity"
     },
     {
+      "name": "google-play-console",
+      "source": {
+        "source": "local",
+        "path": "./google-play-console"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
       "name": "crisp-jala",
       "source": {
         "source": "local",

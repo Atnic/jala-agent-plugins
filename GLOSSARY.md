@@ -85,3 +85,29 @@ An operation-specific typed MCP tool generated from one operation in Apple's pub
 
 **High-impact write**:
 An App Store Connect API operation that deletes or revokes a resource, changes submission or release state, changes pricing or availability, or changes user access. It requires confirmation before execution.
+
+## Google Play Console
+
+**Play Console developer API**:
+An official Google API for managing apps and related data in a Play developer account.
+
+**Play Console API action**:
+An operation-specific typed tool corresponding to one operation in an official Play Console developer API.
+
+**Play Console user**:
+A Google Account user with access to a Play developer account; API actions inherit that user's Play Console permissions.
+
+**Play Console service account**:
+A Google Cloud service identity added to a Play developer account and granted Play Console permissions.
+
+**Play Console account profile**:
+A named connection between an authorization identity and a Play developer account. The identity can be a Play Console user or service account.
+
+**Play Console edit**:
+A group of app changes staged for a Play developer account; the changes take effect when the edit is committed.
+
+**Play Console edit commit**:
+The action that applies a staged Play Console edit. It requires confirmation before execution.
+
+**Play Console high-impact write**:
+A direct operation that deletes a resource, changes user access or app signing, changes price or availability, refunds a purchase, or cancels a purchase or subscription. It requires confirmation before execution.
