@@ -1,8 +1,8 @@
 {
   "name": "app-store-connect",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "displayName": "App Store Connect",
-  "description": "Use App Store Connect through agent documentation and an authenticated Python REST CLI.",
+  "description": "Manage App Store Connect reports and apps, and read verified purchase/refund evidence through a separate App Store Server API connection.",
   "author": {
     "name": "JALA"
   },

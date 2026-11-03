@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "app-store-connect",
-  "version": "0.2.0",
-  "description": "Use App Store Connect through agent documentation and an authenticated Python REST CLI.",
+  "version": "0.3.0",
+  "description": "Manage App Store Connect reports and apps, and read verified purchase/refund evidence through a separate App Store Server API connection.",
   "author": {
     "name": "JALA"
   },
@@ -20,7 +20,7 @@
       "interface": {
         "displayName": "App Store Connect",
         "shortDescription": "Manage App Store Connect with a Python CLI.",
-        "longDescription": "Find endpoint details in Apple's documentation and use a local Python CLI to read reports and manage App Store Connect resources. Credentials stay in the OS secret store; high-impact requests require local browser approval.",
+        "longDescription": "Use a local Python CLI for App Store Connect reports and app management, plus separately authenticated, read-only App Store Server API transactions and refunds. Credentials stay in the OS secret store; signed purchase evidence is verified before export.",
         "developerName": "JALA",
         "websiteURL": "https://github.com/Atnic/jala-agent-plugins/tree/main/app-store-connect",
         "category": "Productivity",

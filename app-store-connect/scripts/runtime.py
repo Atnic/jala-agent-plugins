@@ -43,7 +43,7 @@ def _runtime_has_dependencies(python: Path) -> bool:
     if not python.is_file():
         return False
     result = subprocess.run(
-        [str(python), "-c", "import cryptography, keyring"],
+        [str(python), "-c", "import cryptography, keyring, appstoreserverlibrary; from importlib.metadata import version; assert (3, 1, 2) <= tuple(map(int, version('app-store-server-library').split('.'))) < (4,)"],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         check=False,
@@ -99,9 +99,9 @@ def _native_keyring():
         raise StorageError("The OS secret store is unavailable or locked. Unlock it, then retry.") from None
 
 
-def _store_call(store, method: str, *args):
+def _store_call(store, method: str, *args, service=SERVICE, account=ACCOUNT):
     try:
-        return getattr(store, method)(SERVICE, ACCOUNT, *args)
+        return getattr(store, method)(service, account, *args)
     except Exception:
         raise StorageError("Cannot access the OS secret store. Unlock it or allow access, then retry.") from None
 

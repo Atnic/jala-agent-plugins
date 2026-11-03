@@ -71,6 +71,15 @@ A separately authored skill added to a Felix installation.
 
 ## App Store Connect
 
+**In-App Purchase key**:
+A key pair issued for App Store Server API access, paired with its own Key ID and Issuer ID. It is distinct from a reporting API connection.
+
+**Server API profile**:
+A named connection for an app's individual purchase and refund evidence, identified by its bundle ID and Apple app ID.
+
+**Verified transaction**:
+An Apple-signed transaction whose signature, certificate trust, bundle ID, and environment have been checked.
+
 **App Store Connect API key**:
 A key pair issued by App Store Connect to authorize REST API requests. The key type and assigned role determine which API resources and actions it can access.
 

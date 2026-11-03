@@ -1,9 +1,11 @@
 ---
 name: app-store-connect
-description: Use App Store Connect for reports or to manage apps, metadata, reviews, TestFlight, subscriptions, provisioning, users, or other resources exposed by Apple's REST API.
+description: Use App Store Connect for sales reports and app management, or route individual purchase and refund investigations to the App Store Server API skills.
 ---
 
 # App Store Connect
+
+For individual purchase transactions, revocation/refund dates, or server notification history, use [app-store-server-api](../app-store-server-api/SKILL.md). Its In-App Purchase credentials are separate from this reporting connection; a successful `/v1/apps` request does not verify Server API access.
 
 Look up the current endpoint, HTTP method, query parameters, JSON:API body, permissions, and workflow in [Apple's API documentation](https://developer.apple.com/documentation/appstoreconnectapi/) before making requests. Search official Apple documentation for the user's task; the plugin supplies authentication and transport rather than a bundled API catalog.
 

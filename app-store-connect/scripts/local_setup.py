@@ -87,14 +87,15 @@ def validate_payload(payload) -> dict:
     return connection
 
 
-def setup_server():
+def setup_server(*, form_path=FORM_PATH, validate=validate_payload,
+                 verify=verify_key, save=save_connection, describe=None,
+                 process=None, replacements=None):
     session = secrets.token_urlsafe(32)
     nonce = secrets.token_urlsafe(20)
-    html = (
-        FORM_PATH.read_text(encoding="utf-8")
-        .replace("__NONCE__", nonce)
-        .encode("utf-8")
-    )
+    html = form_path.read_text(encoding="utf-8").replace("__NONCE__", nonce)
+    for key, value in (replacements or {}).items():
+        html = html.replace(key, value)
+    html = html.encode("utf-8")
     lock = threading.Lock()
 
     class Handler(BaseHTTPRequestHandler):
@@ -162,12 +163,19 @@ def setup_server():
                 if not 0 < length <= 16_384:
                     raise ValueError("The local upload is empty or too large.")
                 payload = json.loads(self.rfile.read(length))
-                connection = validate_payload(payload)
-                verify_key(connection)
-                storage = save_connection(connection)
-                self.server.connected_key = {"keyType": connection["key_type"], "keyId": connection["key_id"]}
+                if process is not None:
+                    result = process(payload)
+                    self.server.connected_key = result
+                    self.server.completed = result.get("completed") is True
+                    self.send_json(200, {"ok": True, **result})
+                    return
+                connection = validate(payload)
+                verify(connection)
+                storage = save(connection)
+                self.server.connected_key = (describe(connection) if describe else
+                                             {"keyType": connection["key_type"], "keyId": connection["key_id"]})
                 self.server.completed = True
-                self.send_json(200, {"ok": True, "storage": storage, "keyType": connection["key_type"], "keyId": connection["key_id"]})
+                self.send_json(200, {"ok": True, "storage": storage, **self.server.connected_key})
             except (ValueError, OSError, StorageError) as error:
                 message = str(error) if type(error) is ValueError else str(error)
                 self.send_json(400, {"error": message})
@@ -186,16 +194,21 @@ def setup_server():
     return server
 
 
-def run_setup() -> dict:
-    with setup_server() as server:
-        print("Local App Store Connect setup form: " + server.setup_url, file=sys.stderr, flush=True)
+def run_setup(**options) -> dict:
+    with setup_server(**options) as server:
+        print("Local Apple API setup form: " + server.setup_url, file=sys.stderr, flush=True)
         if not webbrowser.open(server.setup_url):
             raise ValueError("Could not open a browser. Open the local setup URL printed above, then retry setup.")
         while not server.completed and time.monotonic() < server.deadline:
             server.handle_request()
         if not server.completed:
-            raise ValueError("Setup expired without a verified API key. Run setup again.")
-        return {"connected": True, "storage": "native", **server.connected_key}
+            if options.get("process") is not None:
+                raise ValueError("Setup expired before Done. Connections already saved remain in the OS secret store; reopen setup to check their status.")
+            raise ValueError("Setup expired without importing a key. Run setup again.")
+        if server.connected_key.get("completed") is True:
+            return server.connected_key
+        state = {"saved": True} if server.connected_key.get("verification") == "unverified" else {"connected": True}
+        return {**state, "storage": "native", **server.connected_key}
 
 
 def main() -> int:

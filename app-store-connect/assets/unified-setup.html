@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Connect Apple services</title><style>
+    :root {
+      color-scheme: light;
+      font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif;
+      color: #1d1d1f;
+      background: #fff;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: flex; flex-direction: column; background: #fff; }
+    main { flex: 1; width: min(100% - 40px, 460px); margin: 0 auto; padding: clamp(112px, 21.8vh, 157px) 0 40px; }
+    .brand { margin-bottom: 20px; text-align: center; }
+    .brand-icon { display: block; width: 44px; height: 44px; margin: 0 auto 12px; object-fit: contain; }
+    h1 { margin: 0; font-size: 21px; line-height: 1.25; letter-spacing: 0; font-weight: 400; }
+    .intro { margin: 7px auto 0; max-width: 440px; color: #6e6e73; font-size: 13px; line-height: 18px; }
+    form { width: 100%; }
+    .field { margin: 0 0 12px; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    input, select { display: block; width: 100%; height: 56px; border: 1px solid #d2d2d7; border-radius: 12px; padding: 0 16px; background: #fff; color: #1d1d1f; font: inherit; font-size: 14px; }
+    input::placeholder { color: #6e6e73; opacity: 1; }
+    input:focus, select:focus { outline: none; border-color: #007aff; box-shadow: 0 0 0 2px rgb(0 122 255 / 28%); }
+    .hint { margin: 5px 4px 0; color: #6e6e73; font-size: 12px; line-height: 1.35; }
+    .file-control { position: relative; }
+    .file-control input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+    .file-picker { display: flex; width: 100%; height: 56px; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid #d2d2d7; border-radius: 12px; padding: 0 8px 0 16px; color: #6e6e73; font-size: 14px; cursor: pointer; }
+    .file-picker span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-picker.has-file { color: #1d1d1f; }
+    .file-control:focus-within .file-picker { border-color: #007aff; box-shadow: 0 0 0 2px rgb(0 122 255 / 28%); }
+    .choose-file { flex: none; border-radius: 8px; padding: 7px 11px; background: #f5f5f7; color: #06c; font-size: 13px; font-weight: 500; }
+    .security-note { margin: 18px 0 16px; color: #6e6e73; font-size: 12px; line-height: 1.4; text-align: center; }
+    button { display: block; width: 100%; min-height: 52px; border: 0; border-radius: 12px; padding: 12px 18px; color: #fff; background: #007aff; font: inherit; font-size: 15px; font-weight: 500; cursor: pointer; transition: background-color .15s ease; }
+    button:hover:not(:disabled) { background: #0071e3; }
+    button:focus-visible { outline: 3px solid rgb(0 122 255 / 35%); outline-offset: 3px; }
+    button:disabled { opacity: .55; cursor: wait; }
+    #status { min-height: 18px; margin-top: 12px; color: #424245; font-size: 12px; white-space: pre-wrap; text-align: center; }
+    footer { padding: 14px 20px; background: #f5f5f7; color: #6e6e73; text-align: center; font-size: 11px; }
+    [hidden] { display: none !important; }
+    @media (max-width: 520px) { main { width: min(100% - 36px, 460px); padding-top: 96px; } }
+    @media (max-height: 760px) { main { padding-top: 132px; } }
+
+main {width:min(100% - 40px,640px);padding-top:56px;} details {border:1px solid #d2d2d7;border-radius:14px;padding:18px;margin:16px 0;} summary {cursor:pointer;font-size:16px;} summary p {margin:5px 0;color:#6e6e73;font-size:13px;} .connection-state {font-size:13px;margin:10px 0 0;} form {margin-top:20px;} label {display:block;font-size:13px;margin-bottom:5px;} .secondary {background:#f5f5f7;color:#06c;} .secondary:hover:not(:disabled) {background:#e8e8ed;} .verification {margin-top:20px;border-top:1px solid #d2d2d7;padding-top:16px;} #notice {white-space:pre-wrap;font-size:13px;margin:16px 0;} h2 {font-size:15px;font-weight:500;} #done {margin-top:24px;}
+</style></head><body><main>
+<header class="brand"><h1>Connect Apple services</h1><p class="intro">Connect either service or both. Each uses its own Apple key; existing connections stay in place until you save a replacement.</p></header>
+<details id="reporting-card"><summary>Reports and app management<p>Sales reports, TestFlight, app metadata and provisioning.</p>
+<p id="reporting-state" class="connection-state" role="status">Checking connection…</p></summary>
+<form id="reporting-form">
+<div class="field"><label for="report-type">App Store Connect key type</label><select id="report-type"><option value="team">Team API key</option><option value="individual">Individual API key</option></select><p class="hint">Individual keys cannot access Sales and Finance reports.</p></div>
+<div class="field"><label for="report-key">Key ID</label><input id="report-key" required maxlength="10" autocomplete="off"></div>
+<div class="field" id="report-issuer-field"><label for="report-issuer">Issuer ID for this reporting key</label><input id="report-issuer" required autocomplete="off"></div>
+<div class="field"><label for="report-file">App Store Connect private key (.p8)</label><input id="report-file" type="file" accept=".p8,text/plain" required></div>
+<button type="submit">Verify and save reporting key</button>
+</form></details>
+<details id="server-card"><summary>Purchases and refunds<p>Individual transactions, refund dates and server notification history.</p>
+<p id="server-state" class="connection-state" role="status">Choose a profile to check its connection.</p></summary>
+<form id="server-form">
+<div class="field"><label for="server-profile">Connection name</label><input id="server-profile" value="__SERVER_PROFILE__" required pattern="[A-Za-z0-9][A-Za-z0-9_-]{0,63}" placeholder="my-app" autocomplete="off"><p class="hint">Choose an existing name to replace that connection, or a new name to add one.</p></div>
+<div class="field"><label for="server-key">In-App Purchase Key ID</label><input id="server-key" required maxlength="10" autocomplete="off"></div>
+<div class="field"><label for="server-issuer">Issuer ID paired with this In-App Purchase key</label><input id="server-issuer" required autocomplete="off"><p class="hint">Find the key and issuer in Users and Access → Integrations → In-App Purchase.</p></div>
+<div class="field"><label for="server-bundle">Bundle ID</label><input id="server-bundle" required placeholder="com.example.app" autocomplete="off"></div>
+<div class="field"><label for="server-app">Apple app ID</label><input id="server-app" required inputmode="numeric" pattern="[0-9]+" autocomplete="off"></div>
+<div class="field"><label for="server-file">In-App Purchase private key (.p8)</label><input id="server-file" type="file" accept=".p8,text/plain" required></div>
+<p class="hint">Saving keeps this key locally. Verify access below with a genuine transaction.</p>
+<button type="submit">Save purchase connection</button></form>
+<form id="verify-form" class="verification"><h2>Verify purchase access</h2>
+<div class="field"><label for="verify-environment">Environment</label><select id="verify-environment" required><option value="">Choose an environment</option><option value="production">Production</option><option value="sandbox">Sandbox</option></select></div>
+<div class="field"><label for="verify-transaction">Genuine transaction ID</label><input id="verify-transaction" required pattern="[0-9]+" autocomplete="off"></div>
+<button type="submit" class="secondary">Verify saved purchase connection</button></form>
+</details>
+<p class="security-note">Private keys stay in the OS secret store. Reports and purchases have separate credentials and verification.</p>
+<div id="notice" role="status" aria-live="polite"></div><button id="done" type="button">Done</button>
+</main><footer>Apple services · Local setup</footer>
+<script nonce="__NONCE__">
+const el=id=>document.getElementById(id),session=new URLSearchParams(location.hash.slice(1)).get('session')||'';
+history.replaceState(null,'',location.pathname);
+const profile=()=>el('server-profile').value.trim();
+function render(result){
+ const r=result.reporting,s=result.server;
+ el('reporting-state').textContent=r.error|| (r.configured?'Reporting key is configured. Saving a key below replaces it.':'Reporting is not connected.');
+ el('server-state').textContent=!s?'Choose a connection name to check it.':s.error||(s.configured?('Saved for '+s.bundleId+'. '+(Object.keys(s.verifiedEnvironments).length?'Past verification: '+Object.entries(s.verifiedEnvironments).map(([k,v])=>k+' '+v).join(', '):'Access is not yet verified.')):'Purchase connection is not configured.');
+}
+async function call(action,extra={}){
+ const buttons=[...document.querySelectorAll('button')]; buttons.forEach(b=>b.disabled=true);
+ try {
+  const payload={action,...extra};if(profile()&&action!=='connect-reporting')payload.profile=profile();
+  const response=await fetch('/api/setup',{method:'POST',headers:{'Content-Type':'application/json','X-Setup-Token':session},body:JSON.stringify(payload)});
+  const result=await response.json(); if(!response.ok)throw new Error(result.error||'Setup failed.');
+  render(result);
+  if(result.lastVerification?.error){el('notice').textContent='Purchase verification failed: '+(result.lastVerification.error.kind||'unknown')+'. '+result.lastVerification.error.message;}
+  else if(result.lastVerification){el('notice').textContent='Purchase access and transaction signature verified for the selected environment.';}
+  else if(action==='connect-reporting'){el('notice').textContent='Reporting key verified with Apple and saved. You can configure purchases here too, or select Done.';}
+  else if(action==='connect-server'){el('notice').textContent='Purchase connection saved. Access is not yet verified; check it below or select Done.';}
+  else if(result.completed){el('notice').textContent='Setup complete. Each connection’s status is shown above. You can close this page.';return result;}
+  return result;
+ } finally {buttons.forEach(b=>b.disabled=false);}
+}
+function reportError(error){el('notice').textContent=error.message||'Setup failed.';}
+el('report-type').addEventListener('change',()=>{const team=el('report-type').value==='team';el('report-issuer-field').hidden=!team;el('report-issuer').required=team;if(!team)el('report-issuer').value='';});
+el('reporting-form').addEventListener('submit',async event=>{
+ event.preventDefault();el('notice').textContent='Verifying reporting access with Apple…';
+ try{await call('connect-reporting',{connection:{keyType:el('report-type').value,keyId:el('report-key').value,issuerId:el('report-type').value==='team'?el('report-issuer').value:'',privateKey:await el('report-file').files[0].text()}});el('report-key').value='';el('report-issuer').value='';}
+ catch(error){reportError(error);}finally{el('report-file').value='';}
+});
+el('server-form').addEventListener('submit',async event=>{
+ event.preventDefault();el('notice').textContent='Saving purchase connection locally…';
+ try{await call('connect-server',{connection:{keyId:el('server-key').value,issuerId:el('server-issuer').value,privateKey:await el('server-file').files[0].text(),bundleId:el('server-bundle').value,appAppleId:el('server-app').value}});el('server-key').value='';el('server-issuer').value='';}
+ catch(error){reportError(error);}finally{el('server-file').value='';}
+});
+el('verify-form').addEventListener('submit',async event=>{event.preventDefault();if(!profile()){reportError(new Error('Enter a purchase connection name first.'));return;}el('notice').textContent='Checking the transaction with Apple…';try{await call('verify-server',{environment:el('verify-environment').value,transactionId:el('verify-transaction').value});}catch(error){reportError(error);}});
+el('server-profile').addEventListener('change',()=>call('status').catch(reportError));
+el('done').addEventListener('click',()=>call('finish').catch(reportError));
+call('status').then(result=>{if(!result.reporting.configured)el('reporting-card').open=true;if(profile()&&!result.server?.configured)el('server-card').open=true;}).catch(reportError);
+</script></body></html>

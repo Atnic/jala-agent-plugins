@@ -33,7 +33,9 @@ def read_arguments(value: str) -> dict:
 def parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser(description=__doc__)
     commands = root.add_subparsers(dest="command", required=True)
-    for name in ("setup", "status", "forget", "install-runtime"):
+    setup = commands.add_parser("setup", help="Set up reporting, individual purchases, or both in one local page")
+    setup.add_argument("--profile", help="Prefill the Server API profile name; optional for reporting-only setup")
+    for name in ("status", "forget", "install-runtime"):
         commands.add_parser(name)
     call = commands.add_parser("request", help="Call an endpoint from Apple's API documentation")
     call.add_argument("method", type=str.upper, choices=("GET", "POST", "PATCH", "PUT", "DELETE"))
@@ -48,16 +50,43 @@ def parser() -> argparse.ArgumentParser:
     upload.add_argument("asset_type", help="Apple resource type, e.g. appScreenshots")
     upload.add_argument("asset_id")
     upload.add_argument("file_path", help="Absolute local file path")
+    server = commands.add_parser("server", help="Read App Store Server API transactions with a separate connection")
+    actions = server.add_subparsers(dest="server_command", required=True)
+    for name in ("setup", "status", "forget", "verify", "transaction-info", "transaction-history", "refund-history", "notification-history"):
+        action = actions.add_parser(name)
+        action.add_argument("--profile", required=True, help="Explicit local Server API profile name")
+        if name not in {"setup", "status", "forget"}:
+            action.add_argument("--environment", required=True, choices=("production", "sandbox"))
+            if name != "notification-history":
+                action.add_argument("--transaction-id", required=True)
+        if name in {"transaction-history", "refund-history", "notification-history"}:
+            action.add_argument("--cursor", help="Apple revision or pagination token; keep the original filters")
+            action.add_argument("--max-pages", type=int, default=100)
+        if name == "transaction-history":
+            action.add_argument("--query", default="{}", help="TransactionHistoryRequest JSON, @file, or -")
+        if name == "notification-history":
+            action.add_argument("--body", required=True, help="NotificationHistoryRequest JSON, @file, or -")
+        if name in {"refund-history", "notification-history"}:
+            action.add_argument("--revocation-start", type=int, help="Inclusive revocationDate UNIX milliseconds")
+            action.add_argument("--revocation-end", type=int, help="Exclusive revocationDate UNIX milliseconds")
+        if name in {"transaction-info", "transaction-history", "refund-history", "notification-history"}:
+            action.add_argument("--output-file", help="New absolute destination; CSV includes a metadata sidecar")
+            action.add_argument("--format", choices=("json", "csv"), default="json")
     return root
 
 
 def execute(args: argparse.Namespace) -> dict:
+    if args.command == "server":
+        from server_api import execute as execute_server
+        return execute_server(args, read_arguments)
     if args.command == "install-runtime":
         return install_runtime(PLUGIN_ROOT)
-    if args.command in {"setup", "status", "forget"}:
-        from local_setup import run_setup
+    if args.command == "setup":
+        from unified_setup import run_setup
+        return run_setup(args.profile)
+    if args.command in {"status", "forget"}:
         from runtime import connection_status, forget_connection
-        return {"setup": run_setup, "status": connection_status, "forget": forget_connection}[args.command]()
+        return {"status": connection_status, "forget": forget_connection}[args.command]()
     import client
     import urllib.parse
 

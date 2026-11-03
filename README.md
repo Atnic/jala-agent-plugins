@@ -38,7 +38,9 @@ and installation of the local unpublished package.
 
 Use agent instructions and a Python REST CLI for App Store Connect. The agent looks up current endpoint details in Apple's documentation. The plugin supports team and individual API keys, stores credentials only in the OS secret store, and requires local browser approval for high-impact production changes.
 
-See [`app-store-connect/README.md`](app-store-connect/README.md) for setup, key permissions, report downloads, and CLI usage.
+Individual purchase and refund evidence uses a separate, read-only App Store Server API connection with verified signed payloads.
+
+See [`app-store-connect/README.md`](app-store-connect/README.md) for both setup flows, key permissions, report downloads, and CLI usage.
 
 ### `crisp-jala`
 
@@ -280,7 +282,7 @@ Complete the selected plugin's requirements:
 | Plugin | Requirements |
 | --- | --- |
 | `9router-jala` | Python 3.9+, `keyring`, and a per-user API key; native saved-key support on macOS/Windows/Linux; see [setup](9router-jala/README.md). |
-| `app-store-connect` | Python 3.9+, `pip` and network access for the first runtime install, App Store Connect API access and a team or individual `.p8` key, plus Keychain, Windows Credential Manager, or Linux Secret Service; see [setup](app-store-connect/README.md). |
+| `app-store-connect` | Python 3.9+, `pip` and network access for the first runtime install, App Store Connect API access and a team or individual `.p8` key; individual transaction reads additionally require an In-App Purchase key with matching issuer and app identifiers, plus Keychain, Windows Credential Manager, or Linux Secret Service; see [setup](app-store-connect/README.md). |
 | `crisp-jala` | Python 3.9+, native OS secret store, and browser network inspection for login-session capture; see [setup](crisp-jala/README.md). |
 | `felix-agent` | Docker Engine or Desktop with Compose v2, Git, Python 3 for backups, and interactive Felix setup. See [setup](felix-agent/README.md). |
 | `figma-ui` | Figma Desktop and the local bridge; see [setup](figma-ui/README.md). |

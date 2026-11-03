@@ -13,7 +13,7 @@
     {
       "name": "app-store-connect",
       "source": "./app-store-connect",
-      "description": "Use App Store Connect through agent documentation and an authenticated Python REST CLI."
+      "description": "Manage App Store Connect reports and apps, and read verified purchase/refund evidence through a separate App Store Server API connection."
     },
     {
       "name": "crisp-jala",
