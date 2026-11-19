@@ -122,6 +122,11 @@ list the saved profiles and identify the email and OAuth client to reuse.
 gog auth list --check --json --no-input
 ```
 
+To test Windows Credential Manager, run `gog auth keyring --json` before
+reauthorizing. Expect `"keyring_backend": "auto"` for the default native
+backend on Windows. If it reports `file`, the test checks the encrypted file
+keyring instead.
+
 If you authorized the standard Windows preset, use the following example and
 replace the email and OAuth client with your saved values. For a customized
 profile, append `appscript` to its existing service list and keep its scope
@@ -132,14 +137,42 @@ $gogAccount = "name@example.com"
 $gogClient = "jala-workspace"
 $gogServices = "gmail,calendar,drive,docs,sheets,slides,contacts,tasks,meet,chat,forms,appscript"
 gog auth add $gogAccount --client $gogClient --services $gogServices --force-consent
-gog auth list --check --json --no-input --client $gogClient
 ```
 
-After approving consent, confirm that the matching email has `valid: true`
-and lists `appscript` under `services`. To access script projects, enable the
-Apps Script API in the OAuth client's Cloud project and allow access in your
-Apps Script dashboard settings. For a company-managed client, ask its project
-owner to enable the Cloud API. See [Google's Apps Script API setup](https://developers.google.com/apps-script/api/how-tos/enable).
+### Test Credential Manager and Apps Script on Windows
+
+After consent and the `gog auth add` command both succeed, open a fresh
+PowerShell window under the same Windows user. Reuse your email and client
+values below, and use the script ID from **Project Settings** in an Apps
+Script project your account can access.
+
+```powershell
+$gogAccount = "name@example.com"
+$gogClient = "jala-workspace"
+$gogScriptId = "YOUR_SCRIPT_ID"
+gog auth keyring --json
+gog auth list --check --json --no-input --client $gogClient
+gog --readonly --account $gogAccount --client $gogClient --no-input --json appscript get $gogScriptId
+```
+
+- **Credential Manager** passes when the native backend is active and the
+  matching email and client show `valid: true` with `appscript` in `services`.
+  This confirms the expanded grant was saved and can be refreshed from a
+  new shell.
+- **Apps Script** passes when `appscript get` returns the project's metadata.
+  It reads the project without changing it.
+
+If Gog reports a token storage error during consent, check the keyring backend
+and the error before retrying. Windows Credential Manager limits each credential
+blob to 2,560 bytes. If the smaller grant still exceeds that limit, see the
+[Windows keyring guidance in the setup skill](skills/gog-setup/SKILL.md#select-services-before-consent).
+See also [Microsoft's credential size limit](https://learn.microsoft.com/en-us/windows/win32/api/wincred/ns-wincred-credentialw).
+
+If authorization passes but the project read fails, check the script ID and
+project permissions. Enable the Apps Script API in the OAuth client's Cloud
+project and allow access in your Apps Script dashboard settings. For a
+company-managed client, ask its project owner to enable the Cloud API. See
+[Google's Apps Script API setup](https://developers.google.com/apps-script/api/how-tos/enable).
 
 ## How it works
 
