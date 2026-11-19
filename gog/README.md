@@ -52,8 +52,9 @@ client provided by IT.
 
 The [setup skill](skills/gog-setup/SKILL.md) owns installation, account routing,
 and platform-specific service defaults. macOS/Linux use standard full access;
-Windows uses the employee service set, including Forms, to reduce credential
-storage size. The skill contains the exact service list and commands.
+Windows uses the employee service set, including Forms and Apps Script, to
+reduce credential storage size. The skill contains the exact service list and
+commands.
 
 For manual setup, follow the [official install guide](https://github.com/openclaw/gogcli/blob/main/docs/install.md)
 and [quickstart](https://github.com/openclaw/gogcli/blob/main/docs/quickstart.md).

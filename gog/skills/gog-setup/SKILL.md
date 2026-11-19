@@ -91,9 +91,9 @@ Data Access, and explain the access requested.
   hosts, follow upstream encrypted-file-keyring instructions and arrange
   secret injection into the actual agent process across sessions.
 - **Windows:** default to
-  `gmail,calendar,drive,docs,sheets,slides,contacts,tasks,meet,chat,forms`,
-  or a smaller set if requested. This covers the employee service set including
-  Forms; other services need additional setup.
+  `gmail,calendar,drive,docs,sheets,slides,contacts,tasks,meet,chat,forms,appscript`,
+  or a smaller set if requested. The employee service set includes Forms and
+  Apps Script.
   Native Windows Credential Manager has a size limit that can make broad
   authorization fail; do not default to `all-user` or claim it always fails.
   For broader access, offer a deliberately selected service set or upstream's
@@ -148,7 +148,7 @@ limited access. Do not require unrelated APIs or `all-user` consent on Windows.
 value or a required environment variable. Replace it with:
 
 - macOS/Linux: `all-user`.
-- Windows: `gmail,calendar,drive,docs,sheets,slides,contacts,tasks,meet,chat,forms`.
+- Windows: `gmail,calendar,drive,docs,sheets,slides,contacts,tasks,meet,chat,forms,appscript`.
 - An explicitly chosen alternative: the agreed comma-separated service list.
 
 Replace `EMAIL`, `CLIENT_NAME`, and `PATH_TO_CLIENT_SECRET_JSON` with the actual
