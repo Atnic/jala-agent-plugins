@@ -1,6 +1,6 @@
 ---
 name: gog
-description: "gog CLI: safe Google Workspace automation, JSON, auth, scoped reads/writes."
+description: "Google Workspace access via the local gog CLI. For Gmail, Drive, Sheets, Docs, Calendar, and other Google services, check Gog on the first request when a workspace or account is requested, or when a connector can't serve the request. Use to discover and select Gog accounts and OAuth clients."
 ---
 
 # gog
@@ -11,12 +11,49 @@ stay in `gog`. These skills were adapted from `gogcli`; inspect the installed
 CLI's help and schema before using a command because its surface may differ
 from these examples.
 
-## Fast Path
+## Check access in the current session
+
+Use this check on the first request that names Gog or asks to choose a Google
+workspace or profile. Also use it before reporting that a Google task is
+unavailable because a connector is missing, disconnected, or can't serve the
+task. Run the checks in the shell that will execute the Google command.
 
 ```bash
 gog --version
 gog auth list --check --json --no-input
-gog auth doctor --check --json --no-input
+```
+
+Run the account check once Gog is available. Inspect each row's `email`,
+`client`, `services`, `valid`, and any `error`. A successful list command can
+include invalid profiles. For a profile-listing request, return the email,
+client, and validation status for each profile. If shell access is unavailable,
+or if either command fails, report which check is blocked on the current host.
+For a keyring or refresh error, use `gog auth doctor --check --json --no-input`
+as needed. Follow the setup guidance below when the intended profile requires
+repair.
+
+## Select the workspace and profile
+
+1. Match the requested Google email, account alias, workspace, or OAuth client
+   to the saved email and client. Use `gog auth alias list --json --no-input` to
+   resolve a named alias. Reuse a profile the user already selected in this chat
+   for the same workspace.
+2. Use a profile when the request or prior selection identifies it clearly. A
+   single saved profile is sufficient for an unspecified account if it fits
+   the request. If the intended profile is unclear, ask “Which Google account
+   should I use?” before making a Google data request. Offer the saved emails,
+   with OAuth client names where needed to distinguish profiles, and mark any
+   that need repair. Accept the user's choice by email or by an unambiguous
+   label from the options. If the intended profile is missing, invalid, or
+   lacks the requested service, keep that selection and diagnose it before
+   making a Google data request.
+3. Pass both `--account EMAIL` and `--client CLIENT` on Google API commands.
+   An email can have more than one saved OAuth client. Use the selected pair
+   in place of the example account in any service skill.
+
+## CLI help and schema
+
+```bash
 GOG_HELP=agent gog --help
 gog schema --json
 ```
@@ -42,7 +79,7 @@ If `gog` is missing, the intended account is missing or invalid, or its authoriz
 services do not cover the task, read [gog-setup](../gog-setup/SKILL.md) and follow
 its installation and authentication workflow. Ask for the exact email when it
 has not been provided. Resume Google API work only after verifying that account;
-keep explicit account selection on subsequent commands.
+keep the selected email and OAuth client explicit on subsequent commands.
 
 ## Authentication cleanup
 

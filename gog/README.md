@@ -26,6 +26,19 @@ under its MIT license; see [LICENSE.gogcli](LICENSE.gogcli).
 The shared skill tells the agent to inspect the installed CLI's help and schema
 before use because commands can change.
 
+## Choose a Google workspace or profile
+
+On the first request, name the account you want, for example, “Use Gog with
+`name@example.com` to find my recent Google Drive files.” Add the OAuth client
+name if that email is saved under more than one client. You can also ask Gog to
+list the Google profiles available in the current chat.
+
+The shared skill checks the CLI and saved authorization on the host running
+the chat's shell commands. If the intended profile is unclear, the agent asks
+which Google account to use and shows the saved choices, including the OAuth
+client name when needed to distinguish profiles. It uses the selected pair for
+the Google request and reports any authorization problem for that profile.
+
 ## Set up `gog`
 
 Ask your agent to **set up Gog** or invoke `$gog-setup`. It installs the CLI

@@ -151,5 +151,6 @@ failures before resuming the original task; never silently use another account.
 Finish with the installed binary location, email/client, granted services, and
 any required host restart or secret-injection step. State that installation and
 Gog's per-user stored authorization are reusable in future chats on this host;
-verify from a fresh host session where possible. Keep `--account EMAIL` explicit
-on later API commands. Do not store credentials in chat-specific configuration.
+verify from a fresh host session where possible. Keep `--account EMAIL` and
+`--client CLIENT_NAME` explicit on later API commands. Do not store credentials
+in chat-specific configuration.
