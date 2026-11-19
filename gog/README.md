@@ -98,6 +98,49 @@ Or add a local checkout as a marketplace and install `gog@jala-agent-plugins`.
 Start a new Codex task after installing so its skills are loaded. The marketplace
 entry is in [`../.agents/plugins/marketplace.json`](../.agents/plugins/marketplace.json).
 
+### Update and verify the Codex plugin
+
+If `jala-agent-plugins` is already configured from GitHub, run these commands
+in PowerShell on Windows or in your terminal on macOS or Linux.
+
+```powershell
+codex plugin marketplace upgrade jala-agent-plugins
+codex plugin add gog@jala-agent-plugins
+```
+
+Open a new Codex chat and ask it to show the loaded Gog setup skill path and
+the version in that plugin's `.codex-plugin/plugin.json`. Check for version
+`0.1.7` or later to confirm the Windows preset includes Apps Script. Run
+`gog --version` separately to check the CLI version.
+
+### Add Apps Script to an existing Windows profile
+
+Existing profiles need new Google consent to add Apps Script. In PowerShell,
+list the saved profiles and identify the email and OAuth client to reuse.
+
+```powershell
+gog auth list --check --json --no-input
+```
+
+If you authorized the standard Windows preset, use the following example and
+replace the email and OAuth client with your saved values. For a customized
+profile, append `appscript` to its existing service list and keep its scope
+options. Use the smaller Windows service set to reduce the credential size.
+
+```powershell
+$gogAccount = "name@example.com"
+$gogClient = "jala-workspace"
+$gogServices = "gmail,calendar,drive,docs,sheets,slides,contacts,tasks,meet,chat,forms,appscript"
+gog auth add $gogAccount --client $gogClient --services $gogServices --force-consent
+gog auth list --check --json --no-input --client $gogClient
+```
+
+After approving consent, confirm that the matching email has `valid: true`
+and lists `appscript` under `services`. To access script projects, enable the
+Apps Script API in the OAuth client's Cloud project and allow access in your
+Apps Script dashboard settings. For a company-managed client, ask its project
+owner to enable the Cloud API. See [Google's Apps Script API setup](https://developers.google.com/apps-script/api/how-tos/enable).
+
 ## How it works
 
 ```text
