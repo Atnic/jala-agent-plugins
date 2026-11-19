@@ -1,6 +1,6 @@
 ---
 name: gog-sheets
-description: "Google Sheets operations through gog."
+description: "Google Sheets through gog. Use for spreadsheet cells, formulas, formatting, notes, validation, and sheet structure."
 ---
 
 # Google Sheets
@@ -31,6 +31,7 @@ gog --readonly --account user@example.com sheets get SHEET_ID 'Sheet1!A1:D20' --
 | `add-tab` | Add a new tab/sheet to a spreadsheet |
 | `append` | Append values to a range |
 | `banding` | Manage alternating color banding |
+| `batch-request` | Submit an atomic structural request array (requires confirmation or --force) |
 | `batch-update` | Update values in multiple ranges with one API request |
 | `chart` | Manage spreadsheet charts |
 | `clear` | Clear values in a range |

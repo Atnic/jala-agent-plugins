@@ -110,8 +110,11 @@ calls must not be presented as a guaranteed way to split credentials or retain
 all earlier services; verify the final authorized service set.
 
 Honor explicitly requested narrower access on every OS. `all-user` covers
-standard user services; AdSense and Photos Picker are opt-in, while Admin,
-Groups, and Keep need separate Workspace service-account setup.
+standard user services. AdSense, Photos Picker, and Google Ads (`ads`) are
+opt-in. Only include `ads` when the user needs Google Ads access because its
+consent can require passkey enrollment. With the standard service set, use
+`--services all-user,ads` for that request. Admin, Groups, and Keep need
+separate Workspace service-account setup.
 
 ## Reuse credentials or prepare an OAuth client
 
@@ -119,7 +122,9 @@ Run `gog auth credentials list --json --no-input` and
 `gog auth list --check --json --no-input` to inspect existing state. Reuse a
 matching client and valid account rather than recreating them. Before
 reauthorizing an existing account, inspect its granted services and preserve
-existing access unless the user asks to change it.
+existing access unless the user asks to change it. For an existing Google Ads
+grant, confirm whether the user still needs Ads before including it in the
+new consent request.
 
 For an existing or IT-provided client, attempt the requested authorization
 without requiring employees to administer its Cloud project. If APIs, consent,

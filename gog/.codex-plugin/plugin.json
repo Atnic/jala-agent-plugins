@@ -1,6 +1,6 @@
 {
   "name": "gog",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Use the local gog CLI to work with Google Workspace accounts through agent skills.",
   "author": {
     "name": "JALA"

@@ -12,8 +12,8 @@ This JALA plugin packages 33 skills: the shared `gog` skill, the `gog-setup` onb
 skill, the `gog-clean` authentication cleanup skill, service skills for
 Gmail, Drive, Docs, Sheets, Calendar and other Google services, plus workflow
 skills for inbox triage, meeting preparation, attachment handling, Drive
-audits, weekly digests, and contact cleanup. The skills are adapted from
-[`openclaw/gogcli`](https://github.com/openclaw/gogcli)
+audits, weekly digests, and contact cleanup. The service skills are based on
+[`openclaw/gogcli` v0.48.1](https://github.com/openclaw/gogcli/tree/v0.48.1/.agents/skills)
 under its MIT license; see [LICENSE.gogcli](LICENSE.gogcli).
 
 ## Requirements

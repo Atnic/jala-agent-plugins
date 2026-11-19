@@ -1,6 +1,6 @@
 ---
 name: gog-contacts
-description: "Google Contacts operations through gog."
+description: "Google Contacts through gog. Use for personal contacts, contact groups, and other contacts, with directory lookup also available; use gog-people for the caller profile or Workspace directory profiles."
 ---
 
 # Google Contacts
@@ -28,6 +28,7 @@ gog --readonly --account user@example.com contacts search alice --json --wrap-un
 
 | Command | Purpose |
 | --- | --- |
+| `batch` | Read, create, update, or delete contacts in native People API batches |
 | `create` | Create a contact |
 | `dedupe` | Find likely duplicate contacts and optionally merge them |
 | `delete` | Delete a contact |
