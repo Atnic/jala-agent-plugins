@@ -26,6 +26,10 @@ under its MIT license; see [LICENSE.gogcli](LICENSE.gogcli).
 The shared skill tells the agent to inspect the installed CLI's help and schema
 before use because commands can change.
 
+Keep the Gog CLI on the latest stable release for your platform. The CLI and
+the Codex plugin are updated separately. See [Update an existing Gog CLI](skills/gog-setup/SKILL.md#update-an-existing-gog-cli)
+for upgrade and account verification steps.
+
 ## Choose a Google workspace or profile
 
 On the first request, name the account you want, for example, “Use Gog with

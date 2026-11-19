@@ -1,6 +1,6 @@
 ---
 name: gog-setup
-description: Install gog persistently on macOS, Linux, or Windows and connect a Google account. Use for first-time setup, missing gog, missing account authorization, or OAuth/keyring setup failures.
+description: Install or update the local Gog CLI on macOS, Linux, or Windows and connect a Google account. Use for CLI setup or upgrades, missing account authorization, or OAuth and keyring failures.
 ---
 
 # Set up Gog
@@ -65,6 +65,20 @@ entries. A shell-local `export PATH=...` alone does not finish setup. A desktop
 agent may need a restart to inherit PATH changes; report this when necessary
 and verify again from the agent after restart. Avoid installing an entire
 package manager when an official release archive suffices.
+
+## Update an existing Gog CLI
+
+Check `gog --version` and the [latest stable release](https://github.com/openclaw/gogcli/releases/latest).
+Use the existing installation method when the user asks to update. For a
+Homebrew installation, run `brew update` and `brew upgrade openclaw/tap/gogcli`.
+For a standalone installation, verify the official release checksum before
+replacing the executable. If a task needs a command or flag the installed
+version lacks, explain which capability needs an update.
+
+After updating, run `gog --version` and
+`gog auth list --check --json --no-input --client CLIENT_NAME`. Check that the
+intended email and client still validate. Verify the requested service with a
+bounded read-only command using the same account and client.
 
 ## Select services before consent
 
