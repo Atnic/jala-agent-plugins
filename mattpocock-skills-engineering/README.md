@@ -39,5 +39,5 @@ installation so the skills load.
 ## Upstream
 
 Source: [mattpocock/skills](https://github.com/mattpocock/skills),
-`skills/engineering/`, release `v1.3.1`. See [UPSTREAM.md](UPSTREAM.md) for the
+`skills/engineering/`, release `v1.3.2`. See [UPSTREAM.md](UPSTREAM.md) for the
 pinned source commit and refresh notes.
