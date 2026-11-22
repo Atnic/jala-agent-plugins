@@ -19,6 +19,8 @@ Follow the project's planning folder convention. With no convention, create `doc
 
 Create the ticket files before linking blockers. List ready tickets in filename order. A ticket is ready when it is open, unclaimed, and every linked blocker is resolved or the dependency has been removed. When a blocker goes out of scope, update dependent tickets to reflect whether they can proceed or need a replacement decision.
 
-Re-read a ticket immediately before claiming it and set **Claimed by** before starting. If another session already claimed it, choose another ready ticket. For parallel work, use a shared workspace and coordinate ticket claims before dispatch. Each worker writes to its own findings file, and the coordinating session updates the map.
+### Claims and parallel work
+
+Use one coordinating session per local map. It claims tickets before work starts by setting **Claimed by**, assigns ticket numbers, and writes ticket and map updates. Workers can run in parallel in a shared workspace. They write their own findings files and return the results to the coordinator to record. If no session is coordinating concurrent work, run tickets one at a time.
 
 When a ticket is resolved, add a **Resolution** section with the answer and links to any supporting files, set its status to **resolved**, and add its title link and a one-line summary to the map's **Decisions so far**. For work ruled out, set its status to **out-of-scope** and link it from the map's **Out of scope** section with the reason. If work stops before resolution, clear the claim so another session can resume.

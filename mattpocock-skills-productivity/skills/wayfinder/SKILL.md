@@ -121,9 +121,9 @@ User invokes with a map (file path, URL, or tracker number). A ticket is **optio
 1. Load the **map**: the low-res view, not every ticket body.
 2. Choose the ticket. If the user named one, check that it is open, unblocked, and available to this session. Otherwise take the first frontier ticket in order. **Claim it** before any work.
 3. Resolve it according to its recorded type (see [Ticket Types](#ticket-types)). **Zoom as needed**: fetch the full body of any related or closed ticket on demand; call the Skill tool for whichever skills the `## Notes` block names. If in doubt, follow the Grilling ticket workflow.
-4. Record the resolution: save the answer on the ticket (a resolution comment on a tracker), **close** it, and **append a context pointer** to the map's Decisions so far.
+4. Record the resolution: save the answer on the ticket (a resolution comment on a tracker), **close** it, and **append a context pointer** to the map's Decisions so far. Before closing a tracker-backed research ticket, publish the findings to a location collaborators can access and link them from the resolution. If no shared location is available, leave the ticket open. Local Markdown tickets can link to the findings by relative path.
 5. Add newly-surfaced tickets (create-then-wire); graduate any fog the answer has made specifiable, clearing each graduated patch from **Not yet specified** so it lives only as its new ticket. If the answer reveals that a ticket (this one or another) sits beyond the destination, **rule it out of scope** rather than resolving it on the route. If the decision invalidates other parts of the map, update those tickets or close them as out of scope.
 
 When the map is complete and the user wants a handoff spec, use the bundled [to-spec skill](../to-spec/SKILL.md) with the map and its relevant decisions.
 
-The user may run unblocked tickets in parallel, so expect other sessions to be editing the map or tickets concurrently.
+The user may run unblocked tickets in parallel. For local Markdown, follow the [single coordinator rule](./LOCAL-MARKDOWN.md#claims-and-parallel-work) for shared state.
