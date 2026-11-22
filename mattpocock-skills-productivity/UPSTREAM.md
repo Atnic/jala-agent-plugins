@@ -13,9 +13,14 @@ Claude-specific `disable-model-invocation` frontmatter was removed from the
 Codex copies; the corresponding Codex invocation rules remain in
 `agents/openai.yaml`.
 
+JALA adapts `grill-with-docs`, `domain-modeling`, `research`,
+`to-spec`, `wayfinder`, `to-tickets`, and `retro` from the Engineering collection at `v1.3.2` (commit `d1478fcb140db0b93c0c8df17bcfd311844749d0`).
+These skills use general project language and are maintained locally alongside the
+upstream Productivity snapshot.
+
 To refresh the snapshot, copy the contents of a newer upstream
-`skills/productivity/` directory into this plugin's `skills/` directory and
-remove any Claude-specific `disable-model-invocation` fields from the
+`skills/productivity/` directory into this plugin's `skills/` directory,
+preserving the local adaptations listed above. Remove any Claude-specific `disable-model-invocation` fields from the
 `SKILL.md` frontmatter again. Keep the Codex invocation rules in
 `agents/openai.yaml`. Then update the commit above and review the included
 skill inventory and upstream license. The plugin manifests intentionally use

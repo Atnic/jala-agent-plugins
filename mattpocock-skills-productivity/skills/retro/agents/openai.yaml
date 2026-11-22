@@ -1,0 +1,5 @@
+interface:
+  display_name: "Retro"
+  short_description: "Review a project or work session"
+policy:
+  allow_implicit_invocation: false
