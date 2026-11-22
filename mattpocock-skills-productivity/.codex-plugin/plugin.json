@@ -1,6 +1,6 @@
 {
   "name": "mattpocock-skills-productivity",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "description": "General workflow skills from Matt Pocock's Productivity collection, packaged for Codex.",
   "author": {
     "name": "JALA"
@@ -19,7 +19,7 @@
   "interface": {
     "displayName": "Matt Pocock Skills: Productivity",
     "shortDescription": "General workflow skills for planning, learning, and communication.",
-    "longDescription": "Seven curated skills from Matt Pocock's Productivity collection: interview through a plan, hand off work, learn a topic, prepare a questionnaire, clarify a message, and write documents for agents.",
+    "longDescription": "Fourteen skills for planning, research, project specs, tickets, retrospectives, learning, and writing.",
     "developerName": "JALA",
     "category": "Productivity",
     "capabilities": [],

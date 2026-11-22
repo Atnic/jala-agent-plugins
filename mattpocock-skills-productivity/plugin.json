@@ -21,7 +21,7 @@
       "interface": {
         "displayName": "Matt Pocock Skills: Productivity",
         "shortDescription": "General workflow skills for planning, learning, and communication.",
-        "longDescription": "Seven curated skills from Matt Pocock's Productivity collection: interview through a plan, hand off work, learn a topic, prepare a questionnaire, clarify a message, and write documents for agents.",
+        "longDescription": "Fourteen skills for planning, research, project specs, tickets, retrospectives, learning, and writing.",
         "developerName": "JALA",
         "websiteURL": "https://github.com/Atnic/jala-agent-plugins/tree/main/mattpocock-skills-productivity",
         "category": "Productivity",
