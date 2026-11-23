@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "odoo-jala-xmlrpc",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Read JALA Odoo records and discover schemas through a read-only XML-RPC client and workflow guidance.",
   "author": {
     "name": "JALA"
@@ -27,7 +27,12 @@
         "brandColor": "#714B67",
         "composerIcon": "./assets/odoo-plugin-icon.svg",
         "logo": "./assets/odoo-plugin-icon.svg",
-        "logoDark": "./assets/odoo-plugin-icon-dark.svg"
+        "logoDark": "./assets/odoo-plugin-icon-dark.svg",
+        "defaultPrompt": [
+          "Connect to read-only Odoo XML-RPC.",
+          "Inspect schema for [model].",
+          "Forget saved Odoo credentials."
+        ]
       }
     }
   }

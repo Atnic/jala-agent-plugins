@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "app-store-connect",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Manage App Store Connect reports and apps, and read verified purchase/refund evidence through a separate App Store Server API connection.",
   "author": {
     "name": "JALA"
@@ -31,7 +31,11 @@
         "brandColor": "#1D1D1F",
         "logo": "./assets/app-store-connect-icon.png",
         "composerIcon": "./assets/app-store-connect-icon.png",
-        "defaultPrompt": "Use App Store Connect to manage my apps and reports."
+        "defaultPrompt": [
+          "Connect App Store Connect.",
+          "Find sales for [app].",
+          "Forget local App Store credentials."
+        ]
       }
     }
   }

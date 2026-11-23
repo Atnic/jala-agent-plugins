@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "felix-agent",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Set up, manage, troubleshoot, and configure a local Felix Agent deployment and its custom skills.",
   "author": {
     "name": "JALA"
@@ -30,7 +30,11 @@
         "brandColor": "#F97316",
         "composerIcon": "./assets/felix-icon.png",
         "logo": "./assets/felix-icon.png",
-        "defaultPrompt": "Set up Felix Agent locally and help me manage it."
+        "defaultPrompt": [
+          "Set up Felix Agent locally.",
+          "Check Felix Agent status.",
+          "Plan a backed-up Felix upgrade or migration."
+        ]
       }
     }
   }

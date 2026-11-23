@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "crisp-jala",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Operate JALA Crisp conversations, messages, people profiles, and workspace data through REST API skills.",
   "author": {
     "name": "JALA"
@@ -27,7 +27,12 @@
         ],
         "brandColor": "#1972F5",
         "composerIcon": "./assets/crisp-icon.png",
-        "logo": "./assets/crisp-icon.png"
+        "logo": "./assets/crisp-icon.png",
+        "defaultPrompt": [
+          "Connect or repair my Crisp session.",
+          "Show conversations needing attention.",
+          "Replace my saved Crisp session."
+        ]
       }
     }
   }

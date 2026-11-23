@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "microsoft-office-addin",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Connect Codex to open Excel, Word, and PowerPoint task panes through Office.js.",
   "author": { "name": "JALA" },
   "repository": "https://github.com/Atnic/jala-agent-plugins",
@@ -21,8 +21,9 @@
         "composerIcon": "./assets/icon-512.png",
         "logo": "./assets/icon-512.png",
         "defaultPrompt": [
-          "Set up Codex for Microsoft Office on this computer.",
-          "Start the Microsoft Office bridge"
+          "Set up Codex for Office.",
+          "Start the Office bridge.",
+          "Remove the Office add-in sideload."
         ]
       }
     }
